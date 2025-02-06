@@ -117,7 +117,6 @@ class ConcreteStackValue(StackValue):
     def __int__(self):
         return self.concrete_value
 
-
 class PlaceholderStackValue(StackValue):
     sp: int
     block: 'SSABasicBlock'
@@ -132,19 +131,27 @@ class PlaceholderStackValue(StackValue):
         return f'<Unresolved sp:{self.sp} block:{self.block.offset:#x}>'
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, PlaceholderStackValue) \
-               and self.sp == other.sp \
-               and self.block.offset == self.block.offset
+        return isinstance(other, PlaceholderStackValue) and self.sp == other.sp and self.block.offset == other.block.offset
 
     def __hash__(self) -> int:
-        return hash((self.sp, self.block))
+        return hash((self.sp, id(self.block)))
 
-    def resolve(self) -> Tuple[StackValue, bool]:
-        # Resolve!
-        # print(f"Resolving placeholder {self}")
+
+    def resolve(self, visited: Optional[Set['PlaceholderStackValue']] = None) -> Tuple[StackValue, bool]:
+        """
+        Resolve the placeholder value as far as possible.
+        Uses a visited set to prevent infinite recursion.
+        """
+        if visited is None:
+            visited = set()
+
+        # If we already visited this placeholder in the current resolution chain, stop.
+        if self in visited:
+            return self, False
+        visited.add(self)
 
         if self.resolving:
-            self.resolving = False
+            # If we are already resolving this placeholder, do not try to resolve it further.
             return self, False
 
         self.resolving = True
@@ -154,7 +161,6 @@ class PlaceholderStackValue(StackValue):
             return self, False
 
         if self.block.offset == 0:
-            # TODO: Handle the case where people branch back to zero
             self.resolving = False
             return self, False
 
@@ -168,25 +174,21 @@ class PlaceholderStackValue(StackValue):
                 self.resolving = False
                 return self, False
 
+            # If new_slot is a PlaceholderStackValue, call resolve with visited.
             if isinstance(new_slot, PlaceholderStackValue):
-                rv = new_slot.resolve()
-                self.resolving = False
-                return rv
-
+                rv, updated = new_slot.resolve(visited)
+            else:
+                rv, updated = new_slot.resolve()
             self.resolving = False
-            return new_slot, True
+            return rv, True
 
         if len(self.block.in_edges) > 1:
-            # Create a phi
-
-            # Find first instruction in block that isn't a phi and insert there
             first_non_phi_index = 0
             for i, x in enumerate(self.block.insns):
                 if not isinstance(x.insn, PHIInstruction):
                     first_non_phi_index = i
                     break
 
-            # Avoid creating new PHI nodes if a new one works
             if self.block.function.phis.get(self, False):
                 self.resolving = False
                 return self.block.function.phis[self].return_value, True
@@ -196,12 +198,12 @@ class PlaceholderStackValue(StackValue):
                 edge_stack: List[StackValue] = edge.stack
                 try:
                     new_slot = edge_stack[self.sp]
-                    new_slot, _ = new_slot.resolve()  # Resolve it as far as you can
+                    # Only pass 'visited' if new_slot is a placeholder.
+                    if isinstance(new_slot, PlaceholderStackValue):
+                        new_slot, _ = new_slot.resolve(visited)
+                    else:
+                        new_slot, _ = new_slot.resolve()
                 except IndexError:
-                    ''' 
-                    Parent block doesn't have enough stack slots so i guess it should go higher up the call stack,
-                    but I don't do that here.
-                    '''
                     new_slot = PlaceholderStackValue(self.sp + len(edge_stack), list(self.block.in_edges)[0])
 
                 if not isinstance(new_slot, PlaceholderStackValue):
@@ -218,7 +220,6 @@ class PlaceholderStackValue(StackValue):
             for arg in args:
                 phi_insn.append_argument(arg)
 
-            # If any arguments are not resolved, strip them maybe?
             if any([isinstance(x, PlaceholderStackValue) for x in phi_insn.arguments]):
                 self.resolving = False
                 return self, False
@@ -230,6 +231,7 @@ class PlaceholderStackValue(StackValue):
 
         self.resolving = False
         return self, False
+
 
 
 class SSAInstruction(object):

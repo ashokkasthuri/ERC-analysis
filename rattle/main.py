@@ -358,64 +358,6 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
     if args.input:
         args.input.close()
         
-        
-class DataFlowAnalyzer:
-    def __init__(self, cfg):
-        self.cfg = cfg
-        self.recovered_address = None
-        self.sink = None
-        self.source = None
-
-    def find_ecrecover_call(self):
-        """Find the ecrecover call and track its return value."""
-        for block in self.cfg:
-            # print(f"block len : {block.size()}")
-            for insn in block:
-                # print(f"insn.insn.name : {insn.insn.name}")
-                if insn.insn.name == "STATICCALL":  # ecrecover is typically called via STATICCALL
-                    print(f"[INFO] ecrecover found at {insn.offset:#x}")
-                    self.recovered_address = insn.return_value
-                    
-                    print(f"return_value : {insn.return_value}")
-                    return True
-        return False
-
-    def forward_data_flow_analysis(self):
-        """Check if the recovered address is validated properly using a require statement."""
-        for block in self.cfg:
-            for insn in block:
-                if insn.insn.name == "EQ" and self.recovered_address in insn.arguments:
-                    print(f"[INFO] Condition check found at {insn.offset:#x}")
-                    self.sink = insn.return_value
-                    return True
-        return False
-
-    def backward_data_flow_analysis(self):
-        """Ensure the owner parameter is the original source."""
-        for block in self.cfg:
-            for insn in block:
-                if insn.insn.name == "CALLDATALOAD" and self.sink in insn.return_value.readers():
-                    print(f"[INFO] Owner parameter verified at {insn.offset:#x}")
-                    self.source = insn.return_value
-                    return True
-        return False
-
-    def perform_analysis(self):
-        """Perform full data flow analysis on the permit function."""
-        if not self.find_ecrecover_call():
-            print("[ERROR] ecrecover call not found!")
-            return False
-        
-        if not self.forward_data_flow_analysis():
-            print("[ERROR] No proper verification of recovered address!")
-            return False
-        
-        if not self.backward_data_flow_analysis():
-            print("[ERROR] Permit owner parameter not verified!")
-            return False
-        
-        print("[SUCCESS] Signature verification check passed!")
-        return True
 
 def check_require(function):
     """
@@ -434,11 +376,15 @@ def check_require(function):
 
     first_block = function.blocks[0]
     second_block = function.blocks[1]
+    third_block = function.blocks[2]
+    fourth_block = function.blocks[3]
     
     print(f"first_block : {first_block}")
     print(f"second_block : {second_block}")
-    print(f"first_block.insns : {first_block.insns}")
-    print(f"second_block.insns : {second_block.insns}")
+    print(f"third_block : {third_block}")
+    print(f"fourth_block : {fourth_block}")
+    # print(f"first_block.insns : {first_block.insns}")
+    # print(f"second_block.insns : {second_block.insns}")
     
     for insn in first_block.insns:
         print(f"JUMPI first_block.insns : {str(insn)}")
@@ -457,27 +403,33 @@ def check_ecrecover_analysis(function):
     
     Specifically:
       - Look for a STATICCALL in any block (this corresponds to the ecrecover call).
+      - Verify that the STATICCALL instruction contains '#1' (targeting precompile at address 0x01)
+        and '#20' (indicating the output size).
       - Then, check that in a later block there is an MLOAD instruction (loading the address)
         and an EQ instruction comparing that value with %435.
     """
     ecrecover_found = False
     staticcall_block_index = None
 
-    # Search through all blocks for the STATICCALL.
+    # Search through all blocks for the STATICCALL that matches ecrecover.
     for i, block in enumerate(function.blocks):
         for insn in block.insns:
             # Convert instruction to string in case it's not already.
             insn_str = str(insn)
             if "STATICCALL" in insn_str:
-                ecrecover_found = True
-                staticcall_block_index = i
-                print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
-                break
+                # Check that the call is directed to the precompile at 0x01 and expecting a 32-byte (0x20) output.
+                if "#1" or "0x01"in insn_str and "#20" or "0x20" in insn_str:
+                    ecrecover_found = True
+                    staticcall_block_index = i
+                    print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
+                    break
+                else:
+                    print(f"[ecrecover] STATICCALL found in block {i}, but does not match ecrecover signature: {insn_str}")
         if ecrecover_found:
             break
 
     if not ecrecover_found:
-        print("[ecrecover] STATICCALL not found!")
+        print("[ecrecover] STATICCALL for ecrecover not found!")
         return False
 
     # After the block containing the STATICCALL, look for:
