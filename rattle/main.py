@@ -21,8 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 
-# Constants for function signatures
-PERMIT_SIGNATURE = "0xd505accf"
+PERMIT_SIG_1 = int("0xd505accf", 16)
+PERMIT_SIG_2 = int("0x8fcbaf0c", 16)
+PERMIT_SIG_3 = int("0x2a6a40e2", 16)
+
 
 # Required functions and storage variables
 REQUIRED_FUNCTIONS = {
@@ -281,19 +283,35 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
 
     for function in sorted(ssa.functions, key=lambda f: f.offset):
         
+        if function.hash == PERMIT_SIG_1 or function.hash == PERMIT_SIG_2 or function.hash == PERMIT_SIG_3:
+            print(f"match found : {hex(function.hash)}")
+            print(f"function.blocks : {function.blocks}")
+            
+            for block in function.blocks:
+                # print(f"insn_str block_ : {block.offset}")
+                # print(f"insn_str block_ fallthrough_edge: {block.fallthrough_edge}")
+                # print(f"insn_str block_ fallthrough_edge: {block.insns}")
+                if len(block.function) > 0:
+                    print(f"insn_str block_ function: {block.function} and {len(block.function)}")
+                # for function in block.function:
+                    
+                #     for block in function:
+                    
+                #         print(f"insn_str block_s : {block.insn}")
+                #         insn_str = str(block.insn)
+                        
+                #         if "block_0x" in insn_str :
+                #             print(f"insn_str block_0x : {insn_str}")
+                    
+                    
         
-        
-        if function.hash == int(PERMIT_SIGNATURE, 16):  # Match permit() function
-            print(f"match found : {function.hash}")
-            # print(f"function.blocks : {function.blocks}")
+                
             # print(f"function.arguments : {function.arguments}")
             # print(f"function.optimize : {function.optimize}")
             # print(f"function.trace_blocks : {function.trace_blocks}")
             
             check_require(function)
             check_ecrecover_analysis(function)
-
-
             
             
             # g = rattle.ControlFlowGraph(function)
@@ -400,31 +418,71 @@ def check_ecrecover_analysis(function):
     """
     Check that the function contains an ecrecover call and that later the recovered
     address is compared with the owner.
-    
+
     Specifically:
       - Look for a STATICCALL in any block (this corresponds to the ecrecover call).
-      - Verify that the STATICCALL instruction contains '#1' (targeting precompile at address 0x01)
-        and '#20' (indicating the output size).
-      - Then, check that in a later block there is an MLOAD instruction (loading the address)
-        and an EQ instruction comparing that value with %435.
+      - Verify that the STATICCALL instruction contains '#1' (or '0x01') and '#20' (or '0x20').
+      - Extract the owner value from the permit input (e.g. from "CALLDATALOAD(#4)    // ADDRESS").
+      - Extract the recovered address from the MLOAD (e.g. from "%1685 = MLOAD(%1684)    // ADDRESS").
+      - Then, check that in a later block there is an EQ instruction comparing the recovered address with the owner.
     """
+    # Step 1: Extract owner value from the block containing permit's first parameter.
+    owner_value = None
+    for block in function.blocks:
+        for insn in block.insns:
+            insn_str = str(insn)
+            if "CALLDATALOAD(#4)" in insn_str in insn_str and "ADDRESS" in insn_str:
+                # Example format: "<0x610: %435 = CALLDATALOAD(#4)    // ADDRESS>"
+                
+                print(f"insn_str : {insn_str}")
+                parts = insn_str.split("=")
+                print(f"parts : {parts}")
+                if len(parts) > 1:
+                    owner_value = parts[0].strip()
+                    # Take the left-hand side of "="
+                    # owner_value = rest.split("=")[0].strip()
+                    # owner_value = rest
+                    print(f"[ecrecover] Found owner value: {owner_value}")
+                    break
+        if owner_value is not None:
+            break
+
+    if owner_value is None:
+        print("[ecrecover] Owner value not found!")
+        return False
+
+    # Step 2: Find the STATICCALL that corresponds to the ecrecover call.
     ecrecover_found = False
     staticcall_block_index = None
 
-    # Search through all blocks for the STATICCALL that matches ecrecover.
     for i, block in enumerate(function.blocks):
         for insn in block.insns:
-            # Convert instruction to string in case it's not already.
             insn_str = str(insn)
             if "STATICCALL" in insn_str:
-                # Check that the call is directed to the precompile at 0x01 and expecting a 32-byte (0x20) output.
-                if "#1" or "0x01"in insn_str and "#20" or "0x20" in insn_str:
-                    ecrecover_found = True
-                    staticcall_block_index = i
-                    print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
-                    break
-                else:
-                    print(f"[ecrecover] STATICCALL found in block {i}, but does not match ecrecover signature: {insn_str}")
+                # Find the first occurrence of '(' and the corresponding ')'
+                start_index = insn_str.find('(')
+                end_index = insn_str.find(')', start_index)
+                if start_index != -1 and end_index != -1:
+                    # Extract the arguments string, then split by commas and strip whitespace
+                    args_str = insn_str[start_index+1:end_index]
+                    args = [arg.strip() for arg in args_str.split(',')]
+                    # Verify that we have exactly 6 arguments
+                    if len(args) == 6:
+                        print(f"len(args): {len(args)}")
+                        second_arg = args[1]
+                        sixth_arg = args[5]
+                        
+                        print(f"second_arg, sixth_arg: {second_arg, sixth_arg}")
+                        # Check that the second argument is "#1" or "0x01"
+                        # and that the sixth argument is "#20" or "0x20"
+                        if (second_arg in ("#1", "0x01")) and (sixth_arg in ("#20", "0x20")):
+                            ecrecover_found = True
+                            staticcall_block_index = i
+                            print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
+                        else:
+                            print(f"[ecrecover] STATICCALL found in block {i}, but arguments do not match: second_arg = {second_arg}, sixth_arg = {sixth_arg}")
+                    else:
+                        print(f"[ecrecover] STATICCALL found but expected 6 arguments, got {len(args)}: {args}")
         if ecrecover_found:
             break
 
@@ -432,20 +490,30 @@ def check_ecrecover_analysis(function):
         print("[ecrecover] STATICCALL for ecrecover not found!")
         return False
 
-    # After the block containing the STATICCALL, look for:
-    #   - An MLOAD that loads the recovered address (we assume it contains the keyword 'ADDRESS')
-    #   - An EQ instruction comparing the recovered address with '%435'
+    # Step 3: After the STATICCALL block, look for an MLOAD instruction to capture the recovered address,
+    # and then an EQ instruction that compares the recovered value with the owner.
+    recovered_value = None
     mload_found = False
     eq_found = False
+
     for block in function.blocks[staticcall_block_index + 1:]:
         for insn in block.insns:
             insn_str = str(insn)
             if "MLOAD" in insn_str and "ADDRESS" in insn_str:
-                mload_found = True
-                print(f"[ecrecover] Found MLOAD for recovered address: {insn_str}")
-            if "EQ(" in insn_str and "%435" in insn_str and "%1685" in insn_str:
-                eq_found = True
-                print(f"[ecrecover] Found EQ comparing recovered address to owner: {insn_str}")
+                # Example format: "<0xXXX: %1685 = MLOAD(%1684)    // ADDRESS>"
+                parts = insn_str.split("=")
+                print(f"parts : {parts}")
+                if len(parts) > 1:
+                    rest = parts[0].strip()
+                    recovered_value = rest
+                    print(f"recovered_value : {recovered_value}")
+                    mload_found = True
+                    print(f"[ecrecover] Found recovered address via MLOAD: {insn_str}")
+            if "EQ(" in insn_str:
+                # Instead of hardcoding, check that the EQ instruction contains both the owner and recovered variables.
+                if owner_value in insn_str and recovered_value in insn_str:
+                    eq_found = True
+                    print(f"[ecrecover] Found EQ comparing recovered address to owner: {insn_str}")
         if mload_found and eq_found:
             break
 
