@@ -284,34 +284,19 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
     for function in sorted(ssa.functions, key=lambda f: f.offset):
         
         if function.hash == PERMIT_SIG_1 or function.hash == PERMIT_SIG_2 or function.hash == PERMIT_SIG_3:
-            print(f"match found : {hex(function.hash)}")
-            print(f"function.blocks : {function.blocks}")
+            
             
             for block in function.blocks:
-                # print(f"insn_str block_ : {block.offset}")
-                # print(f"insn_str block_ fallthrough_edge: {block.fallthrough_edge}")
-                # print(f"insn_str block_ fallthrough_edge: {block.insns}")
                 if len(block.function) > 0:
-                    print(f"insn_str block_ function: {block.function} and {len(block.function)}")
-                # for function in block.function:
-                    
-                #     for block in function:
-                    
-                #         print(f"insn_str block_s : {block.insn}")
-                #         insn_str = str(block.insn)
-                        
-                #         if "block_0x" in insn_str :
-                #             print(f"insn_str block_0x : {insn_str}")
-                    
-                    
-        
+                    print(f"insn_str block_ function HI: {block.function} and {len(block.function)}")
                 
-            # print(f"function.arguments : {function.arguments}")
-            # print(f"function.optimize : {function.optimize}")
-            # print(f"function.trace_blocks : {function.trace_blocks}")
             
-            check_require(function)
+            print(f"match found : {hex(function.hash)}")
+            # print(f"function.blocks : {function.blocks}")
+            
             check_ecrecover_analysis(function)
+            check_permit_deadline(function)
+            check_permit_nonce(function)
             
             
             # g = rattle.ControlFlowGraph(function)
@@ -376,43 +361,111 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
     if args.input:
         args.input.close()
         
+def check_permit_deadline(function):
+    """
+    Check that the 'permit' function correctly uses the deadline parameter.
+    
+    Steps:
+      1. Find the block where CALLDATALOAD is used to load the permit parameters.
+         - Look for instructions containing the following markers:
+           - "CALLDATALOAD(#4)"    -> owner
+           - "CALLDATALOAD(#24)"   -> spender
+           - "CALLDATALOAD(#44)"   -> value
+           - "CALLDATALOAD(#64)"   -> deadline
+           - "CALLDATALOAD(#84)"   -> raw value for v (or intermediate result)
+           - "CALLDATALOAD(#a4)"   -> r
+           - "CALLDATALOAD(#c4)"   -> s
+      2. Extract the left-hand side variable from each instruction.
+      3. Then, iterate over subsequent blocks looking for:
+         - A TIMESTAMP() instruction.
+         - A condition (e.g. LT) that uses the deadline variable.
+         - A JUMPI that uses the result of that condition.
+    """
+    permit_params = {}  # To store parameters by name.
+    permit_block = None
 
-def check_require(function):
-    """
-    Check that the function's first "logical" block (or the following block)
-    contains a require–like check. We look for:
-       - A JUMPI instruction (implying a conditional check)
-       - A REVERT instruction (the failure path)
-    """
-    if not function.blocks:
-        print("Function has no blocks!")
+    # Step 1: Find the block with the permit CALLDATALOAD instructions.
+    for block in function.blocks:
+        for insn in block.insns:
+            insn_str = str(insn)
+            # Check for the owner parameter.
+            if "CALLDATALOAD(#4)" in insn_str and "ADDRESS" in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    # Left-hand side variable (e.g. "%435")
+                    permit_params["owner"] = parts[0].strip()
+            elif "CALLDATALOAD(#24)" in insn_str and "ADDRESS" in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    permit_params["spender"] = parts[0].strip()
+            elif "CALLDATALOAD(#44)" in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    permit_params["value"] = parts[0].strip()
+            elif "CALLDATALOAD(#64)" in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    permit_params["deadline"] = parts[0].strip()
+            elif "CALLDATALOAD(#84)" in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    permit_params["raw_v"] = parts[0].strip()
+            elif "CALLDATALOAD(#a4)" in insn_str.lower():
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    permit_params["r"] = parts[0].strip()
+            elif "CALLDATALOAD(#c4)" in insn_str.lower():
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    permit_params["s"] = parts[0].strip()
+        # If we found at least the deadline parameter, consider this the permit block.
+        if "deadline" in permit_params:
+            permit_block = block
+            print(f"[permit] Permit block found at offset {block.offset:#x}")
+            print(f"[permit] Extracted permit parameters: {permit_params}")
+            break
+
+    if not permit_block:
+        print("[permit] Permit block not found!")
         return False
 
-    if len(function.blocks) < 2:
-        print("Function does not have at least 2 blocks to check!")
+    # Step 2: Get the deadline variable.
+    deadline_var = permit_params.get("deadline")
+    if not deadline_var:
+        print("[permit] Deadline parameter not extracted!")
         return False
 
-    first_block = function.blocks[0]
-    second_block = function.blocks[1]
-    third_block = function.blocks[2]
-    fourth_block = function.blocks[3]
-    
-    print(f"first_block : {first_block}")
-    print(f"second_block : {second_block}")
-    print(f"third_block : {third_block}")
-    print(f"fourth_block : {fourth_block}")
-    # print(f"first_block.insns : {first_block.insns}")
-    # print(f"second_block.insns : {second_block.insns}")
-    
-    for insn in first_block.insns:
-        print(f"JUMPI first_block.insns : {str(insn)}")
-    
-    # Cast each instruction to a string before checking.
-    jumpi_found = any("JUMPI" in str(insn) for insn in first_block.insns)
-    revert_found = any("REVERT" in str(insn) for insn in second_block.insns)
+    # Step 3: Look in subsequent blocks for the TIMESTAMP and require condition using the deadline.
+    timestamp_found = False
+    condition_found = False
+    for block in function.blocks:
+        # (Optionally, restrict to blocks coming after the permit block.)
+        if block.offset <= permit_block.offset:
+            continue
 
-    print(f"[Require Check] First block: JUMPI found? {jumpi_found}, REVERT found? {revert_found}")
-    return jumpi_found and revert_found
+        for insn in block.insns:
+            insn_str = str(insn)
+            if "TIMESTAMP()" in insn_str:
+                timestamp_found = True
+                print(f"[permit] Found TIMESTAMP in block {block.offset:#x}: {insn_str}")
+            # Look for a condition (e.g. LT) that compares the deadline variable.
+            if "LT(" or "GT("in insn_str and deadline_var in insn_str:
+                condition_found = True
+                print(f"[permit] Found LT condition using deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
+            # Optionally check the JUMPI that uses the condition.
+            if "JUMPI(" in insn_str and deadline_var in insn_str:
+                print(f"[permit] Found JUMPI referencing deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
+
+        if timestamp_found and condition_found:
+            break
+
+    if not (timestamp_found and condition_found):
+        print("[permit] Deadline usage condition not found (either TIMESTAMP or LT condition missing)!")
+        return False
+
+    print("[permit] Deadline is correctly used in a require-like condition with TIMESTAMP.")
+    return True
+
 
 def check_ecrecover_analysis(function):
     """
@@ -521,4 +574,86 @@ def check_ecrecover_analysis(function):
         print("[ecrecover] Missing MLOAD or EQ instruction after the ecrecover call!")
         return False
 
+    return True
+
+
+def check_permit_nonce(function):
+    """
+    Check that the nonce is correctly incremented in the permit function.
+    
+    We look for a pattern in one of the blocks similar to:
+       - An SLOAD that loads the current nonce.
+         Example: "<...: %1608 = SLOAD(#3)>"
+       - An ADD that adds #1 to the loaded nonce.
+         Example: "<...: %1618 = ADD(%1616, #1)>"
+       - An SSTORE that stores the incremented nonce.
+         Example: "<...: %1611 = SSTORE(%1615, %1618)>"
+    
+    The function returns True if such a pattern is found; otherwise, it returns False.
+    """
+    nonce_loaded = None
+    nonce_load_block = None
+    nonce_increment = None
+    nonce_increment_block = None
+    nonce_stored_found = False
+
+    # Step 1: Find the SLOAD instruction for the nonce.
+    for block in function.blocks:
+        for insn in block.insns:
+            insn_str = str(insn)
+            # Look for SLOAD with a known slot (e.g., "#3")
+            if "SLOAD" in insn_str and "#3" in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    nonce_loaded = parts[0].strip()  # e.g., "%1608"
+                    nonce_load_block = block
+                    print(f"[permit nonce] Found nonce load: {insn_str} => {nonce_loaded}")
+                    break
+        if nonce_loaded:
+            break
+
+    if not nonce_loaded:
+        print("[permit nonce] Nonce SLOAD not found!")
+        return False
+
+    # Step 2: Look for an ADD instruction that adds "#1" to the loaded nonce.
+    # We expect the loaded nonce variable to appear in the ADD operation.
+    for block in function.blocks:
+        # Optionally, only check blocks after the nonce load block.
+        if block.offset < nonce_load_block.offset:
+            continue
+        for insn in block.insns:
+            insn_str = str(insn)
+            if "ADD(" in insn_str and "#1" in insn_str and nonce_loaded in insn_str:
+                parts = insn_str.split("=")
+                if len(parts) > 1:
+                    nonce_increment = parts[0].strip()  # e.g., "%1618"
+                    nonce_increment_block = block
+                    print(f"[permit nonce] Found nonce increment: {insn_str} => {nonce_increment}")
+                    break
+        if nonce_increment:
+            break
+
+    if not nonce_increment:
+        print("[permit nonce] Nonce increment (ADD) not found!")
+        return False
+
+    # Step 3: Look for an SSTORE instruction that stores the incremented nonce.
+    for block in function.blocks:
+        if block.offset < nonce_increment_block.offset:
+            continue
+        for insn in block.insns:
+            insn_str = str(insn)
+            if "SSTORE(" in insn_str and nonce_increment in insn_str:
+                print(f"[permit nonce] Found SSTORE using nonce increment: {insn_str}")
+                nonce_stored_found = True
+                break
+        if nonce_stored_found:
+            break
+
+    if not nonce_stored_found:
+        print("[permit nonce] Nonce SSTORE not found!")
+        return False
+
+    print("[permit nonce] Nonce increment (nonces[owner]++) is implemented correctly.")
     return True
