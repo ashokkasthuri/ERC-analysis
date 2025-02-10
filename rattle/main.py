@@ -283,20 +283,23 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
 
     for function in sorted(ssa.functions, key=lambda f: f.offset):
         
+        # check_ecrecover_analysis(function)
+        # check_permit_deadline(function)
+        
         if function.hash == PERMIT_SIG_1 or function.hash == PERMIT_SIG_2 or function.hash == PERMIT_SIG_3:
             
             
-            for block in function.blocks:
-                if len(block.function) > 0:
-                    print(f"insn_str block_ function HI: {block.function} and {len(block.function)}")
+            # for block in function.blocks:
+            #     if len(block.function) > 0:
+            #         print(f"insn_str block_ function HI: {block.function} and {len(block.function)}")
                 
             
             print(f"match found : {hex(function.hash)}")
-            # print(f"function.blocks : {function.blocks}")
+            print(f"function.blocks : {function.blocks}")
             
             check_ecrecover_analysis(function)
             check_permit_deadline(function)
-            check_permit_nonce(function)
+            
             
             
             # g = rattle.ControlFlowGraph(function)
@@ -466,45 +469,52 @@ def check_permit_deadline(function):
     print("[permit] Deadline is correctly used in a require-like condition with TIMESTAMP.")
     return True
 
-
 def check_ecrecover_analysis(function):
     """
     Check that the function contains an ecrecover call and that later the recovered
     address is compared with the owner.
-
-    Specifically:
-      - Look for a STATICCALL in any block (this corresponds to the ecrecover call).
-      - Verify that the STATICCALL instruction contains '#1' (or '0x01') and '#20' (or '0x20').
-      - Extract the owner value from the permit input (e.g. from "CALLDATALOAD(#4)    // ADDRESS").
-      - Extract the recovered address from the MLOAD (e.g. from "%1685 = MLOAD(%1684)    // ADDRESS").
-      - Then, check that in a later block there is an EQ instruction comparing the recovered address with the owner.
+    
+    Updated Behavior:
+      - Instead of using the raw CALLDATALOAD(#4) result, we now look for the AND instruction 
+        that masks it (e.g. "%848 = AND(%846, %847)") and use its LHS (e.g. "%848") as the owner.
+      - Then, look for a STATICCALL (the ecrecover call) in any block.
+      - In blocks after that, search for an MLOAD (to capture the recovered address)
+        and then an EQ instruction that compares the recovered value with our owner variable.
     """
-    # Step 1: Extract owner value from the block containing permit's first parameter.
+    # Step 1: Extract the owner value from the block that loads the permit input.
     owner_value = None
     for block in function.blocks:
         for insn in block.insns:
             insn_str = str(insn)
-            if "CALLDATALOAD(#4)" in insn_str in insn_str and "ADDRESS" in insn_str:
-                # Example format: "<0x610: %435 = CALLDATALOAD(#4)    // ADDRESS>"
-                
-                print(f"insn_str : {insn_str}")
+            # Look for the CALLDATALOAD(#4) that loads the owner.
+            if "CALLDATALOAD(#4)" in insn_str:
+                # Example: "<0x8e4: %847 = CALLDATALOAD(#4)>"
                 parts = insn_str.split("=")
-                print(f"parts : {parts}")
                 if len(parts) > 1:
-                    owner_value = parts[0].strip()
-                    # Take the left-hand side of "="
-                    # owner_value = rest.split("=")[0].strip()
-                    # owner_value = rest
-                    print(f"[ecrecover] Found owner value: {owner_value}")
-                    break
+                    raw_owner = parts[0].strip()  # e.g. "%847"
+                    print(f"[ecrecover] Found raw owner load: {raw_owner}")
+                    # Now, in the same block, look for the AND instruction that uses this raw owner.
+                    for insn2 in block.insns:
+                        insn2_str = str(insn2)
+                        if "AND(" in insn2_str and raw_owner in insn2_str:
+                            # Example: "<0x8e6: %848 = AND(%846, %847)>"
+                            parts2 = insn2_str.split("=")
+                            if len(parts2) > 1:
+                                owner_value = parts2[0].strip()  # e.g. "%848"
+                                print(f"[ecrecover] Owner value updated after masking: {owner_value}")
+                                break
+                    if owner_value is not None:
+                        break
+                    if owner_value is None:
+                        owner_value = raw_owner
         if owner_value is not None:
             break
 
     if owner_value is None:
-        print("[ecrecover] Owner value not found!")
+        print("[ecrecover] Owner value not found (no masked value from CALLDATALOAD(#4))!")
         return False
 
-    # Step 2: Find the STATICCALL that corresponds to the ecrecover call.
+    # Step 2: Find the STATICCALL corresponding to the ecrecover call.
     ecrecover_found = False
     staticcall_block_index = None
 
@@ -512,30 +522,12 @@ def check_ecrecover_analysis(function):
         for insn in block.insns:
             insn_str = str(insn)
             if "STATICCALL" in insn_str:
-                # Find the first occurrence of '(' and the corresponding ')'
-                start_index = insn_str.find('(')
-                end_index = insn_str.find(')', start_index)
-                if start_index != -1 and end_index != -1:
-                    # Extract the arguments string, then split by commas and strip whitespace
-                    args_str = insn_str[start_index+1:end_index]
-                    args = [arg.strip() for arg in args_str.split(',')]
-                    # Verify that we have exactly 6 arguments
-                    if len(args) == 6:
-                        print(f"len(args): {len(args)}")
-                        second_arg = args[1]
-                        sixth_arg = args[5]
-                        
-                        print(f"second_arg, sixth_arg: {second_arg, sixth_arg}")
-                        # Check that the second argument is "#1" or "0x01"
-                        # and that the sixth argument is "#20" or "0x20"
-                        if (second_arg in ("#1", "0x01")) and (sixth_arg in ("#20", "0x20")):
-                            ecrecover_found = True
-                            staticcall_block_index = i
-                            print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
-                        else:
-                            print(f"[ecrecover] STATICCALL found in block {i}, but arguments do not match: second_arg = {second_arg}, sixth_arg = {sixth_arg}")
-                    else:
-                        print(f"[ecrecover] STATICCALL found but expected 6 arguments, got {len(args)}: {args}")
+                ecrecover_found = True
+                staticcall_block_index = i
+                print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
+                
+                check_permit_nonce_update_general(function, owner_value)
+                break
         if ecrecover_found:
             break
 
@@ -543,117 +535,130 @@ def check_ecrecover_analysis(function):
         print("[ecrecover] STATICCALL for ecrecover not found!")
         return False
 
-    # Step 3: After the STATICCALL block, look for an MLOAD instruction to capture the recovered address,
-    # and then an EQ instruction that compares the recovered value with the owner.
+    # Step 3: After the STATICCALL block, look for:
+    #   - An MLOAD instruction that loads the recovered address (indicated by 'ADDRESS')
+    #   - An EQ instruction that compares the recovered address with our owner_value.
     recovered_value = None
     mload_found = False
     eq_found = False
+    
+    candidate_and_var = None
+    and_found = False
+
 
     for block in function.blocks[staticcall_block_index + 1:]:
         for insn in block.insns:
             insn_str = str(insn)
-            if "MLOAD" in insn_str and "ADDRESS" in insn_str:
-                # Example format: "<0xXXX: %1685 = MLOAD(%1684)    // ADDRESS>"
-                parts = insn_str.split("=")
-                print(f"parts : {parts}")
-                if len(parts) > 1:
-                    rest = parts[0].strip()
-                    recovered_value = rest
-                    print(f"recovered_value : {recovered_value}")
-                    mload_found = True
-                    print(f"[ecrecover] Found recovered address via MLOAD: {insn_str}")
-            if "EQ(" in insn_str:
-                # Instead of hardcoding, check that the EQ instruction contains both the owner and recovered variables.
-                if owner_value in insn_str and recovered_value in insn_str:
+            # if "MLOAD" in insn_str:
+            #     # For example: "<...: %1685 = MLOAD(%1684)    // ADDRESS>"
+            #     parts = insn_str.split("=")
+            #     if len(parts) > 1:
+            #         recovered_value = parts[0].strip()  # e.g. "%1685"
+            #         mload_found = True
+            #         print(f"[ecrecover] Found recovered address via MLOAD: {insn_str}")
+            # Look for an AND instruction that uses permit_owner.
+            if not and_found and "AND(" in insn_str:
+                # If the owner variable appears in the operands, we treat it as our candidate.
+                if owner_value in insn_str:
+                    # Extract the LHS variable (the result) by splitting on "=".
+                    parts = insn_str.split("=")
+                    if len(parts) > 1:
+                        candidate_and_var = parts[0].strip()
+                        and_found = True
+                        print(f"[owner eq pattern] Found AND using owner in block {block.offset:#x}: {insn_str}")
+                        print(f"    Candidate result variable: {candidate_and_var}")
+            # Now look for an EQ instruction that uses the candidate AND result.
+            if and_found and candidate_and_var and "EQ(" in insn_str:
+                if candidate_and_var in insn_str:
                     eq_found = True
-                    print(f"[ecrecover] Found EQ comparing recovered address to owner: {insn_str}")
-        if mload_found and eq_found:
+                    print(f"[owner eq pattern] Found EQ using candidate variable in block {block.offset:#x}: {insn_str}")
+                    return True
+            if "EQ(" in insn_str:
+                # Instead of hardcoding a variable like %435, now compare with our owner_value.
+                if owner_value in insn_str:
+                    eq_found = True
+                    print(f"[ecrecover] Found EQ comparing owner ({owner_value}): {insn_str}")
+        if eq_found:
             break
 
-    if not (mload_found and eq_found):
+    if not eq_found:
         print("[ecrecover] Missing MLOAD or EQ instruction after the ecrecover call!")
         return False
 
     return True
 
 
-def check_permit_nonce(function):
+def check_permit_nonce_update_general(function, permit_owner):
     """
-    Check that the nonce is correctly incremented in the permit function.
+    Verify that nonces[owner]++ is implemented correctly in a permit function.
     
-    We look for a pattern in one of the blocks similar to:
-       - An SLOAD that loads the current nonce.
-         Example: "<...: %1608 = SLOAD(#3)>"
-       - An ADD that adds #1 to the loaded nonce.
-         Example: "<...: %1618 = ADD(%1616, #1)>"
-       - An SSTORE that stores the incremented nonce.
-         Example: "<...: %1611 = SSTORE(%1615, %1618)>"
+    This updated function now uses the masked owner value (e.g. "%848") instead of the raw CALLDATALOAD result.
     
-    The function returns True if such a pattern is found; otherwise, it returns False.
+    The pattern is:
+      1. An MSTORE instruction that writes the owner value (permit_owner) into memory.
+      2. A SHA3 instruction that computes a storage key from that memory.
+      3. An SLOAD that loads the current nonce using that key.
+      4. An ADD instruction that increments the nonce.
+      5. An SSTORE that writes back the incremented nonce.
     """
-    nonce_loaded = None
-    nonce_load_block = None
-    nonce_increment = None
-    nonce_increment_block = None
-    nonce_stored_found = False
+    candidate = {
+        "mstore_owner": None,
+        "sha3": None,
+        "computed_key": None,
+        "sload": None,
+        "nonce_loaded": None,
+        "add": None,
+        "nonce_new": None,
+        "sstore": None
+    }
 
-    # Step 1: Find the SLOAD instruction for the nonce.
-    for block in function.blocks:
-        for insn in block.insns:
+    blocks = sorted(function.blocks, key=lambda b: b.offset)
+    
+    for block in blocks:
+        for idx, insn in enumerate(block.insns):
             insn_str = str(insn)
-            # Look for SLOAD with a known slot (e.g., "#3")
-            if "SLOAD" in insn_str and "#3" in insn_str:
+            # (1) Find MSTORE that writes the masked owner (permit_owner).
+            if candidate["mstore_owner"] is None and "MSTORE(" in insn_str and permit_owner in insn_str:
+                candidate["mstore_owner"] = (block.offset, idx)
+                print(f"[nonce check] Found MSTORE writing owner at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+            # (2) Find a SHA3 that computes the storage key.
+            if candidate["sha3"] is None and "SHA3(" in insn_str:
                 parts = insn_str.split("=")
                 if len(parts) > 1:
-                    nonce_loaded = parts[0].strip()  # e.g., "%1608"
-                    nonce_load_block = block
-                    print(f"[permit nonce] Found nonce load: {insn_str} => {nonce_loaded}")
-                    break
-        if nonce_loaded:
-            break
+                    candidate["computed_key"] = parts[0].strip()
+                    candidate["sha3"] = (block.offset, idx)
+                    print(f"[nonce check] Found SHA3 computing key at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+            # (3) Find an SLOAD that uses the computed key.
+            if candidate["sha3"] is not None and candidate["computed_key"] is not None and candidate["sload"] is None and "SLOAD(" in insn_str:
+                if candidate["computed_key"] in insn_str:
+                    parts = insn_str.split("=")
+                    if len(parts) > 1:
+                        candidate["nonce_loaded"] = parts[0].strip()
+                        candidate["sload"] = (block.offset, idx)
+                        print(f"[nonce check] Found SLOAD using computed key at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+            # (4) Find an ADD that increments the loaded nonce by 1.
+            if candidate["nonce_loaded"] is not None and candidate["add"] is None and "ADD(" in insn_str:
+                if candidate["nonce_loaded"] in insn_str and ("#1" in insn_str or " 1)" in insn_str):
+                    parts = insn_str.split("=")
+                    if len(parts) > 1:
+                        candidate["nonce_new"] = parts[0].strip()
+                        candidate["add"] = (block.offset, idx)
+                        print(f"[nonce check] Found ADD incrementing nonce at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+            # (5) Find an SSTORE that writes the new nonce at the computed key.
+            if candidate["nonce_new"] is not None and candidate["computed_key"] is not None and candidate["sstore"] is None:
+                if "SSTORE(" in insn_str and candidate["computed_key"] in insn_str and candidate["nonce_new"] in insn_str:
+                    candidate["sstore"] = (block.offset, idx)
+                    print(f"[nonce check] Found SSTORE storing new nonce at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+        if (candidate["mstore_owner"] is not None and candidate["sha3"] is not None and
+            candidate["sload"] is not None and candidate["add"] is not None and
+            candidate["sstore"] is not None):
+            print("[nonce check] Complete nonce update pattern (nonces[owner]++) found.")
+            return True
 
-    if not nonce_loaded:
-        print("[permit nonce] Nonce SLOAD not found!")
-        return False
-
-    # Step 2: Look for an ADD instruction that adds "#1" to the loaded nonce.
-    # We expect the loaded nonce variable to appear in the ADD operation.
-    for block in function.blocks:
-        # Optionally, only check blocks after the nonce load block.
-        if block.offset < nonce_load_block.offset:
-            continue
-        for insn in block.insns:
-            insn_str = str(insn)
-            if "ADD(" in insn_str and "#1" in insn_str and nonce_loaded in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    nonce_increment = parts[0].strip()  # e.g., "%1618"
-                    nonce_increment_block = block
-                    print(f"[permit nonce] Found nonce increment: {insn_str} => {nonce_increment}")
-                    break
-        if nonce_increment:
-            break
-
-    if not nonce_increment:
-        print("[permit nonce] Nonce increment (ADD) not found!")
-        return False
-
-    # Step 3: Look for an SSTORE instruction that stores the incremented nonce.
-    for block in function.blocks:
-        if block.offset < nonce_increment_block.offset:
-            continue
-        for insn in block.insns:
-            insn_str = str(insn)
-            if "SSTORE(" in insn_str and nonce_increment in insn_str:
-                print(f"[permit nonce] Found SSTORE using nonce increment: {insn_str}")
-                nonce_stored_found = True
-                break
-        if nonce_stored_found:
-            break
-
-    if not nonce_stored_found:
-        print("[permit nonce] Nonce SSTORE not found!")
-        return False
-
-    print("[permit nonce] Nonce increment (nonces[owner]++) is implemented correctly.")
-    return True
+    print("[nonce check] Nonce update pattern not found in function.")
+    return False
