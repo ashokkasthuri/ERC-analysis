@@ -295,7 +295,7 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
                 
             
             print(f"match found : {hex(function.hash)}")
-            print(f"function.blocks : {function.blocks}")
+            # print(f"function.blocks : {function.blocks}")
             
             check_ecrecover_analysis(function)
             check_permit_deadline(function)
@@ -363,26 +363,25 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
 
     if args.input:
         args.input.close()
-        
+
+
 def check_permit_deadline(function):
     """
-    Check that the 'permit' function correctly uses the deadline parameter.
+    Object-level check that the permit function uses the deadline parameter correctly.
     
-    Steps:
-      1. Find the block where CALLDATALOAD is used to load the permit parameters.
-         - Look for instructions containing the following markers:
-           - "CALLDATALOAD(#4)"    -> owner
-           - "CALLDATALOAD(#24)"   -> spender
-           - "CALLDATALOAD(#44)"   -> value
-           - "CALLDATALOAD(#64)"   -> deadline
-           - "CALLDATALOAD(#84)"   -> raw value for v (or intermediate result)
-           - "CALLDATALOAD(#a4)"   -> r
-           - "CALLDATALOAD(#c4)"   -> s
-      2. Extract the left-hand side variable from each instruction.
-      3. Then, iterate over subsequent blocks looking for:
-         - A TIMESTAMP() instruction.
-         - A condition (e.g. LT) that uses the deadline variable.
-         - A JUMPI that uses the result of that condition.
+    This function uses the SSAInstruction.arguments field to identify parameters:
+      - For CALLDATALOAD instructions, it checks if any argument's string contains:
+           "#4"   -> owner
+           "#24"  -> spender
+           "#44"  -> value
+           "#64"  -> deadline
+           "#84"  -> raw_v
+           "#a4"  -> r (case-insensitive)
+           "#c4"  -> s (case-insensitive)
+      
+    Then, in blocks following the permit block, it looks for:
+      - A TIMESTAMP instruction.
+      - A condition (e.g. LT, GT, etc.) that uses the deadline value.
     """
     permit_params = {}  # To store parameters by name.
     permit_block = None
@@ -390,216 +389,182 @@ def check_permit_deadline(function):
     # Step 1: Find the block with the permit CALLDATALOAD instructions.
     for block in function.blocks:
         for insn in block.insns:
-            insn_str = str(insn)
-            # Check for the owner parameter.
-            if "CALLDATALOAD(#4)" in insn_str and "ADDRESS" in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    # Left-hand side variable (e.g. "%435")
-                    permit_params["owner"] = parts[0].strip()
-            elif "CALLDATALOAD(#24)" in insn_str and "ADDRESS" in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    permit_params["spender"] = parts[0].strip()
-            elif "CALLDATALOAD(#44)" in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    permit_params["value"] = parts[0].strip()
-            elif "CALLDATALOAD(#64)" in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    permit_params["deadline"] = parts[0].strip()
-            elif "CALLDATALOAD(#84)" in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    permit_params["raw_v"] = parts[0].strip()
-            elif "CALLDATALOAD(#a4)" in insn_str.lower():
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    permit_params["r"] = parts[0].strip()
-            elif "CALLDATALOAD(#c4)" in insn_str.lower():
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    permit_params["s"] = parts[0].strip()
-        # If we found at least the deadline parameter, consider this the permit block.
+            if insn.insn.name == "CALLDATALOAD":
+                # Check each argument's string representation.
+                for arg in insn.arguments:
+                    arg_str = str(arg)
+                    if "#4" in arg_str:
+                        permit_params["owner"] = insn.return_value
+                    elif "#24" in arg_str:
+                        permit_params["spender"] = insn.return_value
+                    elif "#44" in arg_str:
+                        permit_params["value"] = insn.return_value
+                    elif "#64" in arg_str:
+                        permit_params["deadline"] = insn.return_value
+                    elif "#84" in arg_str:
+                        permit_params["raw_v"] = insn.return_value
+                    elif "#a4" in arg_str.lower():
+                        permit_params["r"] = insn.return_value
+                    elif "#c4" in arg_str.lower():
+                        permit_params["s"] = insn.return_value
         if "deadline" in permit_params:
             permit_block = block
             print(f"[permit] Permit block found at offset {block.offset:#x}")
             print(f"[permit] Extracted permit parameters: {permit_params}")
             break
 
-    if not permit_block:
+    if permit_block is None:
         print("[permit] Permit block not found!")
         return False
 
-    # Step 2: Get the deadline variable.
-    deadline_var = permit_params.get("deadline")
-    if not deadline_var:
+    deadline_val = permit_params.get("deadline")
+    if deadline_val is None:
         print("[permit] Deadline parameter not extracted!")
         return False
 
-    # Step 3: Look in subsequent blocks for the TIMESTAMP and require condition using the deadline.
+    # Step 2: In subsequent blocks, look for a TIMESTAMP instruction and a condition (e.g., LT) that uses deadline.
     timestamp_found = False
     condition_found = False
+
     for block in function.blocks:
-        # (Optionally, restrict to blocks coming after the permit block.)
         if block.offset <= permit_block.offset:
             continue
-
         for insn in block.insns:
-            insn_str = str(insn)
-            if "TIMESTAMP()" in insn_str:
+            if insn.insn.name == "TIMESTAMP":
                 timestamp_found = True
-                print(f"[permit] Found TIMESTAMP in block {block.offset:#x}: {insn_str}")
-            # Look for a condition (e.g. LT) that compares the deadline variable.
-            if "LT(" or "GT("in insn_str and deadline_var in insn_str:
-                condition_found = True
-                print(f"[permit] Found LT condition using deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
-            # Optionally check the JUMPI that uses the condition.
-            if "JUMPI(" in insn_str and deadline_var in insn_str:
-                print(f"[permit] Found JUMPI referencing deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
-
+                print(f"[permit] Found TIMESTAMP in block {block.offset:#x}")
+            if insn.insn.name in ("LT", "GT", "SLT", "SGT"):
+                for arg in insn.arguments:
+                    # Compare at the object level (or via string representation)
+                    if arg == deadline_val or str(arg) == str(deadline_val):
+                        condition_found = True
+                        print(f"[permit] Found {insn.insn.name} condition using deadline in block {block.offset:#x}")
+                        break
         if timestamp_found and condition_found:
             break
 
     if not (timestamp_found and condition_found):
-        print("[permit] Deadline usage condition not found (either TIMESTAMP or LT condition missing)!")
+        print("[permit] Deadline usage condition not found!")
         return False
 
     print("[permit] Deadline is correctly used in a require-like condition with TIMESTAMP.")
     return True
 
+
 def check_ecrecover_analysis(function):
     """
-    Check that the function contains an ecrecover call and that later the recovered
-    address is compared with the owner.
+    Object-level check that the permit function uses ecrecover and compares the recovered address
+    with the owner.
     
-    Updated Behavior:
-      - Instead of using the raw CALLDATALOAD(#4) result, we now look for the AND instruction 
-        that masks it (e.g. "%848 = AND(%846, %847)") and use its LHS (e.g. "%848") as the owner.
-      - Then, look for a STATICCALL (the ecrecover call) in any block.
-      - In blocks after that, search for an MLOAD (to capture the recovered address)
-        and then an EQ instruction that compares the recovered value with our owner variable.
+    Steps:
+      1. In a block, look for a CALLDATALOAD whose argument contains "#4" (raw owner).
+         Then, in the same block, look for an AND instruction that uses that raw owner.
+         Use the AND instruction's return_value as the effective owner.
+      2. Locate a STATICCALL instruction (assumed to be the ecrecover call).
+         Optionally verify its argument values (e.g. second argument equals 1, sixth equals 32).
+      3. In blocks after the STATICCALL, search for an EQ instruction that compares a value
+         with the owner (or the candidate masked owner).
     """
-    # Step 1: Extract the owner value from the block that loads the permit input.
     owner_value = None
+    # Step 1: Extract the owner value from the permit input block.
     for block in function.blocks:
         for insn in block.insns:
-            insn_str = str(insn)
-            # Look for the CALLDATALOAD(#4) that loads the owner.
-            if "CALLDATALOAD(#4)" in insn_str:
-                # Example: "<0x8e4: %847 = CALLDATALOAD(#4)>"
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    raw_owner = parts[0].strip()  # e.g. "%847"
-                    print(f"[ecrecover] Found raw owner load: {raw_owner}")
-                    # Now, in the same block, look for the AND instruction that uses this raw owner.
-                    for insn2 in block.insns:
-                        insn2_str = str(insn2)
-                        if "AND(" in insn2_str and raw_owner in insn2_str:
-                            # Example: "<0x8e6: %848 = AND(%846, %847)>"
-                            parts2 = insn2_str.split("=")
-                            if len(parts2) > 1:
-                                owner_value = parts2[0].strip()  # e.g. "%848"
-                                print(f"[ecrecover] Owner value updated after masking: {owner_value}")
+            if insn.insn.name == "CALLDATALOAD":
+                # Check arguments for the literal marker "#4".
+                for arg in insn.arguments:
+                    if "#4" in str(arg):
+                        raw_owner = insn.return_value
+                        print(f"[ecrecover] Found raw owner load: {raw_owner}")
+                        # In the same block, search for an AND that uses raw_owner.
+                        for other_insn in block.insns:
+                            if other_insn.insn.name == "AND" and raw_owner in other_insn.arguments:
+                                owner_value = other_insn.return_value
+                                print(f"[ecrecover] Extracted owner value via AND: {owner_value}")
                                 break
-                    if owner_value is not None:
+                        if owner_value is None:
+                            owner_value = raw_owner
                         break
-                    if owner_value is None:
-                        owner_value = raw_owner
         if owner_value is not None:
             break
 
     if owner_value is None:
-        print("[ecrecover] Owner value not found (no masked value from CALLDATALOAD(#4))!")
+        print("[ecrecover] Owner value not found!")
         return False
 
-    # Step 2: Find the STATICCALL corresponding to the ecrecover call.
+    # Step 2: Locate the STATICCALL (ecrecover) instruction.
     ecrecover_found = False
     staticcall_block_index = None
-
     for i, block in enumerate(function.blocks):
         for insn in block.insns:
-            insn_str = str(insn)
-            if "STATICCALL" in insn_str:
-                ecrecover_found = True
-                staticcall_block_index = i
-                print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
-                
-                check_permit_nonce_update_general(function, owner_value)
-                break
+            if insn.insn.name == "STATICCALL":
+                if len(insn.arguments) >= 6:
+                    # Try to verify numeric arguments using object-level operations.
+                    second_arg = insn.arguments[1]
+                    sixth_arg = insn.arguments[5]
+                    try:
+                        if int(second_arg) == 1 and int(sixth_arg) == 32:
+                            ecrecover_found = True
+                            staticcall_block_index = i
+                            print(f"[ecrecover] Found STATICCALL in block {block.offset:#x}")
+                            break
+                    except Exception:
+                        ecrecover_found = True
+                        staticcall_block_index = i
+                        print(f"[ecrecover] Found STATICCALL in block {block.offset:#x} (argument conversion failed)")
+                        break
         if ecrecover_found:
+            check_permit_nonce_update_general(function, owner_value)
             break
 
     if not ecrecover_found:
-        print("[ecrecover] STATICCALL for ecrecover not found!")
+        print("[ecrecover] STATICCALL not found!")
         return False
 
-    # Step 3: After the STATICCALL block, look for:
-    #   - An MLOAD instruction that loads the recovered address (indicated by 'ADDRESS')
-    #   - An EQ instruction that compares the recovered address with our owner_value.
-    recovered_value = None
-    mload_found = False
+    # Step 3: In blocks after the STATICCALL, look for an EQ instruction that uses the owner.
     eq_found = False
-    
     candidate_and_var = None
     and_found = False
-
-
     for block in function.blocks[staticcall_block_index + 1:]:
         for insn in block.insns:
-            insn_str = str(insn)
-            # if "MLOAD" in insn_str:
-            #     # For example: "<...: %1685 = MLOAD(%1684)    // ADDRESS>"
-            #     parts = insn_str.split("=")
-            #     if len(parts) > 1:
-            #         recovered_value = parts[0].strip()  # e.g. "%1685"
-            #         mload_found = True
-            #         print(f"[ecrecover] Found recovered address via MLOAD: {insn_str}")
-            # Look for an AND instruction that uses permit_owner.
-            if not and_found and "AND(" in insn_str:
-                # If the owner variable appears in the operands, we treat it as our candidate.
-                if owner_value in insn_str:
-                    # Extract the LHS variable (the result) by splitting on "=".
-                    parts = insn_str.split("=")
-                    if len(parts) > 1:
-                        candidate_and_var = parts[0].strip()
+            # Option 1: Look for an AND that uses owner_value and then an EQ that uses that result.
+            if not and_found and insn.insn.name == "AND":
+                for arg in insn.arguments:
+                    if str(owner_value) in str(arg):
+                        # Use the return_value of the AND as candidate.
+                        candidate_and_var = insn.return_value
                         and_found = True
-                        print(f"[owner eq pattern] Found AND using owner in block {block.offset:#x}: {insn_str}")
+                        print(f"[owner eq pattern] Found AND using owner in block {block.offset:#x}: {insn}")
                         print(f"    Candidate result variable: {candidate_and_var}")
-            # Now look for an EQ instruction that uses the candidate AND result.
-            if and_found and candidate_and_var and "EQ(" in insn_str:
-                if candidate_and_var in insn_str:
-                    eq_found = True
-                    print(f"[owner eq pattern] Found EQ using candidate variable in block {block.offset:#x}: {insn_str}")
-                    return True
-            if "EQ(" in insn_str:
-                # Instead of hardcoding a variable like %435, now compare with our owner_value.
-                if owner_value in insn_str:
-                    eq_found = True
-                    print(f"[ecrecover] Found EQ comparing owner ({owner_value}): {insn_str}")
+                        break
+            # Option 2: Look directly for an EQ that compares a value with the owner.
+            if insn.insn.name == "EQ":
+                for arg in insn.arguments:
+                    if str(owner_value) in str(arg) or (candidate_and_var and str(candidate_and_var) in str(arg)):
+                        eq_found = True
+                        print(f"[ecrecover] Found EQ comparing owner in block {block.offset:#x}: {insn}")
+                        return True
         if eq_found:
             break
 
     if not eq_found:
-        print("[ecrecover] Missing MLOAD or EQ instruction after the ecrecover call!")
+        print("[ecrecover] EQ instruction comparing recovered value with owner not found!")
         return False
 
+    print("[ecrecover] Owner equality check is implemented correctly.")
     return True
+
 
 
 def check_permit_nonce_update_general(function, permit_owner):
     """
-    Verify that nonces[owner]++ is implemented correctly in a permit function.
+    Object-level check that nonces[owner]++ is implemented correctly.
     
-    This updated function now uses the masked owner value (e.g. "%848") instead of the raw CALLDATALOAD result.
-    
-    The pattern is:
-      1. An MSTORE instruction that writes the owner value (permit_owner) into memory.
-      2. A SHA3 instruction that computes a storage key from that memory.
-      3. An SLOAD that loads the current nonce using that key.
-      4. An ADD instruction that increments the nonce.
-      5. An SSTORE that writes back the incremented nonce.
+    Instead of hardcoding specific memory offsets or literal immediate values, we search for:
+      - An MSTORE instruction that writes the permit owner (permit_owner) into memory.
+      - A SHA3 instruction that computes a storage key (its return_value is the key).
+      - An SLOAD that uses that key to load the current nonce.
+      - An ADD instruction that increments the nonce (by adding 1).
+      - An SSTORE instruction that writes the incremented nonce back using the computed key.
     """
     candidate = {
         "mstore_owner": None,
@@ -612,53 +577,363 @@ def check_permit_nonce_update_general(function, permit_owner):
         "sstore": None
     }
 
+    # Process blocks in execution order.
     blocks = sorted(function.blocks, key=lambda b: b.offset)
     
     for block in blocks:
         for idx, insn in enumerate(block.insns):
-            insn_str = str(insn)
-            # (1) Find MSTORE that writes the masked owner (permit_owner).
-            if candidate["mstore_owner"] is None and "MSTORE(" in insn_str and permit_owner in insn_str:
-                candidate["mstore_owner"] = (block.offset, idx)
-                print(f"[nonce check] Found MSTORE writing owner at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-            # (2) Find a SHA3 that computes the storage key.
-            if candidate["sha3"] is None and "SHA3(" in insn_str:
-                parts = insn_str.split("=")
-                if len(parts) > 1:
-                    candidate["computed_key"] = parts[0].strip()
+            # (1) Look for an MSTORE that writes the owner.
+            if candidate["mstore_owner"] is None and insn.insn.name == "MSTORE":
+                # Check if any argument's string representation contains permit_owner.
+                for arg in insn.arguments:
+                    if str(permit_owner) in str(arg):
+                        candidate["mstore_owner"] = (block.offset, idx)
+                        print(f"[nonce check] Found MSTORE writing owner in block {block.offset:#x} idx {idx}")
+                        break
+            # (2) Look for a SHA3 instruction.
+            if candidate["sha3"] is None and insn.insn.name == "SHA3":
+                if insn.return_value is not None:
+                    candidate["computed_key"] = insn.return_value
                     candidate["sha3"] = (block.offset, idx)
-                    print(f"[nonce check] Found SHA3 computing key at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-            # (3) Find an SLOAD that uses the computed key.
-            if candidate["sha3"] is not None and candidate["computed_key"] is not None and candidate["sload"] is None and "SLOAD(" in insn_str:
-                if candidate["computed_key"] in insn_str:
-                    parts = insn_str.split("=")
-                    if len(parts) > 1:
-                        candidate["nonce_loaded"] = parts[0].strip()
+                    print(f"[nonce check] Found SHA3 computing key in block {block.offset:#x} idx {idx}")
+            # (3) Look for an SLOAD that uses the computed key.
+            if candidate["sha3"] is not None and candidate["computed_key"] is not None and candidate["sload"] is None:
+                if insn.insn.name == "SLOAD":
+                    if candidate["computed_key"] in insn.arguments:
+                        if insn.return_value is not None:
+                            candidate["nonce_loaded"] = insn.return_value
                         candidate["sload"] = (block.offset, idx)
-                        print(f"[nonce check] Found SLOAD using computed key at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-            # (4) Find an ADD that increments the loaded nonce by 1.
-            if candidate["nonce_loaded"] is not None and candidate["add"] is None and "ADD(" in insn_str:
-                if candidate["nonce_loaded"] in insn_str and ("#1" in insn_str or " 1)" in insn_str):
-                    parts = insn_str.split("=")
-                    if len(parts) > 1:
-                        candidate["nonce_new"] = parts[0].strip()
-                        candidate["add"] = (block.offset, idx)
-                        print(f"[nonce check] Found ADD incrementing nonce at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-            # (5) Find an SSTORE that writes the new nonce at the computed key.
+                        print(f"[nonce check] Found SLOAD loading nonce in block {block.offset:#x} idx {idx}")
+            # (4) Look for an ADD instruction that increments the nonce.
+            if candidate["nonce_loaded"] is not None and candidate["add"] is None:
+                if insn.insn.name == "ADD":
+                    # Check that one of the arguments equals the loaded nonce and another is a literal 1.
+                    if candidate["nonce_loaded"] in insn.arguments:
+                        for arg in insn.arguments:
+                            try:
+                                if int(arg) == 1:
+                                    candidate["nonce_new"] = insn.return_value
+                                    candidate["add"] = (block.offset, idx)
+                                    print(f"[nonce check] Found ADD incrementing nonce in block {block.offset:#x} idx {idx}")
+                                    break
+                            except Exception:
+                                continue
+            # (5) Look for an SSTORE that writes the new nonce using the computed key.
             if candidate["nonce_new"] is not None and candidate["computed_key"] is not None and candidate["sstore"] is None:
-                if "SSTORE(" in insn_str and candidate["computed_key"] in insn_str and candidate["nonce_new"] in insn_str:
-                    candidate["sstore"] = (block.offset, idx)
-                    print(f"[nonce check] Found SSTORE storing new nonce at block {block.offset:#x} idx {idx}: {insn_str}")
-            
+                if insn.insn.name == "SSTORE":
+                    if candidate["computed_key"] in insn.arguments and candidate["nonce_new"] in insn.arguments:
+                        candidate["sstore"] = (block.offset, idx)
+                        print(f"[nonce check] Found SSTORE storing new nonce in block {block.offset:#x} idx {idx}")
         if (candidate["mstore_owner"] is not None and candidate["sha3"] is not None and
             candidate["sload"] is not None and candidate["add"] is not None and
             candidate["sstore"] is not None):
-            print("[nonce check] Complete nonce update pattern (nonces[owner]++) found.")
+            print("[nonce check] Complete nonce update pattern found.")
             return True
 
-    print("[nonce check] Nonce update pattern not found in function.")
+    print("[nonce check] Nonce update pattern not found.")
     return False
+
+
+
+
+
+
+
+# def check_permit_deadline(function):
+#     """
+#     Check that the 'permit' function correctly uses the deadline parameter.
+    
+#     Steps:
+#       1. Find the block where CALLDATALOAD is used to load the permit parameters.
+#          - Look for instructions containing the following markers:
+#            - "CALLDATALOAD(#4)"    -> owner
+#            - "CALLDATALOAD(#24)"   -> spender
+#            - "CALLDATALOAD(#44)"   -> value
+#            - "CALLDATALOAD(#64)"   -> deadline
+#            - "CALLDATALOAD(#84)"   -> raw value for v (or intermediate result)
+#            - "CALLDATALOAD(#a4)"   -> r
+#            - "CALLDATALOAD(#c4)"   -> s
+#       2. Extract the left-hand side variable from each instruction.
+#       3. Then, iterate over subsequent blocks looking for:
+#          - A TIMESTAMP() instruction.
+#          - A condition (e.g. LT) that uses the deadline variable.
+#          - A JUMPI that uses the result of that condition.
+#     """
+#     permit_params = {}  # To store parameters by name.
+#     permit_block = None
+
+#     # Step 1: Find the block with the permit CALLDATALOAD instructions.
+#     for block in function.blocks:
+#         for insn in block.insns:
+#             insn_str = str(insn)
+#             # Check for the owner parameter.
+#             if "CALLDATALOAD(#4)" in insn_str and "ADDRESS" in insn_str:
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     # Left-hand side variable (e.g. "%435")
+#                     permit_params["owner"] = parts[0].strip()
+#             elif "CALLDATALOAD(#24)" in insn_str and "ADDRESS" in insn_str:
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     permit_params["spender"] = parts[0].strip()
+#             elif "CALLDATALOAD(#44)" in insn_str:
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     permit_params["value"] = parts[0].strip()
+#             elif "CALLDATALOAD(#64)" in insn_str:
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     permit_params["deadline"] = parts[0].strip()
+#             elif "CALLDATALOAD(#84)" in insn_str:
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     permit_params["raw_v"] = parts[0].strip()
+#             elif "CALLDATALOAD(#a4)" in insn_str.lower():
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     permit_params["r"] = parts[0].strip()
+#             elif "CALLDATALOAD(#c4)" in insn_str.lower():
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     permit_params["s"] = parts[0].strip()
+#         # If we found at least the deadline parameter, consider this the permit block.
+#         if "deadline" in permit_params:
+#             permit_block = block
+#             print(f"[permit] Permit block found at offset {block.offset:#x}")
+#             print(f"[permit] Extracted permit parameters: {permit_params}")
+#             break
+
+#     if not permit_block:
+#         print("[permit] Permit block not found!")
+#         return False
+
+#     # Step 2: Get the deadline variable.
+#     deadline_var = permit_params.get("deadline")
+#     if not deadline_var:
+#         print("[permit] Deadline parameter not extracted!")
+#         return False
+
+#     # Step 3: Look in subsequent blocks for the TIMESTAMP and require condition using the deadline.
+#     timestamp_found = False
+#     condition_found = False
+#     for block in function.blocks:
+#         # (Optionally, restrict to blocks coming after the permit block.)
+#         if block.offset <= permit_block.offset:
+#             continue
+
+#         for insn in block.insns:
+#             insn_str = str(insn)
+#             if "TIMESTAMP()" in insn_str:
+#                 timestamp_found = True
+#                 print(f"[permit] Found TIMESTAMP in block {block.offset:#x}: {insn_str}")
+#             # Look for a condition (e.g. LT) that compares the deadline variable.
+#             if "LT(" or "GT(" in insn_str and deadline_var in insn_str:
+#                 condition_found = True
+#                 print(f"[permit] Found LT condition using deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
+#             # Optionally check the JUMPI that uses the condition.
+#             if "JUMPI(" in insn_str and deadline_var in insn_str:
+#                 print(f"[permit] Found JUMPI referencing deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
+
+#         if timestamp_found and condition_found:
+#             break
+
+#     if not (timestamp_found and condition_found):
+#         print("[permit] Deadline usage condition not found (either TIMESTAMP or LT condition missing)!")
+#         return False
+
+#     print("[permit] Deadline is correctly used in a require-like condition with TIMESTAMP.")
+#     return True
+
+# def check_ecrecover_analysis(function):
+#     """
+#     Check that the function contains an ecrecover call and that later the recovered
+#     address is compared with the owner.
+    
+#     Updated Behavior:
+#       - Instead of using the raw CALLDATALOAD(#4) result, we now look for the AND instruction 
+#         that masks it (e.g. "%848 = AND(%846, %847)") and use its LHS (e.g. "%848") as the owner.
+#       - Then, look for a STATICCALL (the ecrecover call) in any block.
+#       - In blocks after that, search for an MLOAD (to capture the recovered address)
+#         and then an EQ instruction that compares the recovered value with our owner variable.
+#     """
+#     # Step 1: Extract the owner value from the block that loads the permit input.
+#     owner_value = None
+#     for block in function.blocks:
+#         for insn in block.insns:
+#             insn_str = str(insn)
+#             # Look for the CALLDATALOAD(#4) that loads the owner.
+#             if "CALLDATALOAD(#4)" in insn_str:
+#                 # Example: "<0x8e4: %847 = CALLDATALOAD(#4)>"
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     raw_owner = parts[0].strip()  # e.g. "%847"
+#                     print(f"[ecrecover] Found raw owner load: {raw_owner}")
+#                     # Now, in the same block, look for the AND instruction that uses this raw owner.
+#                     for insn2 in block.insns:
+#                         insn2_str = str(insn2)
+#                         if "AND(" in insn2_str and raw_owner in insn2_str:
+#                             # Example: "<0x8e6: %848 = AND(%846, %847)>"
+#                             parts2 = insn2_str.split("=")
+#                             if len(parts2) > 1:
+#                                 owner_value = parts2[0].strip()  # e.g. "%848"
+#                                 print(f"[ecrecover] Owner value updated after masking: {owner_value}")
+#                                 break
+#                     if owner_value is not None:
+#                         break
+#                     if owner_value is None:
+#                         owner_value = raw_owner
+#         if owner_value is not None:
+#             break
+
+#     if owner_value is None:
+#         print("[ecrecover] Owner value not found (no masked value from CALLDATALOAD(#4))!")
+#         return False
+
+#     # Step 2: Find the STATICCALL corresponding to the ecrecover call.
+#     ecrecover_found = False
+#     staticcall_block_index = None
+
+#     for i, block in enumerate(function.blocks):
+#         for insn in block.insns:
+#             insn_str = str(insn)
+#             if "STATICCALL" in insn_str:
+#                 ecrecover_found = True
+#                 staticcall_block_index = i
+#                 print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
+                
+#                 check_permit_nonce_update_general(function, owner_value)
+#                 break
+#         if ecrecover_found:
+#             break
+
+#     if not ecrecover_found:
+#         print("[ecrecover] STATICCALL for ecrecover not found!")
+#         return False
+
+#     # Step 3: After the STATICCALL block, look for:
+#     #   - An MLOAD instruction that loads the recovered address (indicated by 'ADDRESS')
+#     #   - An EQ instruction that compares the recovered address with our owner_value.
+#     recovered_value = None
+#     mload_found = False
+#     eq_found = False
+    
+#     candidate_and_var = None
+#     and_found = False
+
+
+#     for block in function.blocks[staticcall_block_index + 1:]:
+#         for insn in block.insns:
+#             insn_str = str(insn)
+#             # if "MLOAD" in insn_str:
+#             #     # For example: "<...: %1685 = MLOAD(%1684)    // ADDRESS>"
+#             #     parts = insn_str.split("=")
+#             #     if len(parts) > 1:
+#             #         recovered_value = parts[0].strip()  # e.g. "%1685"
+#             #         mload_found = True
+#             #         print(f"[ecrecover] Found recovered address via MLOAD: {insn_str}")
+#             # Look for an AND instruction that uses permit_owner.
+#             if not and_found and "AND(" in insn_str:
+#                 # If the owner variable appears in the operands, we treat it as our candidate.
+#                 if owner_value in insn_str:
+#                     # Extract the LHS variable (the result) by splitting on "=".
+#                     parts = insn_str.split("=")
+#                     if len(parts) > 1:
+#                         candidate_and_var = parts[0].strip()
+#                         and_found = True
+#                         print(f"[owner eq pattern] Found AND using owner in block {block.offset:#x}: {insn_str}")
+#                         print(f"    Candidate result variable: {candidate_and_var}")
+#             # Now look for an EQ instruction that uses the candidate AND result.
+#             if and_found and candidate_and_var and "EQ(" in insn_str:
+#                 if candidate_and_var in insn_str:
+#                     eq_found = True
+#                     print(f"[owner eq pattern] Found EQ using candidate variable in block {block.offset:#x}: {insn_str}")
+#                     return True
+#             if "EQ(" in insn_str:
+#                 # Instead of hardcoding a variable like %435, now compare with our owner_value.
+#                 if owner_value in insn_str:
+#                     eq_found = True
+#                     print(f"[ecrecover] Found EQ comparing owner ({owner_value}): {insn_str}")
+#         if eq_found:
+#             break
+
+#     if not eq_found:
+#         print("[ecrecover] Missing MLOAD or EQ instruction after the ecrecover call!")
+#         return False
+
+#     return True
+
+
+# def check_permit_nonce_update_general(function, permit_owner):
+#     """
+#     Verify that nonces[owner]++ is implemented correctly in a permit function.
+    
+#     This updated function now uses the masked owner value (e.g. "%848") instead of the raw CALLDATALOAD result.
+    
+#     The pattern is:
+#       1. An MSTORE instruction that writes the owner value (permit_owner) into memory.
+#       2. A SHA3 instruction that computes a storage key from that memory.
+#       3. An SLOAD that loads the current nonce using that key.
+#       4. An ADD instruction that increments the nonce.
+#       5. An SSTORE that writes back the incremented nonce.
+#     """
+#     candidate = {
+#         "mstore_owner": None,
+#         "sha3": None,
+#         "computed_key": None,
+#         "sload": None,
+#         "nonce_loaded": None,
+#         "add": None,
+#         "nonce_new": None,
+#         "sstore": None
+#     }
+
+#     blocks = sorted(function.blocks, key=lambda b: b.offset)
+    
+#     for block in blocks:
+#         for idx, insn in enumerate(block.insns):
+#             insn_str = str(insn)
+#             # (1) Find MSTORE that writes the masked owner (permit_owner).
+#             if candidate["mstore_owner"] is None and "MSTORE(" in insn_str and permit_owner in insn_str:
+#                 candidate["mstore_owner"] = (block.offset, idx)
+#                 print(f"[nonce check] Found MSTORE writing owner at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+#             # (2) Find a SHA3 that computes the storage key.
+#             if candidate["sha3"] is None and "SHA3(" in insn_str:
+#                 parts = insn_str.split("=")
+#                 if len(parts) > 1:
+#                     candidate["computed_key"] = parts[0].strip()
+#                     candidate["sha3"] = (block.offset, idx)
+#                     print(f"[nonce check] Found SHA3 computing key at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+#             # (3) Find an SLOAD that uses the computed key.
+#             if candidate["sha3"] is not None and candidate["computed_key"] is not None and candidate["sload"] is None and "SLOAD(" in insn_str:
+#                 if candidate["computed_key"] in insn_str:
+#                     parts = insn_str.split("=")
+#                     if len(parts) > 1:
+#                         candidate["nonce_loaded"] = parts[0].strip()
+#                         candidate["sload"] = (block.offset, idx)
+#                         print(f"[nonce check] Found SLOAD using computed key at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+#             # (4) Find an ADD that increments the loaded nonce by 1.
+#             if candidate["nonce_loaded"] is not None and candidate["add"] is None and "ADD(" in insn_str:
+#                 if candidate["nonce_loaded"] in insn_str and ("#1" in insn_str or " 1)" in insn_str):
+#                     parts = insn_str.split("=")
+#                     if len(parts) > 1:
+#                         candidate["nonce_new"] = parts[0].strip()
+#                         candidate["add"] = (block.offset, idx)
+#                         print(f"[nonce check] Found ADD incrementing nonce at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+#             # (5) Find an SSTORE that writes the new nonce at the computed key.
+#             if candidate["nonce_new"] is not None and candidate["computed_key"] is not None and candidate["sstore"] is None:
+#                 if "SSTORE(" in insn_str and candidate["computed_key"] in insn_str and candidate["nonce_new"] in insn_str:
+#                     candidate["sstore"] = (block.offset, idx)
+#                     print(f"[nonce check] Found SSTORE storing new nonce at block {block.offset:#x} idx {idx}: {insn_str}")
+            
+#         if (candidate["mstore_owner"] is not None and candidate["sha3"] is not None and
+#             candidate["sload"] is not None and candidate["add"] is not None and
+#             candidate["sstore"] is not None):
+#             print("[nonce check] Complete nonce update pattern (nonces[owner]++) found.")
+#             return True
+
+#     print("[nonce check] Nonce update pattern not found in function.")
+#     return False
