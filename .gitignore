@@ -199,3 +199,5 @@ pip-selfcheck.json
 
 # project specific
 output/
+
+.env
