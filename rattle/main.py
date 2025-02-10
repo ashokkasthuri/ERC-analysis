@@ -364,24 +364,26 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
     if args.input:
         args.input.close()
 
-
 def check_permit_deadline(function):
     """
-    Object-level check that the permit function uses the deadline parameter correctly.
+    Object-level check that the permit function correctly uses the deadline parameter.
     
-    This function uses the SSAInstruction.arguments field to identify parameters:
-      - For CALLDATALOAD instructions, it checks if any argument's string contains:
-           "#4"   -> owner
-           "#24"  -> spender
-           "#44"  -> value
-           "#64"  -> deadline
-           "#84"  -> raw_v
-           "#a4"  -> r (case-insensitive)
-           "#c4"  -> s (case-insensitive)
-      
-    Then, in blocks following the permit block, it looks for:
+    This function scans the SSA function blocks for CALLDATALOAD instructions.
+    It assumes that literal values are stored as ConcreteStackValue objects such that:
+    
+      int(literal) == 4    --> owner
+      int(literal) == 24   --> spender
+      int(literal) == 44   --> value
+      int(literal) == 64   --> deadline
+      int(literal) == 84   --> raw_v
+      int(literal) == 0xa4 (164) --> r
+      int(literal) == 0xc4 (196) --> s
+    
+    Once the deadline parameter is identified, it searches subsequent blocks for:
       - A TIMESTAMP instruction.
-      - A condition (e.g. LT, GT, etc.) that uses the deadline value.
+      - A comparison (LT, GT, SLT, or SGT) that uses the deadline value.
+    
+    Returns True if both are found, otherwise False.
     """
     permit_params = {}  # To store parameters by name.
     permit_block = None
@@ -390,27 +392,29 @@ def check_permit_deadline(function):
     for block in function.blocks:
         for insn in block.insns:
             if insn.insn.name == "CALLDATALOAD":
-                # Check each argument's string representation.
                 for arg in insn.arguments:
-                    arg_str = str(arg)
-                    if "#4" in arg_str:
+                    try:
+                        literal_val = int(arg)
+                    except Exception:
+                        continue
+                    if literal_val == 4:
                         permit_params["owner"] = insn.return_value
-                    elif "#24" in arg_str:
+                    elif literal_val == 24:
                         permit_params["spender"] = insn.return_value
-                    elif "#44" in arg_str:
+                    elif literal_val == 44:
                         permit_params["value"] = insn.return_value
-                    elif "#64" in arg_str:
+                    elif literal_val == 64:
                         permit_params["deadline"] = insn.return_value
-                    elif "#84" in arg_str:
+                    elif literal_val == 84:
                         permit_params["raw_v"] = insn.return_value
-                    elif "#a4" in arg_str.lower():
+                    elif literal_val == 0xa4:  # 164
                         permit_params["r"] = insn.return_value
-                    elif "#c4" in arg_str.lower():
+                    elif literal_val == 0xc4:  # 196
                         permit_params["s"] = insn.return_value
         if "deadline" in permit_params:
             permit_block = block
-            print(f"[permit] Permit block found at offset {block.offset:#x}")
-            print(f"[permit] Extracted permit parameters: {permit_params}")
+            print(f"[permit] Found permit block at offset {block.offset:#x}")
+            print(f"[permit] Extracted permit parameters: {{ key: str(permit_params[key]) for key in permit_params }}")
             break
 
     if permit_block is None:
@@ -422,24 +426,37 @@ def check_permit_deadline(function):
         print("[permit] Deadline parameter not extracted!")
         return False
 
-    # Step 2: In subsequent blocks, look for a TIMESTAMP instruction and a condition (e.g., LT) that uses deadline.
+    # Step 2: Search for a TIMESTAMP instruction and a condition using the deadline.
     timestamp_found = False
     condition_found = False
 
+    # We assume that later blocks (with higher offset) contain the check.
     for block in function.blocks:
         if block.offset <= permit_block.offset:
             continue
         for insn in block.insns:
+            # Check for TIMESTAMP opcode.
             if insn.insn.name == "TIMESTAMP":
                 timestamp_found = True
                 print(f"[permit] Found TIMESTAMP in block {block.offset:#x}")
+            # Check for a comparison (e.g. LT, GT, SLT, SGT) that uses the deadline.
             if insn.insn.name in ("LT", "GT", "SLT", "SGT"):
+                # Compare using the underlying data of each argument.
                 for arg in insn.arguments:
-                    # Compare at the object level (or via string representation)
-                    if arg == deadline_val or str(arg) == str(deadline_val):
-                        condition_found = True
-                        print(f"[permit] Found {insn.insn.name} condition using deadline in block {block.offset:#x}")
-                        break
+                    try:
+                        # If both are literals, compare integer values.
+                        if int(arg) == int(deadline_val):
+                            condition_found = True
+                            print(f"[permit] Found {insn.insn.name} condition using deadline in block {block.offset:#x}")
+                            break
+                    except Exception:
+                        # Alternatively, check object equality.
+                        if arg == deadline_val:
+                            condition_found = True
+                            print(f"[permit] Found {insn.insn.name} condition using deadline in block {block.offset:#x}")
+                            break
+            if timestamp_found and condition_found:
+                break
         if timestamp_found and condition_found:
             break
 
@@ -450,40 +467,53 @@ def check_permit_deadline(function):
     print("[permit] Deadline is correctly used in a require-like condition with TIMESTAMP.")
     return True
 
-
 def check_ecrecover_analysis(function):
     """
-    Object-level check that the permit function uses ecrecover and compares the recovered address
-    with the owner.
+    Object-level check that the permit function calls ecrecover and compares the recovered
+    address with the owner.
     
     Steps:
-      1. In a block, look for a CALLDATALOAD whose argument contains "#4" (raw owner).
-         Then, in the same block, look for an AND instruction that uses that raw owner.
-         Use the AND instruction's return_value as the effective owner.
-      2. Locate a STATICCALL instruction (assumed to be the ecrecover call).
-         Optionally verify its argument values (e.g. second argument equals 1, sixth equals 32).
-      3. In blocks after the STATICCALL, search for an EQ instruction that compares a value
-         with the owner (or the candidate masked owner).
+      1. In a block, find a CALLDATALOAD whose arguments include the literal 4 (indicating owner).
+         Then in the same block, look for an AND instruction that uses that raw owner. Its
+         return_value is used as the effective owner.
+      2. Locate a STATICCALL instruction (the candidate ecrecover call) and, if possible,
+         verify that its second argument equals literal 1 and its sixth equals literal 32.
+      3. In blocks after STATICCALL, scan for an EQ instruction whose argument list includes
+         the effective owner.
     """
     owner_value = None
-    # Step 1: Extract the owner value from the permit input block.
+
+    # Step 1. Find a CALLDATALOAD that loads the raw owner (literal 4) and then an AND that masks it.
     for block in function.blocks:
         for insn in block.insns:
             if insn.insn.name == "CALLDATALOAD":
-                # Check arguments for the literal marker "#4".
+                # Iterate over its arguments
                 for arg in insn.arguments:
-                    if "#4" in str(arg):
-                        raw_owner = insn.return_value
-                        print(f"[ecrecover] Found raw owner load: {raw_owner}")
-                        # In the same block, search for an AND that uses raw_owner.
-                        for other_insn in block.insns:
-                            if other_insn.insn.name == "AND" and raw_owner in other_insn.arguments:
-                                owner_value = other_insn.return_value
-                                print(f"[ecrecover] Extracted owner value via AND: {owner_value}")
-                                break
-                        if owner_value is None:
-                            owner_value = raw_owner
-                        break
+                    try:
+                        if int(arg) == 4:
+                            raw_owner = insn.return_value  # This is the raw owner load.
+                            # Look in the same block for an AND instruction that uses raw_owner.
+                            for other_insn in block.insns:
+                                if other_insn.insn.name == "AND":
+                                    for a in other_insn.arguments:
+                                        # Compare object-level (or by int conversion if applicable)
+                                        try:
+                                            if int(a) == int(raw_owner):
+                                                owner_value = other_insn.return_value
+                                                break
+                                        except Exception:
+                                            if a == raw_owner:
+                                                owner_value = other_insn.return_value
+                                                break
+                                    if owner_value is not None:
+                                        break
+                            if owner_value is None:
+                                owner_value = raw_owner
+                            break
+                    except Exception:
+                        continue
+            if owner_value is not None:
+                break
         if owner_value is not None:
             break
 
@@ -491,27 +521,31 @@ def check_ecrecover_analysis(function):
         print("[ecrecover] Owner value not found!")
         return False
 
-    # Step 2: Locate the STATICCALL (ecrecover) instruction.
+    # Step 2. Locate the STATICCALL instruction.
     ecrecover_found = False
     staticcall_block_index = None
     for i, block in enumerate(function.blocks):
         for insn in block.insns:
             if insn.insn.name == "STATICCALL":
                 if len(insn.arguments) >= 6:
-                    # Try to verify numeric arguments using object-level operations.
                     second_arg = insn.arguments[1]
                     sixth_arg = insn.arguments[5]
                     try:
                         if int(second_arg) == 1 and int(sixth_arg) == 32:
                             ecrecover_found = True
                             staticcall_block_index = i
-                            print(f"[ecrecover] Found STATICCALL in block {block.offset:#x}")
+                            print(f"[ecrecover] Found STATICCALL in block at offset {block.offset}")
                             break
                     except Exception:
                         ecrecover_found = True
                         staticcall_block_index = i
-                        print(f"[ecrecover] Found STATICCALL in block {block.offset:#x} (argument conversion failed)")
+                        print(f"[ecrecover] Found STATICCALL in block at offset {block.offset} (conversion failed)")
                         break
+                else:
+                    ecrecover_found = True
+                    staticcall_block_index = i
+                    print(f"[ecrecover] Found STATICCALL in block at offset {block.offset}")
+                    break
         if ecrecover_found:
             check_permit_nonce_update_general(function, owner_value)
             break
@@ -520,51 +554,42 @@ def check_ecrecover_analysis(function):
         print("[ecrecover] STATICCALL not found!")
         return False
 
-    # Step 3: In blocks after the STATICCALL, look for an EQ instruction that uses the owner.
+    # Step 3. In blocks after the STATICCALL, look for an EQ instruction whose arguments include owner_value.
     eq_found = False
-    candidate_and_var = None
-    and_found = False
     for block in function.blocks[staticcall_block_index + 1:]:
         for insn in block.insns:
-            # Option 1: Look for an AND that uses owner_value and then an EQ that uses that result.
-            if not and_found and insn.insn.name == "AND":
-                for arg in insn.arguments:
-                    if str(owner_value) in str(arg):
-                        # Use the return_value of the AND as candidate.
-                        candidate_and_var = insn.return_value
-                        and_found = True
-                        print(f"[owner eq pattern] Found AND using owner in block {block.offset:#x}: {insn}")
-                        print(f"    Candidate result variable: {candidate_and_var}")
-                        break
-            # Option 2: Look directly for an EQ that compares a value with the owner.
             if insn.insn.name == "EQ":
                 for arg in insn.arguments:
-                    if str(owner_value) in str(arg) or (candidate_and_var and str(candidate_and_var) in str(arg)):
-                        eq_found = True
-                        print(f"[ecrecover] Found EQ comparing owner in block {block.offset:#x}: {insn}")
-                        return True
-        if eq_found:
-            break
-
+                    try:
+                        if int(arg) == int(owner_value):
+                            eq_found = True
+                            print(f"[ecrecover] Found EQ using owner in block at offset {block.offset}")
+                            return True
+                    except Exception:
+                        if arg == owner_value:
+                            eq_found = True
+                            print(f"[ecrecover] Found EQ using owner in block at offset {block.offset}")
+                            return True
     if not eq_found:
-        print("[ecrecover] EQ instruction comparing recovered value with owner not found!")
+        print("[ecrecover] EQ comparing owner not found!")
         return False
 
-    print("[ecrecover] Owner equality check is implemented correctly.")
+    print("[ecrecover] Owner equality check implemented correctly.")
     return True
-
-
 
 def check_permit_nonce_update_general(function, permit_owner):
     """
     Object-level check that nonces[owner]++ is implemented correctly.
     
-    Instead of hardcoding specific memory offsets or literal immediate values, we search for:
-      - An MSTORE instruction that writes the permit owner (permit_owner) into memory.
-      - A SHA3 instruction that computes a storage key (its return_value is the key).
-      - An SLOAD that uses that key to load the current nonce.
-      - An ADD instruction that increments the nonce (by adding 1).
-      - An SSTORE instruction that writes the incremented nonce back using the computed key.
+    Instead of hardcoding memory offsets or literal immediate values, this function uses the
+    data in the SSAInstruction.arguments directly.
+    
+    It searches for:
+      1. An MSTORE instruction that writes the permit owner (i.e. one of its arguments equals permit_owner).
+      2. A SHA3 instruction whose return_value is the computed storage key.
+      3. An SLOAD instruction that loads the nonce using that computed key.
+      4. An ADD instruction that increments the nonce (by adding 1).
+      5. An SSTORE instruction that writes the incremented nonce back using the computed key.
     """
     candidate = {
         "mstore_owner": None,
@@ -577,63 +602,87 @@ def check_permit_nonce_update_general(function, permit_owner):
         "sstore": None
     }
 
-    # Process blocks in execution order.
     blocks = sorted(function.blocks, key=lambda b: b.offset)
     
     for block in blocks:
         for idx, insn in enumerate(block.insns):
-            # (1) Look for an MSTORE that writes the owner.
+            # (1) Look for an MSTORE that writes permit_owner.
             if candidate["mstore_owner"] is None and insn.insn.name == "MSTORE":
-                # Check if any argument's string representation contains permit_owner.
                 for arg in insn.arguments:
-                    if str(permit_owner) in str(arg):
+                    # Compare object-level; if permit_owner is a ConcreteStackValue, you can compare directly.
+                    if arg == permit_owner:
                         candidate["mstore_owner"] = (block.offset, idx)
-                        print(f"[nonce check] Found MSTORE writing owner in block {block.offset:#x} idx {idx}")
+                        print(f"[nonce] Found MSTORE writing owner in block {block.offset} index {idx}")
                         break
-            # (2) Look for a SHA3 instruction.
+            # (2) Look for a SHA3 instruction; use its return_value as computed_key.
             if candidate["sha3"] is None and insn.insn.name == "SHA3":
                 if insn.return_value is not None:
                     candidate["computed_key"] = insn.return_value
                     candidate["sha3"] = (block.offset, idx)
-                    print(f"[nonce check] Found SHA3 computing key in block {block.offset:#x} idx {idx}")
-            # (3) Look for an SLOAD that uses the computed key.
+                    print(f"[nonce] Found SHA3 computing key in block {block.offset} index {idx}")
+            # (3) Look for an SLOAD that uses computed_key.
             if candidate["sha3"] is not None and candidate["computed_key"] is not None and candidate["sload"] is None:
                 if insn.insn.name == "SLOAD":
-                    if candidate["computed_key"] in insn.arguments:
-                        if insn.return_value is not None:
-                            candidate["nonce_loaded"] = insn.return_value
-                        candidate["sload"] = (block.offset, idx)
-                        print(f"[nonce check] Found SLOAD loading nonce in block {block.offset:#x} idx {idx}")
+                    # Check if any argument equals candidate["computed_key"].
+                    for arg in insn.arguments:
+                        try:
+                            if int(arg) == int(candidate["computed_key"]):
+                                candidate["sload"] = (block.offset, idx)
+                                if insn.return_value is not None:
+                                    candidate["nonce_loaded"] = insn.return_value
+                                print(f"[nonce] Found SLOAD loading nonce in block {block.offset} index {idx}")
+                                break
+                        except Exception:
+                            if arg == candidate["computed_key"]:
+                                candidate["sload"] = (block.offset, idx)
+                                if insn.return_value is not None:
+                                    candidate["nonce_loaded"] = insn.return_value
+                                print(f"[nonce] Found SLOAD loading nonce in block {block.offset} index {idx}")
+                                break
             # (4) Look for an ADD instruction that increments the nonce.
             if candidate["nonce_loaded"] is not None and candidate["add"] is None:
                 if insn.insn.name == "ADD":
-                    # Check that one of the arguments equals the loaded nonce and another is a literal 1.
+                    # Check that one argument equals nonce_loaded and another is literal 1.
                     if candidate["nonce_loaded"] in insn.arguments:
                         for arg in insn.arguments:
                             try:
                                 if int(arg) == 1:
                                     candidate["nonce_new"] = insn.return_value
                                     candidate["add"] = (block.offset, idx)
-                                    print(f"[nonce check] Found ADD incrementing nonce in block {block.offset:#x} idx {idx}")
+                                    print(f"[nonce] Found ADD incrementing nonce in block {block.offset} index {idx}")
                                     break
                             except Exception:
                                 continue
-            # (5) Look for an SSTORE that writes the new nonce using the computed key.
+            # (5) Look for an SSTORE that writes the new nonce using computed_key.
             if candidate["nonce_new"] is not None and candidate["computed_key"] is not None and candidate["sstore"] is None:
                 if insn.insn.name == "SSTORE":
-                    if candidate["computed_key"] in insn.arguments and candidate["nonce_new"] in insn.arguments:
+                    found_key = False
+                    found_nonce = False
+                    for arg in insn.arguments:
+                        try:
+                            if int(arg) == int(candidate["computed_key"]):
+                                found_key = True
+                        except Exception:
+                            if arg == candidate["computed_key"]:
+                                found_key = True
+                    for arg in insn.arguments:
+                        try:
+                            if int(arg) == int(candidate["nonce_new"]):
+                                found_nonce = True
+                        except Exception:
+                            if arg == candidate["nonce_new"]:
+                                found_nonce = True
+                    if found_key and found_nonce:
                         candidate["sstore"] = (block.offset, idx)
-                        print(f"[nonce check] Found SSTORE storing new nonce in block {block.offset:#x} idx {idx}")
+                        print(f"[nonce] Found SSTORE storing new nonce in block {block.offset} index {idx}")
         if (candidate["mstore_owner"] is not None and candidate["sha3"] is not None and
             candidate["sload"] is not None and candidate["add"] is not None and
             candidate["sstore"] is not None):
-            print("[nonce check] Complete nonce update pattern found.")
+            print("[nonce] Complete nonce update pattern found.")
             return True
 
-    print("[nonce check] Nonce update pattern not found.")
+    print("[nonce] Nonce update pattern not found.")
     return False
-
-
 
 
 
