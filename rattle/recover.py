@@ -60,34 +60,81 @@ class InternalRecover(object):
 
         dispatch.remove_blocks(blocks_to_remove)
 
+    # @staticmethod
+    # def remove_metadata(bytecode: bytes):
+    #     bytecode = bytecode.decode().rstrip()
+    #     # Bail on empty bytecode
+    #     if not bytecode or len(bytecode) <= 2:
+    #         return bytecode
+
+    #     # Gather length of CBOR metadata from the end of the file
+    #     raw_length = bytecode[-4:]
+    #     length = int(raw_length, base=16)
+
+    #     # Bail on unreasonable values for length (meaning we read something else other than metadata length)
+    #     if length * 2 > len(bytecode) - 4:
+    #         return bytecode
+
+    #     # Gather what we assume is the CBOR encoded metadata, and try to parse it
+    #     metadata_start = len(bytecode) - length * 2 - 4
+    #     metadata = bytecode[metadata_start: len(bytecode) - 4]
+
+    #     # Parse it to see if it is indeed valid metadata
+    #     try:
+    #         cbor2.loads(binascii.unhexlify(metadata))
+    #     except:
+    #         logger.warning('Error parsing contract metadata. Ignoring.')
+    #         return bytecode
+
+    #     # Return bytecode without it
+    #     return bytecode[0:metadata_start].encode()
+        
+        
+
     @staticmethod
-    def remove_metadata(bytecode: bytes):
-        bytecode = bytecode.decode().rstrip()
-        # Bail on empty bytecode
-        if not bytecode or len(bytecode) <= 2:
-            return bytecode
-
-        # Gather length of CBOR metadata from the end of the file
-        raw_length = bytecode[-4:]
-        length = int(raw_length, base=16)
-
-        # Bail on unreasonable values for length (meaning we read something else other than metadata length)
-        if length * 2 > len(bytecode) - 4:
-            return bytecode
-
-        # Gather what we assume is the CBOR encoded metadata, and try to parse it
-        metadata_start = len(bytecode) - length * 2 - 4
-        metadata = bytecode[metadata_start: len(bytecode) - 4]
-
-        # Parse it to see if it is indeed valid metadata
+    def remove_metadata(bytecode: bytes) -> bytes:
+        """
+        Attempt to remove CBOR metadata from a hex-encoded bytecode.
+        If the bytecode is not decodable as UTF-8 (i.e. is pure binary),
+        then assume that no metadata removal is necessary and return it unchanged.
+        """
         try:
-            cbor2.loads(binascii.unhexlify(metadata))
-        except:
-            logger.warning('Error parsing contract metadata. Ignoring.')
+            decoded = bytecode.decode("utf-8")
+            # Remove any whitespace (in case there is formatting)
+            decoded = "".join(decoded.split())
+        except UnicodeDecodeError:
+            # The bytecode is not valid UTF-8; assume it's already binary and return it.
             return bytecode
 
-        # Return bytecode without it
-        return bytecode[0:metadata_start].encode()
+        # Bail on empty or too-short decoded data.
+        if not decoded or len(decoded) <= 2:
+            return decoded.encode()
+
+        # The last 4 characters represent the CBOR metadata length (in hex).
+        raw_length = decoded[-4:]
+        try:
+            length = int(raw_length, 16)
+        except ValueError:
+            return decoded.encode()
+
+        # Check if the metadata length is reasonable.
+        if length * 2 > len(decoded) - 4:
+            return decoded.encode()
+
+        # Calculate where metadata starts.
+        metadata_start = len(decoded) - length * 2 - 4
+        metadata = decoded[metadata_start: len(decoded) - 4]
+
+        try:
+            # Try to parse the CBOR metadata.
+            cbor2.loads(binascii.unhexlify(metadata))
+        except Exception:
+            logger.warning('Error parsing contract metadata. Ignoring metadata.')
+            return decoded.encode()
+
+        # Return the decoded string (without metadata) re-encoded as bytes.
+        return decoded[0:metadata_start].encode()
+
 
     def recover(self, function: SSAFunction) -> None:
         self.identify_blocks(function)

@@ -513,7 +513,7 @@ class SSABasicBlock(object):
 
     def set_fallthrough_target(self, other: int) -> None:
         # Print all blocks in the blockmap
-        print("Blocks in blockmap:", self.function.blockmap.keys())
+        # print("Blocks in blockmap:", self.function.blockmap.keys())
 
         # Check if the target block exists
         if other in self.function.blockmap:
@@ -522,7 +522,7 @@ class SSABasicBlock(object):
             self.fallthrough_edge = target_block
             target_block.in_edges.add(self)
             
-            print(f"Found block {other}: {target_block}")
+            # print(f"Found block {other}: {target_block}")
         else:
             print(f"Block {other} not found in blockmap.")
             # Handle the missing block case

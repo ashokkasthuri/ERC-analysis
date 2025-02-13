@@ -12,6 +12,8 @@ from typing import Sequence
 
 import rattle
 import re
+import pandas as pd
+import csv
 
 # This might not be true, but I have a habit of running the wrong python version and this is to save me frustration
 assert (sys.version_info.major >= 3 and sys.version_info.minor >= 6)
@@ -118,26 +120,91 @@ def analyze_bytecode(ssa):
                 print("[WARNING] Permit function is missing required components!")
 
 
+# def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
+#     parser = argparse.ArgumentParser(
+#         description='Rattle Ethereum EVM binary analysis from CSV file'
+#     )
+#     parser.add_argument('--input', '-i', type=argparse.FileType('rb'), help='input evm file')
+#     # parser.add_argument('--input', '-i', type=argparse.FileType('r'),
+#     #                     help='Input CSV file with a "bytecode" column')
+#     parser.add_argument('--optimize', '-O', action='store_true',
+#                         help='Optimize resulting SSA form')
+#     parser.add_argument('--no-split-functions', '-nsf', action='store_false',
+#                         help='Do not split functions')
+#     parser.add_argument('--log', type=argparse.FileType('w'), default=sys.stdout,
+#                         help='Log output file (default stdout)')
+#     parser.add_argument('--verbosity', '-v', type=str, default="None",
+#                         help='Log output verbosity (None, Critical, Error, Warning, Info, Debug)')
+#     parser.add_argument('--supplemental_cfg_file', type=argparse.FileType('r'), default=None,
+#                         help='Optional supplemental CFG file')
+#     parser.add_argument('--stdout_to', type=argparse.FileType('wt'), default=None,
+#                         help='Redirect stdout to file')
+#     args = parser.parse_args(argv[1:])
 
-def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3, fool
+#     if args.input is None:
+#         parser.print_usage()
+#         sys.exit(1)
+
+#     if args.stdout_to:
+#         sys.stdout = args.stdout_to
+
+#     edges = []
+#     if args.supplemental_cfg_file:
+#         edges = json.loads(args.supplemental_cfg_file.read())
+
+#     try:
+#         loglevel = getattr(logging, args.verbosity.upper())
+#     except AttributeError:
+#         loglevel = None
+#     logging.basicConfig(stream=args.log, level=loglevel)
+#     logger = logging.getLogger(__name__)
+#     logger.info(f"Rattle running on input: {args.input.name}")
+    
+#     ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
+#                          split_functions=args.no_split_functions)
+
+
+import csv
+import re
+import sys
+import argparse
+import logging
+from typing import Sequence, List, Tuple
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def is_valid_bytecode(bytecode: str) -> bool:
+    """Check if the bytecode is valid (hexadecimal and even length)."""
+    return bool(re.match(r'^[0-9a-fA-F]*$', bytecode)) and len(bytecode) % 2 == 0
+
+def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
+    
+    sys.setrecursionlimit(20000)
     parser = argparse.ArgumentParser(
-        description='rattle ethereum evm binary analysis')
-    parser.add_argument('--input', '-i', type=argparse.FileType('rb'), help='input evm file')
-    parser.add_argument('--optimize', '-O', action='store_true', help='optimize resulting SSA form')
-    parser.add_argument('--no-split-functions', '-nsf', action='store_false', help='split functions')
+        description='Rattle Ethereum EVM binary analysis from CSV file'
+    )
+    parser.add_argument('--input', '-i', type=argparse.FileType('r'),
+                        help='Input CSV file with a "bytecode" column')
+    parser.add_argument('--optimize', '-O', action='store_true',
+                        help='Optimize resulting SSA form')
+    parser.add_argument('--no-split-functions', '-nsf', action='store_false',
+                        help='Do not split functions')
     parser.add_argument('--log', type=argparse.FileType('w'), default=sys.stdout,
-                        help='log output file (default stdout)')
+                        help='Log output file (default stdout)')
     parser.add_argument('--verbosity', '-v', type=str, default="None",
-                        help='log output verbosity (None,  Critical, Error, Warning, Info, Debug)')
-    parser.add_argument('--supplemental_cfg_file', type=argparse.FileType('rb'), default=None, help='optional cfg file')
-    parser.add_argument('--stdout_to', type=argparse.FileType('wt'), default=None, help='redirect stdout to file')
+                        help='Log output verbosity (None, Critical, Error, Warning, Info, Debug)')
+    parser.add_argument('--supplemental_cfg_file', type=argparse.FileType('r'), default=None,
+                        help='Optional supplemental CFG file')
+    parser.add_argument('--stdout_to', type=argparse.FileType('wt'), default=None,
+                        help='Redirect stdout to file')
     args = parser.parse_args(argv[1:])
 
     if args.input is None:
         parser.print_usage()
         sys.exit(1)
 
-    orig_stdout = sys.stdout
     if args.stdout_to:
         sys.stdout = args.stdout_to
 
@@ -149,37 +216,67 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
         loglevel = getattr(logging, args.verbosity.upper())
     except AttributeError:
         loglevel = None
-
     logging.basicConfig(stream=args.log, level=loglevel)
-    logger.info(f"Rattle running on input: {args.input.name}")
 
-    ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
-                         split_functions=args.no_split_functions)
+    with args.input as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row_number, row in enumerate(reader, start=1):
+            if row_number > 20:
+                break  # Stop after processing 10 rows
 
-    print(ssa)
+            if 'bytecode' not in row:
+                logger.error(f"Row {row_number}: No 'bytecode' column found.")
+                continue
 
-    print("Identified Functions:")
-    for function in sorted(ssa.functions, key=lambda f: f.offset):
-        print(f'\t{function.desc()} argument offsets:{function.arguments()}')
+            bytecode = row['bytecode']
 
-    print("")
+            # Remove the "0x" prefix if it exists
+            if bytecode.startswith('0x'):
+                bytecode = bytecode[2:]
 
-    print("Storage Locations: " + repr(ssa.storage))
-    print("Memory Locations: " + repr(ssa.memory))
+            # Validate bytecode
+            if not is_valid_bytecode(bytecode):
+                logger.error(f"Row {row_number}: Invalid bytecode format.")
+                continue
 
-    for location in [x for x in ssa.memory if x > 0x20]:
-        print(f"Analyzing Memory Location: {location}\n")
-        for insn in sorted(ssa.memory_at(location), key=lambda i: i.offset):
-            print(f'\t{insn.offset:#x}: {insn}')
-        print('\n\n')
+            logger.info(f"Processing row {row_number}: Bytecode length = {len(bytecode)}")
 
-    for function in sorted(ssa.functions, key=lambda f: f.offset):
-        print(f"Function {function.desc()} storage:")
-        for location in function.storage:
-            print(f"\tAnalyzing Storage Location: {location}")
-            for insn in sorted(ssa.storage_at(location), key=lambda i: i.offset):
-                print(f'\t\t{insn.offset:#x}: {insn}')
-            print('\n')
+            try:
+                # Pass the bytecode to the Recover class
+                ssa = rattle.Recover(bytecode.encode(), edges=edges, optimize=args.optimize,
+                                     split_functions=args.no_split_functions)
+                logger.info(f"Successfully processed row {row_number}")
+                PermitMain(ssa)
+            except Exception as e:
+                logger.error(f"Error processing row {row_number}: {e}")
+
+    if args.stdout_to:
+        sys.stdout = orig_stdout
+        args.stdout_to.close()
+
+    if args.input:
+        args.input.close()
+    # for function in sorted(ssa.functions, key=lambda f: f.offset):
+    #     print(f'\t{function.desc()} argument offsets:{function.arguments()}')
+
+    # print("")
+
+    # print("Storage Locations: " + repr(ssa.storage))
+    # print("Memory Locations: " + repr(ssa.memory))
+
+    # for location in [x for x in ssa.memory if x > 0x20]:
+    #     print(f"Analyzing Memory Location: {location}\n")
+    #     for insn in sorted(ssa.memory_at(location), key=lambda i: i.offset):
+    #         print(f'\t{insn.offset:#x}: {insn}')
+    #     print('\n\n')
+
+    # for function in sorted(ssa.functions, key=lambda f: f.offset):
+    #     print(f"Function {function.desc()} storage:")
+    #     for location in function.storage:
+    #         print(f"\tAnalyzing Storage Location: {location}")
+    #         for insn in sorted(ssa.storage_at(location), key=lambda i: i.offset):
+    #             print(f'\t\t{insn.offset:#x}: {insn}')
+    #         print('\n')
 
     '''
     print("Tracing SLOAD(0) (ignoring ANDs)")
@@ -190,7 +287,7 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
             print(g.dot(lambda x: x.insn.name in ('AND', )))
         print('\n')
     '''
-
+def canSendEther(ssa):
     can_send, functions_that_can_send = ssa.can_send_ether()
     if can_send:
         print("[+] Contract can send ether from following functions:")
@@ -224,6 +321,8 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
     else:
         print("[+] Contract can not send ether.")
 
+
+def contractCalls(ssa):
     print("[+] Contract calls:")
     for call in ssa.calls():
         print(f"\t{call}")
@@ -278,78 +377,92 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
 
         print("")
 
-    
     # analyze_bytecode(ssa)
 
+
+
+def PermitMain(ssa):
     for function in sorted(ssa.functions, key=lambda f: f.offset):
-        
-        # check_ecrecover_analysis(function)
-        # check_permit_deadline(function)
-        
-        if function.hash == PERMIT_SIG_1 or function.hash == PERMIT_SIG_2 or function.hash == PERMIT_SIG_3:
-            
-            
-            # for block in function.blocks:
-            #     if len(block.function) > 0:
-            #         print(f"insn_str block_ function HI: {block.function} and {len(block.function)}")
-                
+        # Check if the function matches any of the permit signatures
+        if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
+            # Generate the Control Flow Graph (CFG) for the function
             
             print(f"match found : {hex(function.hash)}")
-            # print(f"function.blocks : {function.blocks}")
-            
             check_ecrecover_analysis(function)
             check_permit_deadline(function)
+            g = rattle.ControlFlowGraph(function)
+            
+            # Create a temporary DOT file for the CFG
+            with tempfile.NamedTemporaryFile(suffix='.dot', mode='w', delete=False) as t:
+                t.write(g.dot())
+                t.flush()
+                dot_file = t.name  # Save the temporary file path
+
+            # Ensure the output directory exists
+            os.makedirs('output', exist_ok=True)
+
+           # Define the base output PNG file name using the function descriptor.
+            base_name = "permit"
+            out_file = f'output/{base_name}.png'
+            counter = 1
+            # If the file already exists, append a counter to avoid override.
+            while os.path.exists(out_file):
+                out_file = f'output/{base_name}_{counter}.png'
+                counter += 1
+
+            # Use Graphviz to generate the PNG file from the DOT file
+            subprocess.call(['dot', '-Tpng', f'-o{out_file}', dot_file])
+            print(f'[+] Wrote {function.name} to {out_file}')
+
+            # Attempt to open the PNG file (macOS specific)
+            try:
+                subprocess.call(['open', out_file])
+            except OSError as e:
+                print(f"[-] Could not open {out_file}: {e}")
+
+            # Clean up the temporary DOT file
+            os.unlink(dot_file)
+    
+
+# def PermitMain(ssa):
+#     for function in sorted(ssa.functions, key=lambda f: f.offset):
+        
+#         # check_ecrecover_analysis(function)
+#         # check_permit_deadline(function)
+        
+#         if function.hash == PERMIT_SIG_1 or function.hash == PERMIT_SIG_2 or function.hash == PERMIT_SIG_3:
+            
+#             g = rattle.ControlFlowGraph(function)
+#             t = tempfile.NamedTemporaryFile(suffix='.dot', mode='w')
+#             t.write(g.dot())
+#             t.flush()
+
+#             try:
+#                 os.makedirs('output')
+#             except:
+#                 pass
+
+#             out_file = f'output/{function.desc()}.png'
+
+#             subprocess.call(['dot', '-Tpng', f'-o{out_file}', t.name])
+#             print(f'[+] Wrote {function.desc()} to {out_file}')
+
+#             try:
+#                 # This is mac specific
+#                 subprocess.call(['open', out_file])
+#             except OSError as e:
+#                 pass
             
             
+#             print(f"match found : {hex(function.hash)}")
+#             # print(f"function.blocks : {function.blocks}")
             
-            # g = rattle.ControlFlowGraph(function)
-            # t = tempfile.NamedTemporaryFile(suffix='.dot', mode='w')
-            # t.write(g.dot())
-            # t.flush()
-
-            # try:
-            #     os.makedirs('output')
-            # except:
-            #     pass
-
-            # out_file = f'output/{function.desc()}.png'
-
-            # subprocess.call(['dot', '-Tpng', f'-o{out_file}', t.name])
-            # print(f'[+] Wrote {function.desc()} to {out_file}')
-
-            # try:
-            #     # This is mac specific
-            #     subprocess.call(['open', out_file])
-            # except OSError as e:
-            #     pass
+#             check_ecrecover_analysis(function)
+#             check_permit_deadline(function)
+            
     
         
-        # print(f'function arguments  {function.arguments}')
-        # print(f'function name  {function.name}')
-        # print(f'function desc  {function.desc}')
-        # print(f'function phis  {function.phis}')
-        # Check if the function description matches any in the required list
-        # if function.desc() in required_function_descriptions.values():
-        #     g = rattle.ControlFlowGraph(function)
-        #     t = tempfile.NamedTemporaryFile(suffix='.dot', mode='w')
-        #     t.write(g.dot())
-        #     t.flush()
-            
-        #     print(f'print  {function.calls}')
-
-        #     # Ensure the output directory exists
-        #     os.makedirs('output', exist_ok=True)
-
-        #     out_file = f'output/{function.desc()}.png'
-
-        #     subprocess.call(['dot', '-Tpng', f'-o{out_file}', t.name])
-        #     print(f'[+] Wrote {function.desc()} to {out_file}')
-            
-        #     try:
-        #         # This is mac specific
-        #         subprocess.call(['open', out_file])
-        #     except OSError as e:
-        #         pass
+        
 
         
 
@@ -357,13 +470,7 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:  # run me with python3,
     # print(loc0.value.top())
     # print(loc0.value.attx(012323213))
 
-    if args.stdout_to:
-        sys.stdout = orig_stdout
-        args.stdout_to.close()
-
-    if args.input:
-        args.input.close()
-
+    
 def check_permit_deadline(function):
     """
     Object-level check that the permit function correctly uses the deadline parameter.
@@ -371,13 +478,13 @@ def check_permit_deadline(function):
     This function scans the SSA function blocks for CALLDATALOAD instructions.
     It assumes that literal values are stored as ConcreteStackValue objects such that:
     
-      int(literal) == 4    --> owner
-      int(literal) == 24   --> spender
-      int(literal) == 44   --> value
-      int(literal) == 64   --> deadline
-      int(literal) == 84   --> raw_v
-      int(literal) == 0xa4 (164) --> r
-      int(literal) == 0xc4 (196) --> s
+      int(literal.lstrip("#"), 16) == 4    --> owner
+      int(literal.lstrip("#"), 16) == 24   --> spender
+      int(literal.lstrip("#"), 16) == 44   --> value
+      int(literal.lstrip("#"), 16) == 64   --> deadline
+      int(literal.lstrip("#"), 16) == 84   --> raw_v
+      int(literal.lstrip("#"), 16) == 0xa4  --> r  (164)
+      int(literal.lstrip("#"), 16) == 0xc4  --> s  (196)
     
     Once the deadline parameter is identified, it searches subsequent blocks for:
       - A TIMESTAMP instruction.
@@ -392,29 +499,47 @@ def check_permit_deadline(function):
     for block in function.blocks:
         for insn in block.insns:
             if insn.insn.name == "CALLDATALOAD":
+                # print(f"insn.arguments : {insn.arguments}")
                 for arg in insn.arguments:
+                    # Convert argument string (e.g., "#4", "#24", etc.) using base 16.
                     try:
-                        literal_val = int(arg)
+                        print(f"insn.arg : {arg}")
+                        if isinstance(arg, str):
+                            literal_val = int(arg.lstrip("#"), 16)
+                        else:
+                            literal_val = int(str(arg).lstrip("#"), 16)
+
+                        print(f"Extracted literal (decimal): {literal_val}, (hex): {hex(literal_val)}")
                     except Exception:
                         continue
+                    
                     if literal_val == 4:
+                        print(f"literal_val : {literal_val}")
                         permit_params["owner"] = insn.return_value
-                    elif literal_val == 24:
+                    elif literal_val == 36:
+                        print(f"literal_val : {literal_val}")
                         permit_params["spender"] = insn.return_value
-                    elif literal_val == 44:
+                    elif literal_val == 68:
+                        print(f"literal_val : {literal_val}")
                         permit_params["value"] = insn.return_value
-                    elif literal_val == 64:
+                    elif literal_val == 100:
+                        print(f"literal_val : {literal_val}")
                         permit_params["deadline"] = insn.return_value
-                    elif literal_val == 84:
+                    elif literal_val == 132:
+                        print(f"literal_val : {literal_val}")
                         permit_params["raw_v"] = insn.return_value
-                    elif literal_val == 0xa4:  # 164
+                    elif literal_val == 0xa4:  # 164 in decimal.
+                        print(f"literal_val : {literal_val}")
                         permit_params["r"] = insn.return_value
-                    elif literal_val == 0xc4:  # 196
+                    elif literal_val == 0xc4:  # 196 in decimal.
+                        print(f"literal_val : {literal_val}")
                         permit_params["s"] = insn.return_value
+        print(f"permit_params :{permit_params}")
         if "deadline" in permit_params:
             permit_block = block
+            # Printing the permit parameters using a dictionary comprehension for string conversion.
             print(f"[permit] Found permit block at offset {block.offset:#x}")
-            print(f"[permit] Extracted permit parameters: {{ key: str(permit_params[key]) for key in permit_params }}")
+            print(f"[permit] Extracted permit parameters: { {key: str(permit_params[key]) for key in permit_params} }")
             break
 
     if permit_block is None:
@@ -439,18 +564,15 @@ def check_permit_deadline(function):
             if insn.insn.name == "TIMESTAMP":
                 timestamp_found = True
                 print(f"[permit] Found TIMESTAMP in block {block.offset:#x}")
-            # Check for a comparison (e.g. LT, GT, SLT, SGT) that uses the deadline.
+            # Check for a comparison (e.g. LT, GT, SLT, or SGT) that uses the deadline.
             if insn.insn.name in ("LT", "GT", "SLT", "SGT"):
-                # Compare using the underlying data of each argument.
                 for arg in insn.arguments:
                     try:
-                        # If both are literals, compare integer values.
-                        if int(arg) == int(deadline_val):
+                        if int(arg.lstrip("#"), 16) == int(deadline_val.lstrip("#"), 16):
                             condition_found = True
                             print(f"[permit] Found {insn.insn.name} condition using deadline in block {block.offset:#x}")
                             break
                     except Exception:
-                        # Alternatively, check object equality.
                         if arg == deadline_val:
                             condition_found = True
                             print(f"[permit] Found {insn.insn.name} condition using deadline in block {block.offset:#x}")
