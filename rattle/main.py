@@ -27,99 +27,6 @@ PERMIT_SIG_1 = int("0xd505accf", 16)
 PERMIT_SIG_2 = int("0x8fcbaf0c", 16)
 PERMIT_SIG_3 = int("0x2a6a40e2", 16)
 
-
-# Required functions and storage variables
-REQUIRED_FUNCTIONS = {
-    "DOMAIN_SEPARATOR": "0x3644e515",
-    "PERMIT_TYPEHASH": "0x30adf81f",
-    "ecrecover": "0x61f56f16",
-    "nonces": "0x7ecebe00",
-}
-
-def has_required_functions(cfg, function):
-    """Check if the permit function contains necessary components for verification."""
-    found_functions = set()
-
-    for block in cfg:
-        for instruction in block:
-            insn_name = instruction.insn.name if hasattr(instruction.insn, 'name') else None
-
-            # Check for required function calls
-            if insn_name in ("MLOAD", "SLOAD", "SHA3", "CALLDATALOAD"):
-                # print(f"insn_name 1: {insn_name}")
-                for arg in instruction.arguments:
-                    arg_str = str(arg)
-                    # print(f"arg_str : {arg_str}")
-                    if any(func in arg_str for func in REQUIRED_FUNCTIONS.values()):
-                        found_functions.add(arg_str)
-
-    return set(REQUIRED_FUNCTIONS.values()).issubset(found_functions)
-
-def perform_data_flow_analysis(cfg, function):
-    """Perform forward and backward data flow analysis to verify security conditions."""
-    sv_check = False
-    deadline_check = False
-    nonce_check = False
-
-    timestamp_variable = None  # Variable to store block.timestamp tracking
-    potential_deadline_var = None  # Track potential deadline variable
-
-    for block in cfg:
-        for instruction in block:
-            insn_name = instruction.insn.name if hasattr(instruction.insn, 'name') else None
-
-            # Track block.timestamp
-            if insn_name == "TIMESTAMP":
-                timestamp_variable = instruction.return_value
-                print(f"[DEBUG] Found block.timestamp stored in {timestamp_variable}")
-
-            # Identify Signature Verification (SVCheck)
-            if insn_name == "STATICCALL":
-                print(f"[DEBUG] Found STATICCALL at {instruction.offset:#x}")
-                sv_check = True
-
-            # Deadline Enforcement (require(deadline >= block.timestamp))
-            if insn_name in ("LT", "ISZERO"):
-                for arg in instruction.arguments:
-                    if arg == timestamp_variable:
-                        potential_deadline_var = instruction.arguments[0]
-                        deadline_check = True
-                        print(f"[DEBUG] Found deadline enforcement with variable {potential_deadline_var}")
-
-            # Nonce Security (SLOAD/SSTORE for `nonces`)
-            if insn_name in ("SLOAD", "SSTORE"):
-                for arg in instruction.arguments:
-                    if "nonces" in str(arg):
-                        nonce_check = True
-                        print(f"[DEBUG] Found nonce storage operation at {instruction.offset:#x}")
-
-    return sv_check, deadline_check, nonce_check
-
-def analyze_bytecode(ssa):
-    """Analyze bytecode for the permit function and verify its security conditions."""
-    for function in sorted(ssa.functions, key=lambda f: f.offset):
-        if function.hash == int(PERMIT_SIGNATURE, 16):
-            print("[MATCH] Found permit function!")
-
-            cfg = rattle.ControlFlowGraph(function)
-            
-        
-            analyzer = DataFlowAnalyzer(cfg)
-            analyzer.perform_analysis()
-            
-            if has_required_functions(cfg, function):
-                print("[+] Permit function contains all required security components.")
-
-                sv_check, deadline_check, nonce_check = perform_data_flow_analysis(cfg, function)
-
-                print(f"[RESULT] Signature Verification Check: {'✔' if sv_check else '✘'}")
-                print(f"[RESULT] Deadline Enforcement: {'✔' if deadline_check else '✘'}")
-                print(f"[RESULT] Nonce Security: {'✔' if nonce_check else '✘'}")
-
-            else:
-                print("[WARNING] Permit function is missing required components!")
-
-
 # def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
 #     parser = argparse.ArgumentParser(
 #         description='Rattle Ethereum EVM binary analysis from CSV file'
@@ -185,8 +92,11 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
     parser = argparse.ArgumentParser(
         description='Rattle Ethereum EVM binary analysis from CSV file'
     )
-    parser.add_argument('--input', '-i', type=argparse.FileType('r'),
-                        help='Input CSV file with a "bytecode" column')
+    
+    parser.add_argument('--input', '-i', type=argparse.FileType('rb'), help='input evm file')
+    
+    # parser.add_argument('--input', '-i', type=argparse.FileType('r'),
+    #                     help='Input CSV file with a "bytecode" column')
     parser.add_argument('--optimize', '-O', action='store_true',
                         help='Optimize resulting SSA form')
     parser.add_argument('--no-split-functions', '-nsf', action='store_false',
@@ -217,38 +127,42 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
     except AttributeError:
         loglevel = None
     logging.basicConfig(stream=args.log, level=loglevel)
+    
+    ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
+                         split_functions=args.no_split_functions)
+    PermitMain(ssa)
 
-    with args.input as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row_number, row in enumerate(reader, start=1):
-            if row_number > 20:
-                break  # Stop after processing 10 rows
+    # with args.input as csvfile:
+    #     reader = csv.DictReader(csvfile)
+    #     for row_number, row in enumerate(reader, start=1):
+    #         if row_number > 10:
+    #             break  # Stop after processing 10 rows
 
-            if 'bytecode' not in row:
-                logger.error(f"Row {row_number}: No 'bytecode' column found.")
-                continue
+    #         if 'bytecode' not in row:
+    #             logger.error(f"Row {row_number}: No 'bytecode' column found.")
+    #             continue
 
-            bytecode = row['bytecode']
+    #         bytecode = row['bytecode']
 
-            # Remove the "0x" prefix if it exists
-            if bytecode.startswith('0x'):
-                bytecode = bytecode[2:]
+    #         # Remove the "0x" prefix if it exists
+    #         if bytecode.startswith('0x'):
+    #             bytecode = bytecode[2:]
 
-            # Validate bytecode
-            if not is_valid_bytecode(bytecode):
-                logger.error(f"Row {row_number}: Invalid bytecode format.")
-                continue
+    #         # Validate bytecode
+    #         if not is_valid_bytecode(bytecode):
+    #             logger.error(f"Row {row_number}: Invalid bytecode format.")
+    #             continue
 
-            logger.info(f"Processing row {row_number}: Bytecode length = {len(bytecode)}")
+    #         logger.info(f"Processing row {row_number}: Bytecode length = {len(bytecode)}")
 
-            try:
-                # Pass the bytecode to the Recover class
-                ssa = rattle.Recover(bytecode.encode(), edges=edges, optimize=args.optimize,
-                                     split_functions=args.no_split_functions)
-                logger.info(f"Successfully processed row {row_number}")
-                PermitMain(ssa)
-            except Exception as e:
-                logger.error(f"Error processing row {row_number}: {e}")
+    #         try:
+    #             # Pass the bytecode to the Recover class
+    #             ssa = rattle.Recover(bytecode.encode(), edges=edges, optimize=args.optimize,
+    #                                  split_functions=args.no_split_functions)
+    #             logger.info(f"Successfully processed row {row_number}")
+    #             PermitMain(ssa)
+    #         except Exception as e:
+    #             logger.error(f"Error processing row {row_number}: {e}")
 
     if args.stdout_to:
         sys.stdout = orig_stdout
@@ -388,40 +302,41 @@ def PermitMain(ssa):
             # Generate the Control Flow Graph (CFG) for the function
             
             print(f"match found : {hex(function.hash)}")
-            check_ecrecover_analysis(function)
-            check_permit_deadline(function)
-            g = rattle.ControlFlowGraph(function)
+            check_check_ecrecover_analysis(function)
             
-            # Create a temporary DOT file for the CFG
-            with tempfile.NamedTemporaryFile(suffix='.dot', mode='w', delete=False) as t:
-                t.write(g.dot())
-                t.flush()
-                dot_file = t.name  # Save the temporary file path
+            
+        #     g = rattle.ControlFlowGraph(function)
+            
+        #     # Create a temporary DOT file for the CFG
+        #     with tempfile.NamedTemporaryFile(suffix='.dot', mode='w', delete=False) as t:
+        #         t.write(g.dot())
+        #         t.flush()
+        #         dot_file = t.name  # Save the temporary file path
 
-            # Ensure the output directory exists
-            os.makedirs('output', exist_ok=True)
+        #     # Ensure the output directory exists
+        #     os.makedirs('output', exist_ok=True)
 
-           # Define the base output PNG file name using the function descriptor.
-            base_name = "permit"
-            out_file = f'output/{base_name}.png'
-            counter = 1
-            # If the file already exists, append a counter to avoid override.
-            while os.path.exists(out_file):
-                out_file = f'output/{base_name}_{counter}.png'
-                counter += 1
+        #    # Define the base output PNG file name using the function descriptor.
+        #     base_name = "permit"
+        #     out_file = f'output/{base_name}.png'
+        #     counter = 1
+        #     # If the file already exists, append a counter to avoid override.
+        #     while os.path.exists(out_file):
+        #         out_file = f'output/{base_name}_{counter}.png'
+        #         counter += 1
 
-            # Use Graphviz to generate the PNG file from the DOT file
-            subprocess.call(['dot', '-Tpng', f'-o{out_file}', dot_file])
-            print(f'[+] Wrote {function.name} to {out_file}')
+        #     # Use Graphviz to generate the PNG file from the DOT file
+        #     subprocess.call(['dot', '-Tpng', f'-o{out_file}', dot_file])
+        #     print(f'[+] Wrote {function.name} to {out_file}')
 
-            # Attempt to open the PNG file (macOS specific)
-            try:
-                subprocess.call(['open', out_file])
-            except OSError as e:
-                print(f"[-] Could not open {out_file}: {e}")
+        #     # Attempt to open the PNG file (macOS specific)
+        #     try:
+        #         subprocess.call(['open', out_file])
+        #     except OSError as e:
+        #         print(f"[-] Could not open {out_file}: {e}")
 
-            # Clean up the temporary DOT file
-            os.unlink(dot_file)
+        #     # Clean up the temporary DOT file
+        #     os.unlink(dot_file)
     
 
 # def PermitMain(ssa):
@@ -464,12 +379,6 @@ def PermitMain(ssa):
         
         
 
-        
-
-    # Maybe a way to query the current value of a storage location out of some api (can infra do that?)
-    # print(loc0.value.top())
-    # print(loc0.value.attx(012323213))
-
     
 def check_permit_deadline(function):
     """
@@ -503,7 +412,6 @@ def check_permit_deadline(function):
                 for arg in insn.arguments:
                     # Convert argument string (e.g., "#4", "#24", etc.) using base 16.
                     try:
-                        print(f"insn.arg : {arg}")
                         if isinstance(arg, str):
                             literal_val = int(arg.lstrip("#"), 16)
                         else:
@@ -514,25 +422,25 @@ def check_permit_deadline(function):
                         continue
                     
                     if literal_val == 4:
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["owner"] = insn.return_value
                     elif literal_val == 36:
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["spender"] = insn.return_value
                     elif literal_val == 68:
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["value"] = insn.return_value
                     elif literal_val == 100:
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["deadline"] = insn.return_value
                     elif literal_val == 132:
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["raw_v"] = insn.return_value
                     elif literal_val == 0xa4:  # 164 in decimal.
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["r"] = insn.return_value
                     elif literal_val == 0xc4:  # 196 in decimal.
-                        print(f"literal_val : {literal_val}")
+                        
                         permit_params["s"] = insn.return_value
         print(f"permit_params :{permit_params}")
         if "deadline" in permit_params:
@@ -669,6 +577,7 @@ def check_ecrecover_analysis(function):
                     print(f"[ecrecover] Found STATICCALL in block at offset {block.offset}")
                     break
         if ecrecover_found:
+            check_permit_deadline(function)
             check_permit_nonce_update_general(function, owner_value)
             break
 
@@ -806,305 +715,319 @@ def check_permit_nonce_update_general(function, permit_owner):
     print("[nonce] Nonce update pattern not found.")
     return False
 
+def track_variable_reassignments(function, start_value):
+    """
+    Track reassignments of a variable in the SSA representation.
+    Returns a set of all values that the start_value can propagate to.
+    """
+    visited = set()
+    stack = [start_value]
+    propagated_values = set()
+
+    while stack:
+        current_value = stack.pop()
+        if current_value in visited:
+            continue
+        visited.add(current_value)
+        propagated_values.add(current_value)
+
+        # Find all instructions where current_value is used as an argument
+        for block in function.blocks:
+            for insn in block.insns:
+                if current_value in insn.arguments:
+                    # If the instruction has a return value, add it to the stack
+                    if insn.return_value is not None:
+                        stack.append(insn.return_value)
+                    # Handle PHI instructions (common in SSA)
+                    if insn.insn.name == "PHI":
+                        for arg in insn.arguments:
+                            stack.append(arg)
+
+    return propagated_values
+
+def forward_analysis(function, staticcall_block, ecrecover_return_value):
+    """
+    Perform forward analysis from the STATICCALL block to track the return value of ecrecover.
+    Check if the return value (or its reassignments) is used in conditional checks (e.g., EQ, JUMPI).
+    """
+    # Track all propagated values of the ecrecover return value
+    ecrecover_values = track_variable_reassignments(function, ecrecover_return_value)
+
+    # Find the index of the staticcall_block in the function.blocks list
+    staticcall_block_index = None
+    for i, block in enumerate(function.blocks):
+        if block == staticcall_block:
+            staticcall_block_index = i
+            break
+
+    if staticcall_block_index is None:
+        print("[Forward Analysis] STATICCALL block not found in function.blocks!")
+        return False
+
+    # Iterate over blocks starting from the staticcall_block
+    for block in function.blocks[staticcall_block_index:]:
+        for insn in block.insns:
+            # Check if the return value of ecrecover (or its reassignments) is used in a conditional check
+            if insn.insn.name in ("EQ", "JUMPI"):
+                for arg in insn.arguments:
+                    if arg in ecrecover_values:
+                        print(f"[Forward Analysis] Found {insn.insn.name} using ecrecover return value (or reassignment) in block {block.offset:#x}")
+                        return True
+    return False
+
+def backward_analysis(function, staticcall_block, owner_value, deadline_value):
+    """
+    Perform backward analysis from the STATICCALL block to track the owner and deadline variables.
+    Check if the owner (or its reassignments) is used in nonce[owner]++ and if the deadline (or its reassignments) is used in conditional checks.
+    """
+    # Track all propagated values of the owner and deadline
+    owner_values = track_variable_reassignments(function, owner_value)
+    deadline_values = track_variable_reassignments(function, deadline_value)
+
+    nonce_update_found = False
+    deadline_check_found = False
+
+    for block in reversed(function.blocks[:staticcall_block.offset]):
+        for insn in block.insns:
+            # Check if the owner (or its reassignments) is used in nonce[owner]++
+            if insn.insn.name == "SSTORE":
+                for arg in insn.arguments:
+                    if arg in owner_values:
+                        print(f"[Backward Analysis] Found SSTORE using owner (or reassignment) in block {block.offset:#x}")
+                        nonce_update_found = True
+                        break
+
+            # Check if the deadline (or its reassignments) is used in a conditional check
+            if insn.insn.name in ("LT", "GT", "SLT", "SGT", "JUMPI"):
+                for arg in insn.arguments:
+                    if arg in deadline_values:
+                        print(f"[Backward Analysis] Found {insn.insn.name} using deadline (or reassignment) in block {block.offset:#x}")
+                        deadline_check_found = True
+                        break
+
+        if nonce_update_found and deadline_check_found:
+            break
+
+    return nonce_update_found, deadline_check_found
 
 
+def track_domain_separator(function):
+    """
+    Track the DOMAIN_SEPARATOR in the function.
+    Returns the DOMAIN_SEPARATOR value if found, otherwise None.
+    """
+    domain_separator_value = None
+    print(f"DOMAIN_SEPARATOR :")
 
+    for block in function.blocks:
+        for insn in block.insns:
+            # Look for SHA3 or KECCAK256 instructions (used to compute DOMAIN_SEPARATOR)
+            print(f"DOMAIN_SEPARATOR : {insn.insn.name}")
+            if insn.insn.name in ("SHA3", "KECCAK256"):
+                print(f"DOMAIN_SEPARATOR : {insn.insn.name}")
+                # Check if the arguments include known DOMAIN_SEPARATOR components
+                # (e.g., chain ID, contract address, etc.)
+                # This is a heuristic and may need to be adjusted based on the specific implementation.
+                if len(insn.arguments) >= 3:  # Adjust based on expected arguments
+                    domain_separator_value = insn.return_value
+                    print(f"[DOMAIN_SEPARATOR] Found DOMAIN_SEPARATOR computation in block {block.offset:#x}")
+                    break
+        if domain_separator_value is not None:
+            break
 
-# def check_permit_deadline(function):
+    return domain_separator_value
+
+def check_domain_separator_usage(function, domain_separator_value):
+    """
+    Check if the DOMAIN_SEPARATOR is used in the permit function.
+    """
+    if domain_separator_value is None:
+        print("[DOMAIN_SEPARATOR] DOMAIN_SEPARATOR not found!")
+        return False
+
+    # Track all propagated values of the DOMAIN_SEPARATOR
+    domain_separator_values = track_variable_reassignments(function, domain_separator_value)
+
+    # Check if the DOMAIN_SEPARATOR is used in the ecrecover call or in a conditional check
+    for block in function.blocks:
+        for insn in block.insns:
+            # Check if the DOMAIN_SEPARATOR is used in the ecrecover call
+            if insn.insn.name == "STATICCALL":
+                for arg in insn.arguments:
+                    if arg in domain_separator_values:
+                        print(f"[DOMAIN_SEPARATOR] Found DOMAIN_SEPARATOR used in ecrecover call in block {block.offset:#x}")
+                        return True
+
+            # Check if the DOMAIN_SEPARATOR is used in a conditional check (e.g., EQ, JUMPI)
+            if insn.insn.name in ("EQ", "JUMPI"):
+                for arg in insn.arguments:
+                    if arg in domain_separator_values:
+                        print(f"[DOMAIN_SEPARATOR] Found DOMAIN_SEPARATOR used in conditional check in block {block.offset:#x}")
+                        return True
+
+    print("[DOMAIN_SEPARATOR] DOMAIN_SEPARATOR not used in ecrecover or conditional checks!")
+    return False
+
+def check_check_ecrecover_analysis(function):
+    """
+    Object-level check that the permit function calls ecrecover and compares the recovered
+    address with the owner.
+    """
+    owner_value = None
+    deadline_value = None
+    ecrecover_return_value = None
+    staticcall_block = None
+
+    # Step 1: Find the owner and deadline values
+    for block in function.blocks:
+        for insn in block.insns:
+            if insn.insn.name == "CALLDATALOAD":
+                for arg in insn.arguments:
+                    try:
+                        if isinstance(arg, str):
+                            literal_val = int(arg.lstrip("#"), 16)
+                        else:
+                            literal_val = int(str(arg).lstrip("#"), 16)
+                        print(f"Extracted literal (decimal): {literal_val}, (hex): {hex(literal_val)}")
+                    except Exception:
+                        continue
+                    
+                    if literal_val == 4:
+                        owner_value = insn.return_value
+                    elif literal_val == 100:
+                        deadline_value = insn.return_value
+
+    if owner_value is None or deadline_value is None:
+        print("[ecrecover] Owner or deadline value not found!")
+        return False
+
+    # Step 2: Locate the STATICCALL instruction (ecrecover)
+    for block in function.blocks:
+        for insn in block.insns:
+            if insn.insn.name == "STATICCALL":
+                if len(insn.arguments) >= 6:
+                    second_arg = insn.arguments[1]
+                    sixth_arg = insn.arguments[5]
+                    try:
+                        if int(second_arg) == 1 and int(sixth_arg) == 32:
+                            ecrecover_return_value = insn.return_value
+                            staticcall_block = block
+                            print(f"[ecrecover] Found STATICCALL in block at offset {block.offset:#x}")
+                            break
+                    except Exception:
+                        ecrecover_return_value = insn.return_value
+                        staticcall_block = block
+                        print(f"[ecrecover] Found STATICCALL in block at offset {block.offset:#x} (conversion failed)")
+                        break
+        if staticcall_block is not None:
+            break
+
+    if staticcall_block is None:
+        print("[ecrecover] STATICCALL not found!")
+        return False
+
+    # Step 3: Perform forward analysis to check ecrecover return value usage
+    if not forward_analysis(function, staticcall_block, ecrecover_return_value):
+        print("[ecrecover] Ecrecover return value not used in conditional checks!")
+        return False
+
+    # Step 4: Perform backward analysis to check owner and deadline usage
+    nonce_update_found, deadline_check_found = backward_analysis(function, staticcall_block, owner_value, deadline_value)
+    if not nonce_update_found:
+        print("[ecrecover] Nonce update not found!")
+        return False
+    if not deadline_check_found:
+        print("[ecrecover] Deadline check not found!")
+        return False
+
+    # Step 5: Check DOMAIN_SEPARATOR usage
+    domain_separator_value = track_domain_separator(function)
+    print(f"domain_separator_value : {domain_separator_value}")
+    if not check_domain_separator_usage(function, domain_separator_value):
+        print("[ecrecover] DOMAIN_SEPARATOR not used correctly!")
+        return False
+
+    print("[ecrecover] All checks passed: ecrecover, nonce update, deadline check, and DOMAIN_SEPARATOR usage.")
+    return True
+# def check_check_ecrecover_analysis(function):
 #     """
-#     Check that the 'permit' function correctly uses the deadline parameter.
-    
-#     Steps:
-#       1. Find the block where CALLDATALOAD is used to load the permit parameters.
-#          - Look for instructions containing the following markers:
-#            - "CALLDATALOAD(#4)"    -> owner
-#            - "CALLDATALOAD(#24)"   -> spender
-#            - "CALLDATALOAD(#44)"   -> value
-#            - "CALLDATALOAD(#64)"   -> deadline
-#            - "CALLDATALOAD(#84)"   -> raw value for v (or intermediate result)
-#            - "CALLDATALOAD(#a4)"   -> r
-#            - "CALLDATALOAD(#c4)"   -> s
-#       2. Extract the left-hand side variable from each instruction.
-#       3. Then, iterate over subsequent blocks looking for:
-#          - A TIMESTAMP() instruction.
-#          - A condition (e.g. LT) that uses the deadline variable.
-#          - A JUMPI that uses the result of that condition.
+#     Object-level check that the permit function calls ecrecover and compares the recovered
+#     address with the owner.
 #     """
-#     permit_params = {}  # To store parameters by name.
-#     permit_block = None
-
-#     # Step 1: Find the block with the permit CALLDATALOAD instructions.
-#     for block in function.blocks:
-#         for insn in block.insns:
-#             insn_str = str(insn)
-#             # Check for the owner parameter.
-#             if "CALLDATALOAD(#4)" in insn_str and "ADDRESS" in insn_str:
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     # Left-hand side variable (e.g. "%435")
-#                     permit_params["owner"] = parts[0].strip()
-#             elif "CALLDATALOAD(#24)" in insn_str and "ADDRESS" in insn_str:
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     permit_params["spender"] = parts[0].strip()
-#             elif "CALLDATALOAD(#44)" in insn_str:
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     permit_params["value"] = parts[0].strip()
-#             elif "CALLDATALOAD(#64)" in insn_str:
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     permit_params["deadline"] = parts[0].strip()
-#             elif "CALLDATALOAD(#84)" in insn_str:
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     permit_params["raw_v"] = parts[0].strip()
-#             elif "CALLDATALOAD(#a4)" in insn_str.lower():
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     permit_params["r"] = parts[0].strip()
-#             elif "CALLDATALOAD(#c4)" in insn_str.lower():
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     permit_params["s"] = parts[0].strip()
-#         # If we found at least the deadline parameter, consider this the permit block.
-#         if "deadline" in permit_params:
-#             permit_block = block
-#             print(f"[permit] Permit block found at offset {block.offset:#x}")
-#             print(f"[permit] Extracted permit parameters: {permit_params}")
-#             break
-
-#     if not permit_block:
-#         print("[permit] Permit block not found!")
-#         return False
-
-#     # Step 2: Get the deadline variable.
-#     deadline_var = permit_params.get("deadline")
-#     if not deadline_var:
-#         print("[permit] Deadline parameter not extracted!")
-#         return False
-
-#     # Step 3: Look in subsequent blocks for the TIMESTAMP and require condition using the deadline.
-#     timestamp_found = False
-#     condition_found = False
-#     for block in function.blocks:
-#         # (Optionally, restrict to blocks coming after the permit block.)
-#         if block.offset <= permit_block.offset:
-#             continue
-
-#         for insn in block.insns:
-#             insn_str = str(insn)
-#             if "TIMESTAMP()" in insn_str:
-#                 timestamp_found = True
-#                 print(f"[permit] Found TIMESTAMP in block {block.offset:#x}: {insn_str}")
-#             # Look for a condition (e.g. LT) that compares the deadline variable.
-#             if "LT(" or "GT(" in insn_str and deadline_var in insn_str:
-#                 condition_found = True
-#                 print(f"[permit] Found LT condition using deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
-#             # Optionally check the JUMPI that uses the condition.
-#             if "JUMPI(" in insn_str and deadline_var in insn_str:
-#                 print(f"[permit] Found JUMPI referencing deadline {deadline_var} in block {block.offset:#x}: {insn_str}")
-
-#         if timestamp_found and condition_found:
-#             break
-
-#     if not (timestamp_found and condition_found):
-#         print("[permit] Deadline usage condition not found (either TIMESTAMP or LT condition missing)!")
-#         return False
-
-#     print("[permit] Deadline is correctly used in a require-like condition with TIMESTAMP.")
-#     return True
-
-# def check_ecrecover_analysis(function):
-#     """
-#     Check that the function contains an ecrecover call and that later the recovered
-#     address is compared with the owner.
-    
-#     Updated Behavior:
-#       - Instead of using the raw CALLDATALOAD(#4) result, we now look for the AND instruction 
-#         that masks it (e.g. "%848 = AND(%846, %847)") and use its LHS (e.g. "%848") as the owner.
-#       - Then, look for a STATICCALL (the ecrecover call) in any block.
-#       - In blocks after that, search for an MLOAD (to capture the recovered address)
-#         and then an EQ instruction that compares the recovered value with our owner variable.
-#     """
-#     # Step 1: Extract the owner value from the block that loads the permit input.
 #     owner_value = None
+#     deadline_value = None
+#     ecrecover_return_value = None
+#     staticcall_block = None
+
+#     # Step 1: Find the owner and deadline values
 #     for block in function.blocks:
 #         for insn in block.insns:
-#             insn_str = str(insn)
-#             # Look for the CALLDATALOAD(#4) that loads the owner.
-#             if "CALLDATALOAD(#4)" in insn_str:
-#                 # Example: "<0x8e4: %847 = CALLDATALOAD(#4)>"
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     raw_owner = parts[0].strip()  # e.g. "%847"
-#                     print(f"[ecrecover] Found raw owner load: {raw_owner}")
-#                     # Now, in the same block, look for the AND instruction that uses this raw owner.
-#                     for insn2 in block.insns:
-#                         insn2_str = str(insn2)
-#                         if "AND(" in insn2_str and raw_owner in insn2_str:
-#                             # Example: "<0x8e6: %848 = AND(%846, %847)>"
-#                             parts2 = insn2_str.split("=")
-#                             if len(parts2) > 1:
-#                                 owner_value = parts2[0].strip()  # e.g. "%848"
-#                                 print(f"[ecrecover] Owner value updated after masking: {owner_value}")
-#                                 break
-#                     if owner_value is not None:
+#             if insn.insn.name == "CALLDATALOAD":
+#                 for arg in insn.arguments:
+                    
+#                     try:
+#                         if isinstance(arg, str):
+#                             literal_val = int(arg.lstrip("#"), 16)
+#                         else:
+#                             literal_val = int(str(arg).lstrip("#"), 16)
+#                         print(f"Extracted literal (decimal): {literal_val}, (hex): {hex(literal_val)}")
+#                     except Exception:
+#                         continue
+                    
+#                     if literal_val == 4:
+#                         owner_value = insn.return_value
+#                     elif literal_val == 100:
+#                         deadline_value = insn.return_value
+#                     # try:
+#                     #     if int(arg.lstrip("#"), 16) == 4:  # Owner
+#                     #         owner_value = insn.return_value
+#                     #     elif int(arg.lstrip("#"), 16) == 100:  # Deadline
+#                     #         deadline_value = insn.return_value
+#                     # except Exception:
+#                     #     continue
+
+#     if owner_value is None or deadline_value is None:
+#         print("[ecrecover] Owner or deadline value not found!")
+#         return False
+
+#     # Step 2: Locate the STATICCALL instruction (ecrecover)
+#     for block in function.blocks:
+#         for insn in block.insns:
+#             if insn.insn.name == "STATICCALL":
+#                 if len(insn.arguments) >= 6:
+#                     second_arg = insn.arguments[1]
+#                     sixth_arg = insn.arguments[5]
+#                     try:
+#                         if int(second_arg) == 1 and int(sixth_arg) == 32:
+#                             ecrecover_return_value = insn.return_value
+#                             staticcall_block = block
+#                             print(f"[ecrecover] Found STATICCALL in block at offset {block.offset:#x}")
+#                             break
+#                     except Exception:
+#                         ecrecover_return_value = insn.return_value
+#                         staticcall_block = block
+#                         print(f"[ecrecover] Found STATICCALL in block at offset {block.offset:#x} (conversion failed)")
 #                         break
-#                     if owner_value is None:
-#                         owner_value = raw_owner
-#         if owner_value is not None:
+#         if staticcall_block is not None:
 #             break
 
-#     if owner_value is None:
-#         print("[ecrecover] Owner value not found (no masked value from CALLDATALOAD(#4))!")
+#     if staticcall_block is None:
+#         print("[ecrecover] STATICCALL not found!")
 #         return False
 
-#     # Step 2: Find the STATICCALL corresponding to the ecrecover call.
-#     ecrecover_found = False
-#     staticcall_block_index = None
-
-#     for i, block in enumerate(function.blocks):
-#         for insn in block.insns:
-#             insn_str = str(insn)
-#             if "STATICCALL" in insn_str:
-#                 ecrecover_found = True
-#                 staticcall_block_index = i
-#                 print(f"[ecrecover] Found STATICCALL in block {i}: {insn_str}")
-                
-#                 check_permit_nonce_update_general(function, owner_value)
-#                 break
-#         if ecrecover_found:
-#             break
-
-#     if not ecrecover_found:
-#         print("[ecrecover] STATICCALL for ecrecover not found!")
+#     # Step 3: Perform forward analysis to check ecrecover return value usage
+#     if not forward_analysis(function, staticcall_block, ecrecover_return_value):
+#         print("[ecrecover] Ecrecover return value not used in conditional checks!")
 #         return False
 
-#     # Step 3: After the STATICCALL block, look for:
-#     #   - An MLOAD instruction that loads the recovered address (indicated by 'ADDRESS')
-#     #   - An EQ instruction that compares the recovered address with our owner_value.
-#     recovered_value = None
-#     mload_found = False
-#     eq_found = False
-    
-#     candidate_and_var = None
-#     and_found = False
-
-
-#     for block in function.blocks[staticcall_block_index + 1:]:
-#         for insn in block.insns:
-#             insn_str = str(insn)
-#             # if "MLOAD" in insn_str:
-#             #     # For example: "<...: %1685 = MLOAD(%1684)    // ADDRESS>"
-#             #     parts = insn_str.split("=")
-#             #     if len(parts) > 1:
-#             #         recovered_value = parts[0].strip()  # e.g. "%1685"
-#             #         mload_found = True
-#             #         print(f"[ecrecover] Found recovered address via MLOAD: {insn_str}")
-#             # Look for an AND instruction that uses permit_owner.
-#             if not and_found and "AND(" in insn_str:
-#                 # If the owner variable appears in the operands, we treat it as our candidate.
-#                 if owner_value in insn_str:
-#                     # Extract the LHS variable (the result) by splitting on "=".
-#                     parts = insn_str.split("=")
-#                     if len(parts) > 1:
-#                         candidate_and_var = parts[0].strip()
-#                         and_found = True
-#                         print(f"[owner eq pattern] Found AND using owner in block {block.offset:#x}: {insn_str}")
-#                         print(f"    Candidate result variable: {candidate_and_var}")
-#             # Now look for an EQ instruction that uses the candidate AND result.
-#             if and_found and candidate_and_var and "EQ(" in insn_str:
-#                 if candidate_and_var in insn_str:
-#                     eq_found = True
-#                     print(f"[owner eq pattern] Found EQ using candidate variable in block {block.offset:#x}: {insn_str}")
-#                     return True
-#             if "EQ(" in insn_str:
-#                 # Instead of hardcoding a variable like %435, now compare with our owner_value.
-#                 if owner_value in insn_str:
-#                     eq_found = True
-#                     print(f"[ecrecover] Found EQ comparing owner ({owner_value}): {insn_str}")
-#         if eq_found:
-#             break
-
-#     if not eq_found:
-#         print("[ecrecover] Missing MLOAD or EQ instruction after the ecrecover call!")
+#     # Step 4: Perform backward analysis to check owner and deadline usage
+#     nonce_update_found, deadline_check_found = backward_analysis(function, staticcall_block, owner_value, deadline_value)
+#     if not nonce_update_found:
+#         print("[ecrecover] Nonce update not found!")
+#         return False
+#     if not deadline_check_found:
+#         print("[ecrecover] Deadline check not found!")
 #         return False
 
+#     print("[ecrecover] All checks passed: ecrecover, nonce update, and deadline check.")
 #     return True
-
-
-# def check_permit_nonce_update_general(function, permit_owner):
-#     """
-#     Verify that nonces[owner]++ is implemented correctly in a permit function.
-    
-#     This updated function now uses the masked owner value (e.g. "%848") instead of the raw CALLDATALOAD result.
-    
-#     The pattern is:
-#       1. An MSTORE instruction that writes the owner value (permit_owner) into memory.
-#       2. A SHA3 instruction that computes a storage key from that memory.
-#       3. An SLOAD that loads the current nonce using that key.
-#       4. An ADD instruction that increments the nonce.
-#       5. An SSTORE that writes back the incremented nonce.
-#     """
-#     candidate = {
-#         "mstore_owner": None,
-#         "sha3": None,
-#         "computed_key": None,
-#         "sload": None,
-#         "nonce_loaded": None,
-#         "add": None,
-#         "nonce_new": None,
-#         "sstore": None
-#     }
-
-#     blocks = sorted(function.blocks, key=lambda b: b.offset)
-    
-#     for block in blocks:
-#         for idx, insn in enumerate(block.insns):
-#             insn_str = str(insn)
-#             # (1) Find MSTORE that writes the masked owner (permit_owner).
-#             if candidate["mstore_owner"] is None and "MSTORE(" in insn_str and permit_owner in insn_str:
-#                 candidate["mstore_owner"] = (block.offset, idx)
-#                 print(f"[nonce check] Found MSTORE writing owner at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-#             # (2) Find a SHA3 that computes the storage key.
-#             if candidate["sha3"] is None and "SHA3(" in insn_str:
-#                 parts = insn_str.split("=")
-#                 if len(parts) > 1:
-#                     candidate["computed_key"] = parts[0].strip()
-#                     candidate["sha3"] = (block.offset, idx)
-#                     print(f"[nonce check] Found SHA3 computing key at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-#             # (3) Find an SLOAD that uses the computed key.
-#             if candidate["sha3"] is not None and candidate["computed_key"] is not None and candidate["sload"] is None and "SLOAD(" in insn_str:
-#                 if candidate["computed_key"] in insn_str:
-#                     parts = insn_str.split("=")
-#                     if len(parts) > 1:
-#                         candidate["nonce_loaded"] = parts[0].strip()
-#                         candidate["sload"] = (block.offset, idx)
-#                         print(f"[nonce check] Found SLOAD using computed key at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-#             # (4) Find an ADD that increments the loaded nonce by 1.
-#             if candidate["nonce_loaded"] is not None and candidate["add"] is None and "ADD(" in insn_str:
-#                 if candidate["nonce_loaded"] in insn_str and ("#1" in insn_str or " 1)" in insn_str):
-#                     parts = insn_str.split("=")
-#                     if len(parts) > 1:
-#                         candidate["nonce_new"] = parts[0].strip()
-#                         candidate["add"] = (block.offset, idx)
-#                         print(f"[nonce check] Found ADD incrementing nonce at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-#             # (5) Find an SSTORE that writes the new nonce at the computed key.
-#             if candidate["nonce_new"] is not None and candidate["computed_key"] is not None and candidate["sstore"] is None:
-#                 if "SSTORE(" in insn_str and candidate["computed_key"] in insn_str and candidate["nonce_new"] in insn_str:
-#                     candidate["sstore"] = (block.offset, idx)
-#                     print(f"[nonce check] Found SSTORE storing new nonce at block {block.offset:#x} idx {idx}: {insn_str}")
-            
-#         if (candidate["mstore_owner"] is not None and candidate["sha3"] is not None and
-#             candidate["sload"] is not None and candidate["add"] is not None and
-#             candidate["sstore"] is not None):
-#             print("[nonce check] Complete nonce update pattern (nonces[owner]++) found.")
-#             return True
-
-#     print("[nonce check] Nonce update pattern not found in function.")
-#     return False
