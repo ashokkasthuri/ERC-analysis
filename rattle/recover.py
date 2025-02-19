@@ -206,10 +206,79 @@ class InternalRecover(object):
         if self.resolve_xrefs(function):
             raise NewEdgeException()
 
-    def identify_blocks(self, function: SSAFunction) -> None:
-        # Initial function that identifies and populate blocks
+    # def identify_blocks(self, function: SSAFunction) -> None:
+    #     # Initial function that identifies and populate blocks
 
-        insns = list(EVMAsm.disassemble_all(binascii.unhexlify(self.filedata), 0))
+    #     insns = list(EVMAsm.disassemble_all(binascii.unhexlify(self.filedata), 0))
+    #     self.insns = {x.pc: x for x in insns}
+
+    #     blocks_set: Set[int] = set()
+    #     blocks_set.add(0)  # First insn starts a block
+
+    #     max_pc: int = max([x.pc + x.size for x in insns])
+
+    #     for pc, insn in self.insns.items():
+    #         if insn.name == "JUMPDEST":
+    #             blocks_set.add(pc)
+    #         elif insn.is_terminator and \
+    #                 (insn.pc + insn.size) < max_pc:
+    #             # insn after a terminator is always a new block
+    #             blocks_set.add(pc + 1)
+
+    #     blocks_list = list(sorted(blocks_set))
+
+    #     for i, start in enumerate(blocks_list):
+    #         block = SSABasicBlock(start, function)
+    #         if i + 1 < len(blocks_list):
+    #             end = blocks_list[i + 1]
+    #         else:
+    #             end = max_pc
+
+    #         for idx in [x.pc for x in insns if start <= x.pc < end]:
+    #             block.insns.append(SSAInstruction(self.insns[idx], block))
+
+    #         block.end = end
+
+    #     for block in function:
+    #         if len(block.insns) == 0:
+    #             continue
+
+    #         terminator: SSAInstruction = block.insns[-1]
+
+    #         if terminator.insn.name == "JUMPI" or not terminator.insn.is_terminator:
+    #             block.set_fallthrough_target(terminator.offset + terminator.insn.size)
+    
+    def identify_blocks(self, function: SSAFunction) -> None:
+        # Ensure that filedata is not empty and decode it if necessary.
+        if not self.filedata:
+            raise ValueError("Input file is empty; please provide valid bytecode.")
+
+        try:
+            # If filedata is bytes, decode it to a string
+            bytecode_str = self.filedata.decode('utf-8').strip()
+        except AttributeError:
+            # Already a string
+            bytecode_str = self.filedata.strip()
+
+        if not bytecode_str:
+            raise ValueError("Decoded bytecode is empty; please check the input file.")
+
+        # print("Bytecode input for disassembly:", bytecode_str)
+
+        # Convert the hex string to bytes (if necessary). If the bytecode contains a "0x" prefix, remove it.
+        if bytecode_str.startswith("0x") or bytecode_str.startswith("0X"):
+            bytecode_str = bytecode_str[2:]
+        try:
+            bytecode_bytes = bytes.fromhex(bytecode_str)
+        except Exception as e:
+            raise ValueError(f"Failed to convert input to bytes: {e}")
+
+        # Disassemble using the obtained bytecode bytes.
+        insns = list(EVMAsm.disassemble_all(bytecode_bytes, 0))
+        
+        if not insns:
+            raise ValueError("Disassembly produced no instructions; please check the input bytecode.")
+
         self.insns = {x.pc: x for x in insns}
 
         blocks_set: Set[int] = set()
@@ -220,10 +289,8 @@ class InternalRecover(object):
         for pc, insn in self.insns.items():
             if insn.name == "JUMPDEST":
                 blocks_set.add(pc)
-            elif insn.is_terminator and \
-                    (insn.pc + insn.size) < max_pc:
-                # insn after a terminator is always a new block
-                blocks_set.add(pc + 1)
+            elif insn.is_terminator and (insn.pc + insn.size) < max_pc:
+                blocks_set.add(insn.pc + insn.size)
 
         blocks_list = list(sorted(blocks_set))
 

@@ -1,0 +1,244 @@
+#include "lib/vandal.dl"
+
+.type Block
+.type Function
+
+// INPUT declarations from the front-end (assumed to be provided)
+// .decl edge(h:Statement, t:Statement)
+// .input edge
+// .decl def(var:Variable, stmt:Statement)
+// .input def
+// .decl use(var:Variable, stmt:Statement, i:number)
+// .input use
+// .decl op(stmt:Statement, op:Opcode)
+// .input op
+// .decl value(var:Variable, val:Value)
+// .input value
+
+.decl isBlock(b: Block)
+.decl block(s: Statement, b: Block)
+.input block
+
+isBlock(b) :- block(_, b).
+
+.decl in_function(b:Block, f: Function)
+.input in_function
+
+.decl StatementInPublicFunction(s: Statement, f: Function)
+StatementInPublicFunction(s, f) :-
+  block(s, b),
+  in_function(b, f).
+
+
+//
+// *** CONTROL-FLOW ANALYSIS CONCEPTS *** 
+//
+
+.decl Entry(s:Statement)
+.decl Exit(s:Statement)
+.decl IsStatement(s:Statement)
+
+.decl IsJump(s:Statement)
+IsJump(s) :- op(s, "JUMP").
+IsJump(s) :- op(s, "JUMPI").
+
+.decl JUMPDEST(s:Statement)
+JUMPDEST(s) :- op(s, "JUMPDEST").
+
+.decl JUMP(stmt:Statement, dest:Variable)
+JUMP(stmt, dest) :-
+  op(stmt, "JUMP"),
+  use(dest, stmt, 1).
+
+
+IsStatement(s) :- op(s, _).
+
+Entry(s) :- IsStatement(s), !edge(_,s).
+Exit(s) :- IsStatement(s), !edge(s,_).
+
+.decl BasicBlockBegin(s:Statement)
+BasicBlockBegin(s) :- Entry(s).
+BasicBlockBegin(s) :- JUMPDEST(s).
+BasicBlockBegin(t) :- IsJump(s), edge(s,t).
+
+.decl NextInSameBasicBlock(s:Statement, next:Statement)
+NextInSameBasicBlock(s,next) :-
+  edge(s,next), !BasicBlockBegin(next).
+NextInSameBasicBlock(s,next) :-
+  BasicBlockHead(s,next), edge(s,next).
+
+
+.decl BasicBlockHead(s:Statement, head:Statement)
+BasicBlockHead(s,s) :- BasicBlockBegin(s).
+BasicBlockHead(s,h) :- BasicBlockHead(prev,h), NextInSameBasicBlock(prev,s).
+ .plan 1:(2,1)
+
+
+.decl CanReach(s:Statement, t:Statement)
+
+CanReach(s,s) :- IsStatement(s).
+CanReach(s,t) :- edge(s,t).
+CanReach(s,t) :- CanReach(s,v), edge(v,t).
+
+
+
+
+
+/******************  Permit Function Spec  ******************/
+
+
+/* **** Declare ECRecoverCall **** */
+.decl ECRecoverCall(stmt: Statement)
+ECRecoverCall(s) :-
+  op(s, "CALLDATALOAD"),
+  use(v_component, s, 1),
+  op(s2, "CALLDATALOAD"),
+  use(r_component, s2, 1),
+  op(s3, "CALLDATALOAD"),
+  use(s_component, s3, 1),
+  NextInSameBasicBlock(s, s2),
+  NextInSameBasicBlock(s2, s3),
+  op(s4, "CALL"),
+  use(precompile_address, s4, _),
+  value(precompile_address, "0x1"),
+  CanReach(s3, s4).
+
+
+/* **** Declare DeadlineCheck **** */
+.decl DeadlineCheck(stmt: Statement)
+DeadlineCheck(s_jump) :-
+  op(s_ts, "TIMESTAMP"),
+  op(s_deadline, "CALLDATALOAD"),
+  op(s_cmp, "GT"),
+  op(s_jump, "JUMPI"),
+  NextInSameBasicBlock(s_ts, s_deadline),
+  NextInSameBasicBlock(s_deadline, s_cmp),
+  NextInSameBasicBlock(s_cmp, s_jump).
+
+
+
+/* **** Declare DomainSeparatorHash **** */
+.decl DomainSeparatorHash(stmt: Statement)
+DomainSeparatorHash(s) :-
+  op(s, "SHA3"),
+  use(typeHash, s, 1),
+  op(s2, "SHA3"),
+  use(nameHash, s2, 1),
+  op(s3, "SHA3"),
+  use(versionHash, s3, 1),
+  op(s4, "CHAINID"),
+  CanReach(s, s2),
+  CanReach(s2, s3),
+  CanReach(s3, s4).
+
+
+
+/* **** Declare NonceIncrement **** */
+.decl NonceIncrement(stmt: Statement)
+NonceIncrement(s_store) :-
+  op(s_load, "SLOAD"),
+  def(current_nonce, s_load),
+  op(s_inc, "ADD"),
+  use(current_nonce, s_inc, 1),
+  def(incremented_nonce, s_inc),
+  op(s_store, "SSTORE"),
+  use(incremented_nonce, s_store, 2),
+  CanReach(s_load, s_inc),
+  CanReach(s_inc, s_store).
+
+
+/* **** Declare AllowanceUpdate **** */
+.decl AllowanceUpdate(stmt: Statement)
+AllowanceUpdate(s_store) :-
+  op(s_store, "SSTORE"),
+  use(allowance_slot, s_store, 1),
+  use(new_value, s_store, 2),
+  op(s_hash, "SHA3"),
+  def(allowance_slot, s_hash),
+  CanReach(s_hash, s_store).
+
+
+/* **** Declare PermitParams **** */
+.decl PermitParams(stmt: Statement)
+PermitParams(s_value) :-
+  op(s_owner, "CALLDATALOAD"),
+  def(owner_var, s_owner),
+  op(s_spender, "CALLDATALOAD"),
+  def(spender_var, s_spender),
+  op(s_value, "CALLDATALOAD"),
+  def(value_var, s_value),
+  NextInSameBasicBlock(s_owner, s_spender),
+  NextInSameBasicBlock(s_spender, s_value).
+
+
+/* **** Declare OwnerConsistencyCheck **** */
+.decl OwnerConsistencyCheck(stmt: Statement)
+OwnerConsistencyCheck(s_jump) :-
+  op(s_eq, "EQ"),
+  use(recovered_address, s_eq, 1),
+  use(param_owner, s_eq, 2),
+  op(s_jump, "JUMPI"),
+  NextInSameBasicBlock(s_eq, s_jump).
+
+
+
+/* **** Declare NonceVerification **** */
+.decl NonceVerification(stmt: Statement)
+NonceVerification(s_jump) :-
+  op(s_load, "SLOAD"),
+  def(stored_nonce, s_load),
+  op(s_param, "CALLDATALOAD"),
+  def(param_nonce, s_param),
+  op(s_eq, "EQ"),
+  op(s_jump, "JUMPI"),
+  use(stored_nonce, s_eq, 1),
+  use(param_nonce, s_eq, 2),
+  NextInSameBasicBlock(s_eq, s_jump).
+
+
+/* **** Declare MissingDeadline **** */
+.decl MissingDeadline(func: Function)
+MissingDeadline(func) :-
+  PermitFunction(func),
+  !DeadlineCheck(_),
+  StatementInFunction(_, func).
+
+
+/* **** Declare DomainSeparatorRisk **** */
+.decl DomainSeparatorRisk(stmt: Statement)
+DomainSeparatorRisk(s) :-
+  DomainSeparatorHash(s),
+  !op(_, "CHAINID"),
+  StatementInFunction(s, _).
+
+/* **** Declare ProperErrorHandling **** */
+.decl ProperErrorHandling(stmt: Statement)
+ProperErrorHandling(s_jumpi) :-
+  op(s_jumpi, "JUMPI"),
+  op(s_revert, "REVERT"),
+  edge(s_jumpi, s_revert, "false"),
+  (DeadlineCheck(s_jumpi); OwnerConsistencyCheck(s_jumpi)).
+
+
+/* **** Declare PermitCrossFunction **** */
+.decl PermitCrossFunction(func: Function, jump_dest: Statement)
+PermitCrossFunction(func, jump_dest) :-
+  PermitFunction(func),
+  op(s_jump, "JUMP"),
+  use(dest, s_jump, 1),
+  value(dest, jump_dest),
+  StatementInFunction(s_jump, func),
+  !ECRecoverCall(_),
+  StatementInFunction(_, func).
+
+/* **** Declare PermitCheckInJumpDest **** */
+.decl PermitCheckInJumpDest(jump_dest: Statement)
+PermitCheckInJumpDest(jump_dest) :-
+  PermitCrossFunction(_, jump_dest),
+  (ECRecoverCall(_); DeadlineCheck(_); NonceIncrement(_); DomainSeparatorHash(_)),
+  StatementInFunction(_, jump_dest).
+
+
+
+
+/************************************************************************/
