@@ -12,6 +12,7 @@ import re
 import csv
 import pandas as pd
 from typing import Sequence, List, Tuple
+import rattle  
 
 # This might not be true, but I have a habit of running the wrong python version
 # and this is to save me frustration.
@@ -73,7 +74,7 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
     logging.basicConfig(stream=args.log, level=loglevel)
     
     # Recover the SSA representation from the input bytecode (and optional CFG edges)
-    import rattle  # Assumes rattle is installed and in the PYTHONPATH
+    
     ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
                          split_functions=args.no_split_functions)
     
@@ -132,23 +133,11 @@ def forward_analysis(function, staticcall_block, ecrecover_return_value):
     if staticcall_block_index is None:
         print("[Forward Analysis] STATICCALL block not found in function.blocks!")
         return False
-    # static_block = function.blocks[staticcall_block_index:]
-    # for static_block.insns in static_block:
-    #     if insn.insn.name in ("EQ", "JUMPI"):
-    #         for insn in static_block.fallthrough_edge.insns:
-    #             if insn.insn.name in ("REVERT"):
-    #                 print(f"block fallthrough_edge : {block.fallthrough_edge}")
-    #                 # return True
-        
-    # Assume:
-    # - staticcall_block_index: index of the block where STATICCALL was found.
-    # - ecrecover_values: a set of values that propagate from the ecrecover call.
+    
     for block in function.blocks[staticcall_block_index:]:
         # Get the fallthrough edge of the current block.
         ft_block = block.fallthrough_edge
-        # print(f"Block at offset {block.offset:#x} fallthrough_edge: {ft_block}")
-
-        # If there is a fallthrough block, check if it contains a REVERT opcode.
+        
         if ft_block is not None:
             revert_found = False
             for ft_insn in ft_block.insns:
@@ -159,9 +148,6 @@ def forward_analysis(function, staticcall_block, ecrecover_return_value):
                     break  # Found the REVERT, no need to check further in this fallthrough.
             if not revert_found:
                 print(f"  [Check] No REVERT found in the fallthrough branch of block {block.offset:#x}!")
-                # Depending on your policy you may want to return False or continue checking.
-                # For example, you might:
-                # return False
 
         # Now check the instructions in the current block.
         for insn in block.insns:
@@ -358,6 +344,80 @@ def check_jump_branches(function) -> bool:
     return False
 
 
+def is_ecrecover_staticcall(function, staticcall_insn) -> bool:
+    
+    # The second parameter (index 1) is the target address.
+    target = staticcall_insn.arguments[1]
+    target1 = staticcall_insn.arguments[5]
+    try:
+        target_val = int(target)
+        target_val1 = int(target1)
+    except Exception:
+        target_val = 0
+        target_val1 = 0    
+    
+    if target_val == 1 and target_val1 == 32:
+        print(f"staticcall_insn :  {staticcall_insn}")
+        return True
+    print(f"target and target1 : {target}, {target1}")
+    
+    # Track all possible values of the target through PHI nodes, etc.
+    possible_values = track_variable_reassignments(function, target)
+    
+    # print(f"possible_values,  : {possible_values}")
+    # print(f"staticcall_insn :  {staticcall_insn}")
+    
+    for val in possible_values:
+        try:
+            # Attempt to convert the value to an integer.
+            # This assumes that literal values can be converted directly.
+            numeric_val = int(val)
+            numeric_val1 = int(target1)
+            if numeric_val == 1 and numeric_val1 == 32:
+                print(f"Staticcall target value {val} equals 1 (ecrecover call).")
+                return True
+        except Exception:
+            # If conversion fails, skip this value.
+            continue
+    
+    print("No possible target value equals 1; not an ecrecover call.")
+    return False
+
+def search_jump_blocks_for_staticcall(function, block, visited=None):
+   
+    if visited is None:
+        visited = set()
+    
+    # Use block offset as unique identifier
+    if block.offset in visited:
+        return None
+    visited.add(block.offset)
+    
+    # Check if current block contains a STATICCALL instruction.
+    for insn in block.insns:
+        if insn.insn.name == "STATICCALL":
+            
+            if is_ecrecover_staticcall(function, insn):
+                print("This STATICCALL is likely an ecrecover call.")
+            else:
+                print("This STATICCALL does not appear to be an ecrecover call.")
+            return block  # Found a block with STATICCALL.
+            
+    
+    # Otherwise, iterate over jump edges.
+    for jump_block in block.jump_edges:
+        # Only add if the jump block has non-empty instructions.
+        if jump_block.insns:
+            # Add the jump block to the function if not already added.
+            # function.add_block(jump_block)
+            print(f"Added jump block: {jump_block}")
+            
+            result = search_jump_blocks_for_staticcall(jump_block, visited)
+            if result is not None:
+                return result  # Found a block with STATICCALL further down.
+    
+    return None  # No STATICCALL found along this branch.
+
 def check_check_ecrecover_analysis(function) -> bool:
     """
     Check that the permit function calls ecrecover (via STATICCALL) and compares the recovered
@@ -373,10 +433,21 @@ def check_check_ecrecover_analysis(function) -> bool:
     ecrecover_return_value = None
     staticcall_block = None
 
-    # Step 1: Identify owner and deadline values from CALLDATALOAD instructions.
+    # Step 1: Locate the STATICCALL (used for ecrecover) in the function blocks.
+    for block in function.blocks:  
+        for insn in block.insns:
+            if insn.insn.name == "STATICCALL" and len(insn.arguments) == 6 and is_ecrecover_staticcall(function, insn):
+                # int(insn.arguments[1]) == 1 and int(insn.arguments[5]) == 32
+                ecrecover_return_value = insn.return_value
+                staticcall_block = block
+                print(f"[ecrecover] Found STATICCALL in block {block.offset:#x}")
+                break
+        if staticcall_block is not None:
+            break
+    # Step 2: Identify owner and deadline values from CALLDATALOAD instructions.    
     for block in function.blocks:
         for insn in block.insns:
-            if insn.insn.name == "CALLDATALOAD":
+            if insn.insn.name == "CALLDATALOAD" and staticcall_block is not None:
                 for arg in insn.arguments:
                     try:
                         # Heuristic: interpret literal arguments (adjust these values as needed)
@@ -393,42 +464,17 @@ def check_check_ecrecover_analysis(function) -> bool:
     if owner_value is None or deadline_value is None:
         print("[ecrecover] Owner or deadline value not found!")
         return False
-
-    # Step 2: Locate the STATICCALL (used for ecrecover) in the function blocks.
-    for block in function.blocks:
-        for insn in block.insns:
-            if insn.insn.name == "STATICCALL" and len(insn.arguments) == 6 :
-                
-                # print(f"function hash : {function.hash}, {PERMIT_SIG_1}, {PERMIT_SIG_2}, {PERMIT_SIG_3}")
-                if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
-                # if len(insn.arguments) >= 6:
-                    second_arg = insn.arguments[1]
-                    sixth_arg = insn.arguments[5]
-                    try:
-                        if int(second_arg) == 1 and int(sixth_arg) == 32:
-                            ecrecover_return_value = insn.return_value
-                            staticcall_block = block
-                            print(f"[ecrecover] Found STATICCALL in block {block.offset:#x}")
-                            break
-                    except Exception:
-                        ecrecover_return_value = insn.return_value
-                        staticcall_block = block
-                        print(f"[ecrecover] Found STATICCALL in block {block.offset:#x} (conversion failed)")
-                        break
-                else:
-                    print(f"CUSTOM STATICCALL")
-        if staticcall_block is not None:
-            break
-
-    # If no STATICCALL is found in the current blocks, try to follow jump branches.
-    if staticcall_block is None:
-        print("[ecrecover] STATICCALL not found in direct blocks; checking jump branches...")
-        if check_jump_branches(function):
-            print("[ecrecover] Permit checks found in jump branch. Analysis passed.")
-            return True
-        else:
-            print("[ecrecover] No STATICCALL or valid jump branch with permit checks found!")
-            return False
+    
+    
+    # # If no STATICCALL is found in the current blocks, try to follow jump branches.
+    # if staticcall_block is None:
+    #     print("[ecrecover] STATICCALL not found in direct blocks; checking jump branches...")
+    #     if check_jump_branches(function):
+    #         print("[ecrecover] Permit checks found in jump branch. Analysis passed.")
+    #         return True
+    #     else:
+    #         print("[ecrecover] No STATICCALL or valid jump branch with permit checks found!")
+    #         return False
 
     # Step 3: Forward analysis to ensure the ecrecover return value is used in conditional checks.
     if not forward_analysis(function, staticcall_block, ecrecover_return_value):
@@ -459,54 +505,50 @@ def check_check_ecrecover_analysis(function) -> bool:
     print("[ecrecover] All checks passed: ecrecover call, nonce update, deadline check, and DOMAIN_SEPARATOR usage.")
     return True
 
+def print_cfg(function):
+    # Generate the Control Flow Graph (CFG) for visualization
+    
+    g = rattle.ControlFlowGraph(function)
+    with tempfile.NamedTemporaryFile(suffix='.dot', mode='w', delete=False) as t:
+        t.write(g.dot())
+        t.flush()
+        dot_file = t.name
+
+    os.makedirs('output', exist_ok=True)
+    base_name = "permit"
+    out_file = f'output/{base_name}.png'
+    counter = 1
+    while os.path.exists(out_file):
+        out_file = f'output/{base_name}_{counter}.png'
+        counter += 1
+
+    subprocess.call(['dot', '-Tpng', f'-o{out_file}', dot_file])
+    print(f"[+] Wrote CFG of {function.name} to {out_file}")
+
+    try:
+        subprocess.call(['open', out_file])
+    except OSError as e:
+        print(f"[-] Could not open {out_file}: {e}")
+
+    os.unlink(dot_file)
 
 def PermitMain(ssa):
-    """
-    For each function in the recovered SSA, if the function’s signature matches one of the permit signatures,
-    perform the comprehensive permit analysis.
-    """
+   
     for function in sorted(ssa.functions, key=lambda f: f.offset):
+        
+        # print_cfg(function)
         
         if check_check_ecrecover_analysis(function):
                 print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
-        else:
-                print(f"[-] Function {function.name} (offset {function.offset:#x}) does not satisfy permit checks.")
         
         # if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
-            
-            
+        #     # print_cfg(function)
         #     print(f"Match found for permit signature: {hex(function.hash)} in function {function.name}")
-        #     if check_check_ecrecover_analysis(function):
+        #     matched_function = function
+        #     if check_check_ecrecover_analysis(matched_function):
         #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
-        #     else:
-        #         print(f"[-] Function {function.name} (offset {function.offset:#x}) does not satisfy permit checks.")
-
-            # # Generate the Control Flow Graph (CFG) for visualization
-            # import rattle  # Assumes rattle includes a ControlFlowGraph class
-            # g = rattle.ControlFlowGraph(function)
-            # with tempfile.NamedTemporaryFile(suffix='.dot', mode='w', delete=False) as t:
-            #     t.write(g.dot())
-            #     t.flush()
-            #     dot_file = t.name
-
-            # os.makedirs('output', exist_ok=True)
-            # base_name = "permit"
-            # out_file = f'output/{base_name}.png'
-            # counter = 1
-            # while os.path.exists(out_file):
-            #     out_file = f'output/{base_name}_{counter}.png'
-            #     counter += 1
-
-            # subprocess.call(['dot', '-Tpng', f'-o{out_file}', dot_file])
-            # print(f"[+] Wrote CFG of {function.name} to {out_file}")
-
-            # try:
-            #     subprocess.call(['open', out_file])
-            # except OSError as e:
-            #     print(f"[-] Could not open {out_file}: {e}")
-
-            # os.unlink(dot_file)
-
+        
+            
 
 if __name__ == '__main__':
     main(sys.argv)
