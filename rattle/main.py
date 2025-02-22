@@ -26,6 +26,9 @@ logger = logging.getLogger(__name__)
 PERMIT_SIG_1 = int("0xd505accf", 16)
 PERMIT_SIG_2 = int("0x8fcbaf0c", 16)
 PERMIT_SIG_3 = int("0x2a6a40e2", 16)
+SAFE_TRANSFER = int("0xeb795549", 16)
+TRANSFER = int("0xddf252ad", 16)
+TRANSFER1 = int("0x850a6919", 16)
 
 
 def is_valid_bytecode(bytecode: str) -> bool:
@@ -505,6 +508,65 @@ def check_check_ecrecover_analysis(function) -> bool:
     print("[ecrecover] All checks passed: ecrecover call, nonce update, deadline check, and DOMAIN_SEPARATOR usage.")
     return True
 
+def check_safe_transfer_analysis(function) -> bool:
+    """
+    Analyze the safeTransfer function in the given SSAFunction and verify that:
+      1. It calls _transfer with exactly three parameters.
+      2. If 'to' is a contract then there is a require (or conditional check)
+         that calls onERC20Received (or tokenReceived) and compares its return value
+         to the expected interface identifier.
+    
+    Returns True if both conditions are met, otherwise False.
+    """
+    transfer_call_found = False
+    token_receiver_check_found = False
+
+    # Iterate over each block in the function.
+    for block in function.blocks:
+        for insn in block.insns:
+            # Check for _transfer call.
+            if insn.insn.name == "_transfer":
+                if len(insn.arguments) == 3:
+                    print(f"Found _transfer call in block {block.offset:#x} with three parameters.")
+                    transfer_call_found = True
+
+            # Check for token receiver call: we look for onERC20Received or tokenReceived.
+            if insn.insn.name in ("onERC20Received", "tokenReceived"):
+                # Heuristic: we expect a require (or EQ/JUMPI) following this call that compares
+                # its return value to an expected interface id.
+                # Here we check in the same block for a subsequent instruction that uses the
+                # return value of the token receiver call.
+                if insn.return_value is None:
+                    continue  # No return value to check.
+                for later_insn in block.insns:
+                    if later_insn.insn.name in ("EQ", "JUMPI", "REQUIRE"):
+                        if insn.return_value in later_insn.arguments:
+                            print(f"Found token receiver check in block {block.offset:#x} using {insn.insn.name}.")
+                            token_receiver_check_found = True
+                            break
+
+    if not transfer_call_found:
+        print("No _transfer call with three parameters found in safeTransfer function.")
+    if not token_receiver_check_found:
+        print("No token receiver check (onERC20Received/tokenReceived) found when 'to' is a contract.")
+    
+    return transfer_call_found and token_receiver_check_found
+
+
+def SafeTransferMain(ssa):
+    """
+    Iterate over the SSA functions, and for any function named 'safeTransfer'
+    run the safeTransfer analysis.
+    """
+    for function in ssa.functions:
+        if function.name == "safeTransfer":
+            print(f"Analyzing safeTransfer function {function.name} at offset {function.offset:#x}...")
+            if check_safe_transfer_analysis(function):
+                print(f"[+] Function {function.name} satisfies safeTransfer checks.")
+            else:
+                print(f"[-] Function {function.name} does not satisfy safeTransfer checks.")
+
+
 def print_cfg(function):
     # Generate the Control Flow Graph (CFG) for visualization
     
@@ -538,9 +600,14 @@ def PermitMain(ssa):
         
         # print_cfg(function)
         
-        if check_check_ecrecover_analysis(function):
-                print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
+        # if check_check_ecrecover_analysis(function):
+        #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
         
+        if function.hash in (SAFE_TRANSFER, TRANSFER, TRANSFER1):
+            print(f"function.hash : {function.hash}")
+            # print(f"function.blockmap : {function.blockmap}")
+            print(f"function.block : {function.blocks}")
+            # print_cfg(function)
         # if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
         #     # print_cfg(function)
         #     print(f"Match found for permit signature: {hex(function.hash)} in function {function.name}")
