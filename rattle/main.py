@@ -29,6 +29,9 @@ PERMIT_SIG_3 = int("0x2a6a40e2", 16)
 SAFE_TRANSFER = int("0xeb795549", 16)
 TRANSFER = int("0xddf252ad", 16)
 TRANSFER1 = int("0x850a6919", 16)
+ONERC20RECIEVED = int("0x4fc35859", 16)
+# 0x30e0789e
+
 
 
 def is_valid_bytecode(bytecode: str) -> bool:
@@ -594,6 +597,39 @@ def print_cfg(function):
 
     os.unlink(dot_file)
 
+def trace_jump_chain(block, visited=None):
+   
+    if visited is None:
+        visited = []
+    if block in visited:
+        return visited
+    visited.append(block)
+    if not block.jump_edges:
+        return visited
+    # For this example, follow the first jump edge.
+    next_block = next(iter(block.jump_edges))
+    return trace_jump_chain(next_block, visited)
+
+def find_and_print_jump_chains(ssa, target_function):
+   
+    terminal_blocks = []
+    length = len(target_function.blocks)
+    block_with_valid_jumps = target_function.blocks[length-2]
+    
+    print(f"target_function block len : {length}")
+    print(f"target_function block last : {block_with_valid_jumps}")
+    
+    chain = trace_jump_chain(block_with_valid_jumps)
+    terminal_blocks.append(chain[-1])
+    print(f"chain : {chain}")
+    # for block in chain:
+    #     target_function.add_block(block)
+   
+    
+
+    # Finally, print the CFG for the target function.
+    print_cfg(target_function)
+
 def PermitMain(ssa):
    
     for function in sorted(ssa.functions, key=lambda f: f.offset):
@@ -603,11 +639,13 @@ def PermitMain(ssa):
         # if check_check_ecrecover_analysis(function):
         #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
         
-        if function.hash in (SAFE_TRANSFER, TRANSFER, TRANSFER1):
+        if function.hash in (SAFE_TRANSFER, TRANSFER, TRANSFER1, ONERC20RECIEVED):
             print(f"function.hash : {function.hash}")
             # print(f"function.blockmap : {function.blockmap}")
-            print(f"function.block : {function.blocks}")
-            # print_cfg(function)
+            # print(f"function.block : {function.blocks}")
+            
+            find_and_print_jump_chains(ssa, function)
+            print_cfg(function)
         # if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
         #     # print_cfg(function)
         #     print(f"Match found for permit signature: {hex(function.hash)} in function {function.name}")

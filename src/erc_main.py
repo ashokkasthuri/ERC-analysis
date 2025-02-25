@@ -2,7 +2,7 @@
 Author: ashokkasthuri ashokk@smu.edu.sg
 Date: 2025-02-18 09:50:50
 LastEditors: ashokkasthuri ashokk@smu.edu.sg
-LastEditTime: 2025-02-18 11:14:50
+LastEditTime: 2025-02-22 19:57:37
 FilePath: /ERC-analysis-master/ERCmain/erc_main.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -114,6 +114,7 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
     
     dataflow.analyse_graph(cfg)
     fun_extractor = function.FunctionExtractor(cfg)
-    fun_extractor.extract()
+    f = fun_extractor.extract()
+    
     
     # print(f"fun_extractor : {fun_extractor}")
