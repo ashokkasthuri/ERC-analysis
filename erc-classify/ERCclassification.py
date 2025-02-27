@@ -7,20 +7,16 @@ import pandas as pd
 import sys
 import os
 
-# Get the current directory of this file.
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
-print("current_dir :", current_dir)
+parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 
-# Build the absolute path to the rattle folder.
-rattle_path = os.path.abspath(os.path.join(current_dir, "..", "rattle"))
-print("rattle_path :", rattle_path)
-
-# Add the rattle folder to the module search path.
-if rattle_path not in sys.path:
-    sys.path.insert(0, rattle_path)
-print("sys.path:", sys.path)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 import rattle
+
+sys.setrecursionlimit(20000)
 
 
 
@@ -108,57 +104,6 @@ def should_fetch_contract(tx_list) -> bool:
 
     return recent and has_min_value
 
-# def ERC_classification():
-#      # Load the ERC configuration JSON.
-#     with open("test_erc_config.json", "r") as f:
-#         erc_config = json.load(f)
-    
-#     # List of common ERC types that we do not want to check
-#     # common_types = ["ERC20", "ERC721", "ERC1155", "ERC165", "ERC173", "ERC2981", "ERC3754","ERC4494", "ERC1363","ERC777", "ERC1046", "ERC223", "ERC884", "ERC4524", "ERC2021", "ERC1996", "ERC3643", "ERC4910", "ERC4955", "ERC5192", "ERC4400", "ERC5615", "ERC4906", "ERC4626"  ]
-#     # common_types = ["ERC20", "ERC721", "ERC1155"]
-#     # common_types = ["ERC2612"]
-#     # Read the CSV file (only the first 100 rows)
-#     # df = pd.read_csv("/Users/ashokk/Documents/bytecodeContracts.csv")
-#     df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    
-#     df_subset = df.head(1000000).copy()  # using 100 rows
-    
-#     matched_erc_types = []
-#     edges =[]
-    
-    
-#     for idx, row in df_subset.iterrows():
-#         bytecode = row["bytecode"]
-#         current_matches = []
-#         for erc_type, config in erc_config.items():
-#             # Skip common ERC types
-#             # if erc_type in common_types:
-#             #     continue
-#             ssa = rattle.Recover(bytecode, edges=edges, optimize="false",
-#                          split_functions="false")
-            
-#             selectors = config.get("selectors", [])
-#             event_topics = config.get("topics", [])
-#             for function in ssa.functions:
-#                 print(f"function.hash : {function.hash}")
-#                 if function.hash == selectors and match_erc_type(bytecode, event_topics):
-                
-#             if match_erc_type(bytecode, selectors):
-#                 current_matches.append(erc_type)
-#         matched_erc_types.append(current_matches)
-    
-#     df_subset.loc[:, "matched_erc"] = matched_erc_types
-#     df_subset.loc[:, "bytecode_short"] = df_subset["bytecode"].str[:40]
-    
-#     # Filter the DataFrame to only include rows where "matched_erc" is non-empty.
-#     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
-    
-#     # Print only the first 10 characters of bytecode and matched ERC types for the filtered rows.
-#     print(filtered_df[["address","bytecode_short", "matched_erc"]])
-    
-#     # Optionally, save the results to a CSV file.
-#     filtered_df.to_csv("test1_erc_classification_results_erc4626.csv", index=False)
-
 
 
 def match_erc_type(bytecode, event_topics):
@@ -169,7 +114,6 @@ def match_erc_type(bytecode, event_topics):
         if topic not in bytecode.lower():
             return False
     return True
-
 def ERC_classification():
     # Load the ERC configuration JSON
     with open("test_erc_config.json", "r") as f:
@@ -179,21 +123,39 @@ def ERC_classification():
     df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    df_subset = df.head(10).copy()  # Adjust the number of rows as needed
+    df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
     
     # Iterate over each row in the dataset
     for idx, row in df_subset.iterrows():
-        bytecode = row["bytecode"]
+        original_bytecode_str = row["bytecode"]
         current_matches = []
         
-        # Recover the SSA form of the bytecode using Rattle
-        ssa = rattle.Recover(bytecode, edges=[], optimize=False, split_functions=False)
-        # Create a set of all function hashes in this SSA.
-        ssa_hashes = {function.hash for function in ssa.functions}
+        # # Check that we have a string and remove "0x" prefix if present.
+        # if isinstance(original_bytecode_str, str):
+        #     if original_bytecode_str.startswith("0x") or original_bytecode_str.startswith("0X"):
+        #         hex_str = original_bytecode_str[2:]
+        #     else:
+        #         hex_str = original_bytecode_str
+        #     # Instead of converting to binary, encode the hex string as UTF-8 bytes.
+        #     # This makes sure rattle.Recover gets a valid UTF-8–encoded hex string.
+        #     bytecode_utf8 = hex_str.encode("utf-8")
+        # else:
+        #     # If already not a string, assume it's already in the correct bytes format.
+        #     bytecode_utf8 = original_bytecode_str
         
+        # try:
+        #     # Recover the SSA form using Rattle.
+        #     ssa = rattle.Recover(bytecode_utf8, edges=[], optimize=False, split_functions=False)
+        # except Exception as e:
+        #     print(f"Error recovering SSA for row {idx}: {e}")
+        #     # Append an empty list for this row to keep lengths consistent.
+        #     matched_erc_types.append([])
+        #     continue
+        
+        # ssa_hashes = {function.hash for function in ssa.functions}
         
         # Iterate over each ERC type in the configuration
         for erc_type, config in erc_config.items():
@@ -201,20 +163,12 @@ def ERC_classification():
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
             
-            # Check if all selectors are present in the SSA functions
-            # selector_matched = True
-            # for selector in selectors:
-            #     print(f"selector : {selector}")
-            #     print(f"selector : {int(selector, 16)}")
-            #     if not any(function.hash == int(selector, 16) for function in ssa.functions):
-            #         selector_matched = False
-            #         break
+            # Convert selectors (hex strings) to integers for comparison.
+            # selector_matched = all(int(selector, 16) in ssa_hashes for selector in selectors)
             
-            selector_matched = all(int(selector, 16) in ssa_hashes for selector in selectors)
-            
-
             # Check if all event topics are present in the bytecode
-            event_matched = match_erc_type(bytecode, event_topics)
+            event_matched = match_erc_type(original_bytecode_str, event_topics)
+            selector_matched = match_erc_type(original_bytecode_str, selectors)
             
             # If both selectors and events match, add the ERC type to the current matches
             if selector_matched and event_matched:
@@ -222,6 +176,10 @@ def ERC_classification():
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
+    
+    # Ensure that matched_erc_types has the same length as df_subset
+    if len(matched_erc_types) != len(df_subset):
+        raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
     
     # Add the matched ERC types to the DataFrame
     df_subset.loc[:, "matched_erc"] = matched_erc_types
@@ -232,17 +190,40 @@ def ERC_classification():
     # Filter the DataFrame to only include rows where "matched_erc" is non-empty
     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
     
-    # Print the results
-    print(filtered_df[["address", "bytecode_short", "matched_erc"]])
+    # Now, further filter by transaction activity.
+    final_rows = []
+    for idx, row in filtered_df.iterrows():
+        address = row["address"]
+        tx_info = fetch_tx_activity(address)
+        if tx_info.get("status") != "1":
+            print(f"Error fetching tx activity for {address}: {tx_info.get('message', tx_info)}")
+            continue
+        
+        tx_list = tx_info.get("result", [])
+        if not should_fetch_contract(tx_list):
+            # print(f"Skipping {address}: does not meet tx activity criteria.")
+            continue
+        
+        final_rows.append(row)
     
-    # Optionally, save the results to a CSV file
-    filtered_df.to_csv("test1_erc_classification_results_erc4626.csv", index=False)
+    # Create a new DataFrame from the final rows.
+    if final_rows:
+        final_df = pd.DataFrame(final_rows)
+        # Sort final_df if desired (e.g., by a metric such as total tx count or recency)
+        # Here, we simply take the top 10 rows.
+        final_df = final_df.head(10)
+        print(final_df[["address", "bytecode_short", "matched_erc"]])
+        final_df.to_csv("test1_erc_classification_results_top10.csv", index=False)
+    else:
+        print("No contracts meet both the ERC match and transaction activity criteria.")
+
+
 
 
    
 def verify_source():
      # Load CSV file containing contract addresses (with a "address" column).
-    df = pd.read_csv("test1_erc_classification_results_erc4626.csv")  # adjust path as needed
+    df = pd.read_csv("test1_erc_classification_results_erc_top10.csv")  # adjust path as needed
     
     # Extract unique addresses.
     addresses = df["address"].dropna().unique()

@@ -653,7 +653,84 @@ def PermitMain(ssa):
         #     if check_check_ecrecover_analysis(matched_function):
         #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
         
-            
+
+def get_fallthrough_branch(block, insn):
+    return block.fallthrough_edge
+
+def contains_opcode(block, opcode):
+    
+    if block is None:
+        return False
+    for insn in block.insns:
+        if insn.insn.name == opcode:
+            return True
+    return contains_opcode(block.fallthrough_edge, opcode)
+
+def detect_onlycentralAccount(function) -> bool:
+   
+    for block in function.blocks:
+        caller_insn = None
+        sload_insn = None
+        eq_found = False
+        for insn in block.insns:
+            if insn.insn.name == "CALLER":
+                caller_insn = insn
+            elif insn.insn.name == "SLOAD":
+                sload_insn = insn
+            elif insn.insn.name == "EQ":
+                # Check if both caller and sload appear as arguments
+                if caller_insn and sload_insn and (caller_insn in insn.arguments and sload_insn in insn.arguments):
+                    eq_found = True
+            elif insn.insn.name == "JUMPI" and eq_found:
+                # Get the fallthrough branch (false branch)
+                false_branch = get_fallthrough_branch(block, insn)
+                if false_branch and contains_opcode(false_branch, "REVERT"):
+                    print(f"[onlycentralAccount] Detected in function {function.name} at block {hex(block.offset)}")
+                    return True
+    return False
+
+def detect_transfer(function) -> bool:
+    for block in function.blocks:
+        for insn in block.insns:
+            # For our example, assume the event emission or call is labeled "Transfer"
+            if insn.insn.name == "Transfer" and len(insn.arguments) == 3:
+                print(f"[Transfer] Found Transfer pattern in block {hex(block.offset)}")
+                return True
+    return False
+
+def detect_no_approval(function) -> bool:
+    for block in function.blocks:
+        for insn in block.insns:
+            if "approve" in insn.insn.name.lower():
+                print(f"[Approval] Found approval opcode '{insn.insn.name}' in block {hex(block.offset)}")
+                return False
+    return True
+
+def check_zero_fee_transaction(function) -> bool:
+    
+    if not detect_onlycentralAccount(function):
+        print(f"Function {function.name} missing onlycentralAccount check.")
+        return False
+    if not detect_transfer(function):
+        print(f"Function {function.name} missing Transfer pattern.")
+        return False
+    if not detect_no_approval(function):
+        print(f"Function {function.name} contains approval operation.")
+        return False
+    print(f"Function {function.name} passes all checks.")
+    return True
+
+# Example usage: iterate over all SSA functions in a recovered contract.
+def analyze_contract(ssa):
+    for function in ssa.functions:
+        print(f"Analyzing function {function.name} (offset {hex(function.offset)})")
+        if check_zero_fee_transaction(function):
+            print(f"[+] Function {function.name} (hash {function.hash:#x}) appears to implement zero_fee_transaction.")
+        else:
+            print(f"[-] Function {function.name} does not match zero_fee_transaction pattern.")
+
+
+
 
 if __name__ == '__main__':
     main(sys.argv)
