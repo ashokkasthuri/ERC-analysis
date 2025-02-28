@@ -1,0 +1,12 @@
+{
+    "ERC2981": {
+    "selectors": [
+        "2a55205a"
+    ],
+    "topics": [],
+    "functions": {
+        "royaltyInfo(uint256,uint256)": "2a55205a"
+    },
+    "events": {}
+}
+}

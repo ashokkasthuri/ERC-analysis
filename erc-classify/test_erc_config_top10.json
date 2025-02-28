@@ -206,16 +206,7 @@
             "e4f48c240d3b994948aa54f3e2f5fca59263dfe1d52b6e4cf39a5d249b5ccb65": "event SlotChanged(uint256,uint256,uint256)"
         }
     },
-    "ERC2981": {
-        "selectors": [
-            "2a55205a"
-        ],
-        "topics": [],
-        "functions": {
-            "royaltyInfo(uint256,uint256)": "2a55205a"
-        },
-        "events": {}
-    },
+    
     "ERC4907": {
         "selectors": [
             "70a08231",

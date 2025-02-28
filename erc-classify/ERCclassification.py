@@ -115,15 +115,18 @@ def match_erc_type(bytecode, event_topics):
             return False
     return True
 def ERC_classification():
+    
+    common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
-    with open("test_erc_config.json", "r") as f:
+    with open("test_erc_config_top50.json", "r") as f:
         erc_config = json.load(f)
     
     # Load the dataset
-    df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
+    df_subset = df.head(500000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
@@ -159,6 +162,9 @@ def ERC_classification():
         
         # Iterate over each ERC type in the configuration
         for erc_type, config in erc_config.items():
+            
+            if erc_type in common_erc_types:
+                continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
@@ -211,9 +217,9 @@ def ERC_classification():
         final_df = pd.DataFrame(final_rows)
         # Sort final_df if desired (e.g., by a metric such as total tx count or recency)
         # Here, we simply take the top 10 rows.
-        final_df = final_df.head(10)
+        final_df = final_df.head(100)
         print(final_df[["address", "bytecode_short", "matched_erc"]])
-        final_df.to_csv("test1_erc_classification_results_top10.csv", index=False)
+        final_df.to_csv("test1_erc_classification_results_top50.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
 
