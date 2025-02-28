@@ -126,7 +126,7 @@ def ERC_classification():
     df = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    df_subset = df.head(500000).copy()  # Adjust the number of rows as needed
+    df_subset = df.head(1000000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
