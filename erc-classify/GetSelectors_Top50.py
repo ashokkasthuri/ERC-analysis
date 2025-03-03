@@ -264,7 +264,10 @@ erc1363_specific_functions = {
     "transferFromAndCall(address,address,uint256)": None,
     "transferFromAndCall(address,address,uint256,bytes)": None,
     "approveAndCall(address,uint256)": None,
-    "approveAndCall(address,uint256,bytes)": None
+    "approveAndCall(address,uint256,bytes)": None,
+    
+    #ERC-1363 interface functions
+    "onTransferReceived(address,address,uint256,bytes)": None
 }
 erc1363_event_specific_signatures = {}  # No specific events for ERC-1363
 

@@ -248,7 +248,8 @@
             "d8fbe994",
             "c1d34b89",
             "3177029f",
-            "cae9ca51"
+            "cae9ca51",
+            "88a7ca5c"
         ],
         "topics": [
             "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
@@ -266,7 +267,8 @@
             "transferFromAndCall(address,address,uint256)": "d8fbe994",
             "transferFromAndCall(address,address,uint256,bytes)": "c1d34b89",
             "approveAndCall(address,uint256)": "3177029f",
-            "approveAndCall(address,uint256,bytes)": "cae9ca51"
+            "approveAndCall(address,uint256,bytes)": "cae9ca51",
+            "onTransferReceived(address,address,uint256,bytes)": "88a7ca5c"
         },
         "events": {
             "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": "event Transfer(address,address,uint256)",

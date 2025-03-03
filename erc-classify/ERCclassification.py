@@ -118,12 +118,13 @@ def ERC_classification():
     
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
-    with open("test_erc_config_top50.json", "r") as f:
+    # with open("temp.json", "r") as f:
+    with open("erc_config_top50.json", "r") as f:
         erc_config = json.load(f)
     
     # Load the dataset
-    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    # df = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
     df_subset = df.head(1000000).copy()  # Adjust the number of rows as needed
@@ -217,9 +218,10 @@ def ERC_classification():
         final_df = pd.DataFrame(final_rows)
         # Sort final_df if desired (e.g., by a metric such as total tx count or recency)
         # Here, we simply take the top 10 rows.
-        final_df = final_df.head(100)
+        final_df = final_df.head(1000)
         print(final_df[["address", "bytecode_short", "matched_erc"]])
         final_df.to_csv("test1_erc_classification_results_top50.csv", index=False)
+        # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
 

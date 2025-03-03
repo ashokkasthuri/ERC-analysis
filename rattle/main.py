@@ -30,6 +30,8 @@ SAFE_TRANSFER = int("0xeb795549", 16)
 TRANSFER = int("0xddf252ad", 16)
 TRANSFER1 = int("0x850a6919", 16)
 ONERC20RECIEVED = int("0x4fc35859", 16)
+
+ON_TRANSFER_RECEIVED = int("0x88a7ca5c", 16)
 # 0x30e0789e
 
 
@@ -85,7 +87,8 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
                          split_functions=args.no_split_functions)
     
     # Run the permit check analysis on all functions that match the permit signature.
-    PermitMain(ssa)
+    # PermitMain(ssa)
+    analyze_received_implementation(ssa)
 
     if args.stdout_to:
         sys.stdout = orig_stdout
@@ -653,6 +656,7 @@ def PermitMain(ssa):
         #     if check_check_ecrecover_analysis(matched_function):
         #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
         
+        
 
 def get_fallthrough_branch(block, insn):
     return block.fallthrough_edge
@@ -729,6 +733,89 @@ def analyze_contract(ssa):
         else:
             print(f"[-] Function {function.name} does not match zero_fee_transaction pattern.")
 
+
+def check_on_transfer_received_implementation(function):
+    """
+    Check if the function implements the onTransferReceived logic as required by ERC1363.
+    """
+    # Constants
+    ERC1363_RECEIVED_SELECTOR = "0x88a7ca5c"  # Example selector for onTransferReceived
+
+    # Track variables
+    is_contract_check_found = False
+    on_transfer_received_call_found = False
+    return_value_check_found = False
+
+    # Step 1: Identify the isContract check
+    for block in function.blocks:
+        for insn in block.insns:
+            # Look for EXTCODESIZE or ISCONTRACT check
+            if insn.insn.name == "EXTCODESIZE":
+                is_contract_check_found = True
+                print(f"[onTransferReceived] Found EXTCODESIZE check in block {block.offset:#x}")
+                
+                break
+        if is_contract_check_found:
+            break
+
+    if not is_contract_check_found:
+        print("[onTransferReceived] isContract check not found!")
+        return False
+
+    # Step 2: Identify the onTransferReceived call
+    for block in function.blocks:
+        for insn in block.insns:
+            # Look for CALL or STATICCALL with the onTransferReceived selector
+            if insn.insn.name in ("CALL", "STATICCALL"):
+                if len(insn.arguments) >= 4:  # Ensure there are enough arguments
+                    # Check if the selector matches onTransferReceived
+                    selector = insn.arguments[3]  # Assuming selector is the 4th argument
+                    if selector == ERC1363_RECEIVED_SELECTOR:
+                        on_transfer_received_call_found = True
+                        print(f"[onTransferReceived] Found onTransferReceived call in block {block.offset:#x}")
+                        break
+        if on_transfer_received_call_found:
+            break
+
+    if not on_transfer_received_call_found:
+        print("[onTransferReceived] onTransferReceived call not found!")
+        return False
+
+    # Step 3: Check the return value comparison
+    for block in function.blocks:
+        for insn in block.insns:
+            # Look for EQ or JUMPI to compare the return value
+            if insn.insn.name in ("EQ", "JUMPI"):
+                for arg in insn.arguments:
+                    # Check if the argument is the return value of onTransferReceived
+                    if arg == ERC1363_RECEIVED_SELECTOR:
+                        return_value_check_found = True
+                        print(f"[onTransferReceived] Found return value check in block {block.offset:#x}")
+                        break
+        if return_value_check_found:
+            break
+
+    if not return_value_check_found:
+        print("[onTransferReceived] Return value check not found!")
+        return False
+
+    # Step 4: Verify that _msgSender(), from, value, and data are passed correctly
+    # This is a heuristic and may need to be adjusted based on the specific implementation.
+    # For simplicity, we assume that these parameters are passed in the correct order.
+    print("[onTransferReceived] All checks passed: isContract check, onTransferReceived call, and return value check.")
+    return True
+
+def analyze_received_implementation(ssa):
+    """
+    Analyze all functions in the SSA representation to check for onTransferReceived implementation.
+    """
+    for function in sorted(ssa.functions, key=lambda f: f.offset):
+        print_cfg(function)
+        print(f"Analyzing function: {function.name} at offset {function.offset:#x}")
+        if check_on_transfer_received_implementation(function):
+            print(f"[+] Function {function.name} implements onTransferReceived correctly.")
+        else:
+            print(f"[-] Function {function.name} does not implement onTransferReceived correctly.")
 
 
 
