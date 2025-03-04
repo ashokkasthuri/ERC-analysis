@@ -64,7 +64,7 @@ contract sineMC is Ownable,  ReentrancyGuard, ERC721A, ERC4907A {
       manager = _manager;
       tokenCount = 0;
   }
-
+// AShok- check needed
   // owner mint
   function ownerMint(uint256 quantity, address to) external onlyOwnerOrManager {
     require((quantity + tokenCount) <= (_totalSupply), "too many already minted before patner mint");
