@@ -79,6 +79,7 @@ def match_erc_type(bytecode, event_topics):
     # Check if all event topics are present in the bytecode
     for topic in event_topics:
         if topic not in bytecode.lower():
+            print(f"topic not found: {topic}")  # Debugging statement
             return False
     return True
 def ERC_classification_copy():
@@ -224,85 +225,65 @@ def verify_source():
         else:
             print(f"Error fetching source code for {address}: {source_info.get('message', source_info)}")
 
-
 def fetch_tx_activity(address: str) -> dict:
     """
-    Fetch the transaction activity for a contract address from Etherscan, including:
-    - Normal transactions
-    - Internal transactions
-    - ERC-20 token transfers
+    Fetch the transaction activity for a contract address from Etherscan.
     """
-    # Fetch normal transactions
-    tx_url = (
+    url = (
         f"https://api.etherscan.io/api?module=account&action=txlist"
         f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
     )
-    tx_response = requests.get(tx_url)
-    tx_data = tx_response.json().get("result", [])
-
-    # Fetch internal transactions (optional)
-    internal_tx_url = (
-        f"https://api.etherscan.io/api?module=account&action=txlistinternal"
-        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
-    )
-    internal_tx_response = requests.get(internal_tx_url)
-    internal_tx_data = internal_tx_response.json().get("result", [])
-
-    # Fetch ERC-20 token transfers (optional)
-    token_tx_url = (
-        f"https://api.etherscan.io/api?module=account&action=tokentx"
-        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
-    )
-    token_tx_response = requests.get(token_tx_url)
-    token_tx_data = token_tx_response.json().get("result", [])
-
-    # Combine all transaction data
-    combined_data = {
-        "normal_transactions": tx_data,
-        "internal_transactions": internal_tx_data,
-        "token_transfers": token_tx_data,
-    }
-
-    return combined_data
-
+    response = requests.get(url)
+    try:
+        data = response.json()
+        print(f"API Response for {address}: {data}")  # Debugging statement
+        return data
+    except Exception as e:
+        print(f"Error fetching transaction activity for {address}: {e}")
+        return {"error": str(e)}
+    
+    
 def should_fetch_contract(tx_list) -> bool:
-    """
-    Return True if the contract meets the criteria for importance based on transaction data.
-    """
     if not tx_list:
+        print("No transaction data available.")
         return False
 
     now = int(time.time())
-    thirty_days = 30 * 24 * 3600  # 30 days in seconds
+    thirty_days = 30 * 24 * 3600
 
-    # Heuristic 1: Recent activity (at least one transaction in the last 30 days)
+    # Heuristic 1: Recent activity
     recent_activity = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
     if not recent_activity:
+        print("No recent activity.")
         return False
 
-    # # Heuristic 2: Total transaction volume (more than 100 transactions)
+    # # Heuristic 2: Total transaction volume
     # total_tx = len(tx_list)
-    # if total_tx <= 100:
+    # if total_tx <= 10:
+    #     print(f"Low transaction volume: {total_tx}.")
     #     return False
 
-    # # Heuristic 3: Total transaction value (at least 0.1 ETH in wei)
+    # # Heuristic 3: Total transaction value
     # total_value = sum(int(tx["value"]) for tx in tx_list)
-    # min_total_value = 100000000000000000  # 0.1 ETH in wei
+    # min_total_value = 10000000000000000
     # if total_value < min_total_value:
+    #     print(f"Low transaction value: {total_value}.")
     #     return False
 
-    # # Heuristic 4: Unique interactors (at least 50 unique addresses)
+    # # Heuristic 4: Unique interactors
     # unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
-    # if len(unique_interactors) < 50:
+    # if len(unique_interactors) < 10:
+    #     print(f"Low unique interactors: {len(unique_interactors)}.")
     #     return False
 
-    # # Heuristic 5: Gas usage (total gas used above a threshold)
+    # # Heuristic 5: Gas usage
     # total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
-    # min_gas_used = 10000000  # Example threshold (adjust as needed)
+    # min_gas_used = 1000000
     # if total_gas_used < min_gas_used:
+    #     print(f"Low gas usage: {total_gas_used}.")
     #     return False
 
-    # If all heuristics are satisfied, the contract is considered important
+    print("Contract meets all criteria.")
     return True
 
 def ERC_classification():
@@ -315,7 +296,7 @@ def ERC_classification():
     # Load the dataset
     df = pd.read_csv("/home/ashok/deduplicated_results.csv")
     # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df_subset = df.head(10000).copy()
+    df_subset = df.head(1000).copy()
     
     
     # Initialize a list to store matched ERC types for each bytecode
