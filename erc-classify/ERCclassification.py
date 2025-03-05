@@ -79,7 +79,7 @@ def match_erc_type(bytecode, event_topics):
     # Check if all event topics are present in the bytecode
     for topic in event_topics:
         if topic not in bytecode.lower():
-            print(f"topic not found: {topic}")  # Debugging statement
+            # print(f"topic not found: {topic}")  # Debugging statement
             return False
     return True
 def ERC_classification_copy():
@@ -236,7 +236,7 @@ def fetch_tx_activity(address: str) -> dict:
     response = requests.get(url)
     try:
         data = response.json()
-        print(f"API Response for {address}: {data}")  # Debugging statement
+        # print(f"API Response for {address}: {data}")  # Debugging statement
         return data
     except Exception as e:
         print(f"Error fetching transaction activity for {address}: {e}")
@@ -352,7 +352,7 @@ def ERC_classification():
         if tx_info.get("status") != "1":
             continue
         
-        tx_list = tx_info.get("normal_transactions", [])
+        tx_list = tx_info.get("result", [])
         if not should_fetch_contract(tx_list):
             continue
         
