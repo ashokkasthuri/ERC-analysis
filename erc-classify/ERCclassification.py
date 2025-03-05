@@ -225,8 +225,6 @@ def verify_source():
             print(f"Error fetching source code for {address}: {source_info.get('message', source_info)}")
 
 
-API_KEY = "your_etherscan_api_key"
-
 def fetch_tx_activity(address: str) -> dict:
     """
     Fetch the transaction activity for a contract address from Etherscan, including:
@@ -282,27 +280,27 @@ def should_fetch_contract(tx_list) -> bool:
     if not recent_activity:
         return False
 
-    # Heuristic 2: Total transaction volume (more than 100 transactions)
-    total_tx = len(tx_list)
-    if total_tx <= 100:
-        return False
+    # # Heuristic 2: Total transaction volume (more than 100 transactions)
+    # total_tx = len(tx_list)
+    # if total_tx <= 100:
+    #     return False
 
-    # Heuristic 3: Total transaction value (at least 0.1 ETH in wei)
-    total_value = sum(int(tx["value"]) for tx in tx_list)
-    min_total_value = 100000000000000000  # 0.1 ETH in wei
-    if total_value < min_total_value:
-        return False
+    # # Heuristic 3: Total transaction value (at least 0.1 ETH in wei)
+    # total_value = sum(int(tx["value"]) for tx in tx_list)
+    # min_total_value = 100000000000000000  # 0.1 ETH in wei
+    # if total_value < min_total_value:
+    #     return False
 
-    # Heuristic 4: Unique interactors (at least 50 unique addresses)
-    unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
-    if len(unique_interactors) < 50:
-        return False
+    # # Heuristic 4: Unique interactors (at least 50 unique addresses)
+    # unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
+    # if len(unique_interactors) < 50:
+    #     return False
 
-    # Heuristic 5: Gas usage (total gas used above a threshold)
-    total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
-    min_gas_used = 10000000  # Example threshold (adjust as needed)
-    if total_gas_used < min_gas_used:
-        return False
+    # # Heuristic 5: Gas usage (total gas used above a threshold)
+    # total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
+    # min_gas_used = 10000000  # Example threshold (adjust as needed)
+    # if total_gas_used < min_gas_used:
+    #     return False
 
     # If all heuristics are satisfied, the contract is considered important
     return True
@@ -315,8 +313,10 @@ def ERC_classification():
         erc_config = json.load(f)
     
     # Load the dataset
-    df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
-    # df_subset = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    df_subset = df.head(1000).copy()
+    
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
