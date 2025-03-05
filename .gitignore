@@ -201,4 +201,3 @@ pip-selfcheck.json
 output/
 
 .env
-.DS_Store
