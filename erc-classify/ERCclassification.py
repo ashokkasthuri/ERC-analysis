@@ -6,6 +6,8 @@ import time
 import pandas as pd
 import sys
 import os
+from dotenv import load_dotenv
+from collections import defaultdict
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,10 +20,17 @@ import rattle
 
 sys.setrecursionlimit(20000)
 
+load_dotenv()
+
+# Get API key from environment variable
+API_KEY = os.getenv("ETHERSCAN_API_KEY")
+
+if not API_KEY:
+    raise ValueError("⚠️ API Key not found! Make sure to set ETHERSCAN_API_KEY in your .env file.")
+
+print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)")
 
 
-# Replace with your actual Etherscan API key.
-API_KEY = "Z8IMKB1ZVRIER3Q6U66MJPAKFY1V68IT87"
 
 def fetch_source_code(address: str) -> dict:
     """
@@ -37,19 +46,46 @@ def fetch_source_code(address: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
 
+
 def fetch_tx_activity(address: str) -> dict:
     """
-    Fetch the transaction activity for a contract address from Etherscan.
+    Fetch the transaction activity for a contract address from Etherscan, including:
+    - Normal transactions
+    - Internal transactions
+    - ERC-20 token transfers
     """
-    url = (
+    # Fetch normal transactions
+    tx_url = (
         f"https://api.etherscan.io/api?module=account&action=txlist"
         f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
     )
-    response = requests.get(url)
-    try:
-        return response.json()
-    except Exception as e:
-        return {"error": str(e)}
+    tx_response = requests.get(tx_url)
+    tx_data = tx_response.json().get("result", [])
+
+    # Fetch internal transactions (optional)
+    internal_tx_url = (
+        f"https://api.etherscan.io/api?module=account&action=txlistinternal"
+        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
+    )
+    internal_tx_response = requests.get(internal_tx_url)
+    internal_tx_data = internal_tx_response.json().get("result", [])
+
+    # Fetch ERC-20 token transfers (optional)
+    token_tx_url = (
+        f"https://api.etherscan.io/api?module=account&action=tokentx"
+        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
+    )
+    token_tx_response = requests.get(token_tx_url)
+    token_tx_data = token_tx_response.json().get("result", [])
+
+    # Combine all transaction data
+    combined_data = {
+        "normal_transactions": tx_data,
+        "internal_transactions": internal_tx_data,
+        "token_transfers": token_tx_data,
+    }
+
+    return combined_data
 
 def save_source_code(address: str, source_info: dict) -> None:
     """
@@ -77,32 +113,47 @@ def save_source_code(address: str, source_info: dict) -> None:
         f.write(source_code)
     print(f"Saved source code for {address} to {filename}")
     
+
+
 def should_fetch_contract(tx_list) -> bool:
     """
-    Return True if the total number of transactions is > 100 and
-    at least one transaction happened in the last 30 days.
+    Return True if the contract meets the criteria for importance based on transaction data.
     """
     if not tx_list:
         return False
 
+    now = int(time.time())
+    thirty_days = 30 * 24 * 3600  # 30 days in seconds
+
+    # Heuristic 1: Recent activity (at least one transaction in the last 30 days)
+    recent_activity = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
+    if not recent_activity:
+        return False
+
+    # Heuristic 2: Total transaction volume (more than 100 transactions)
     total_tx = len(tx_list)
     if total_tx <= 100:
         return False
 
-    now = int(time.time())
-    thirty_days = 30 * 24 * 3600
-    recent = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
-
-    # Sum transaction values (in Wei)
+    # Heuristic 3: Total transaction value (at least 0.1 ETH in wei)
     total_value = sum(int(tx["value"]) for tx in tx_list)
     min_total_value = 100000000000000000  # 0.1 ETH in wei
+    if total_value < min_total_value:
+        return False
 
-    has_min_value = total_value >= min_total_value
+    # Heuristic 4: Unique interactors (at least 50 unique addresses)
+    unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
+    if len(unique_interactors) < 50:
+        return False
 
-    # Debug prints (optional)
-    # print(f"Total transactions: {total_tx}, Recent? {recent}, Total value (wei): {total_value}, has_min_value : {has_min_value}")
+    # Heuristic 5: Gas usage (total gas used above a threshold)
+    total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
+    min_gas_used = 10000000  # Example threshold (adjust as needed)
+    if total_gas_used < min_gas_used:
+        return False
 
-    return recent and has_min_value
+    # If all heuristics are satisfied, the contract is considered important
+    return True
 
 
 
@@ -119,7 +170,7 @@ def ERC_classification():
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
     # with open("temp.json", "r") as f:
-    with open("erc_config_top50.json", "r") as f:
+    with open("test_erc_config_top50.json", "r") as f:
         erc_config = json.load(f)
     
     # Load the dataset
@@ -127,10 +178,12 @@ def ERC_classification():
     df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    # df_subset = df.head(1000000).copy()  # Adjust the number of rows as needed
+    # df_subset = df.head(10000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
+    # Dictionary to track the count of matches per ERC type
+    erc_match_counts = defaultdict(int)
     
     # Iterate over each row in the dataset
     for idx, row in df_subset.iterrows():
@@ -164,7 +217,10 @@ def ERC_classification():
         # Iterate over each ERC type in the configuration
         for erc_type, config in erc_config.items():
             
-            if erc_type in common_erc_types:
+            # if erc_type in common_erc_types:
+            #     continue
+            # Skip if this ERC type has already reached the limit of 10 matches
+            if erc_match_counts[erc_type] >= 10:
                 continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
@@ -180,6 +236,7 @@ def ERC_classification():
             # If both selectors and events match, add the ERC type to the current matches
             if selector_matched and event_matched:
                 current_matches.append(erc_type)
+                erc_match_counts[erc_type] += 1
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
@@ -203,7 +260,7 @@ def ERC_classification():
         address = row["address"]
         tx_info = fetch_tx_activity(address)
         if tx_info.get("status") != "1":
-            print(f"Error fetching tx activity for {address}: {tx_info.get('message', tx_info)}")
+            # print(f"Error fetching tx activity for {address}: {tx_info.get('message', tx_info)}")
             continue
         
         tx_list = tx_info.get("result", [])
@@ -216,9 +273,9 @@ def ERC_classification():
     # Create a new DataFrame from the final rows.
     if final_rows:
         final_df = pd.DataFrame(final_rows)
-        # Sort final_df if desired (e.g., by a metric such as total tx count or recency)
-        # Here, we simply take the top 10 rows.
-        final_df = final_df.head(1000)
+        # Sort the DataFrame by matched_erc to group rows with the same ERC type together
+        final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
+        
         print(final_df[["address", "bytecode_short", "matched_erc"]])
         final_df.to_csv("test1_erc_classification_results_top50.csv", index=False)
         # final_df.to_csv("temp_results.csv", index=False)

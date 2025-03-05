@@ -3,6 +3,16 @@ import os
 import time
 import requests
 from urllib.parse import urljoin
+import sys
+import os
+from dotenv import load_dotenv
+
+
+
+
+sys.setrecursionlimit(20000)
+
+
 
 # Constants
 GITHUB_API_URL = "https://api.github.com/search/code"
@@ -11,11 +21,17 @@ SOLIDITY_FILE_EXTENSION = ".sol"
 OUTPUT_DIR = "erc_source_code"
 
 
+# GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+# print(f"GITHUB_TOKEN : {GITHUB_TOKEN}")
+
+load_dotenv()
+
+# Get API key from environment variable
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 
 # ERC_STANDARDS = [
-#     "ERC20", "ERC721", "ERC998", "ERC1155", "ERC1261", "ERC1363", "ERC1948", "ERC2020", "ERC2309", "ERC2612",
+#     "ERC20", "ERC721", "ERC998", "ERC1155", "ERC1261", "ERC1363", "ERC1948", "ERC2020", "ERC2309", "ERC2612"]
 # List of ERCs to scrape (all prefixed with "ERC")
 ERC_STANDARDS = [
      "ERC2981", "ERC3135",
