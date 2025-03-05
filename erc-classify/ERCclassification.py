@@ -46,47 +46,6 @@ def fetch_source_code(address: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
 
-
-def fetch_tx_activity(address: str) -> dict:
-    """
-    Fetch the transaction activity for a contract address from Etherscan, including:
-    - Normal transactions
-    - Internal transactions
-    - ERC-20 token transfers
-    """
-    # Fetch normal transactions
-    tx_url = (
-        f"https://api.etherscan.io/api?module=account&action=txlist"
-        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
-    )
-    tx_response = requests.get(tx_url)
-    tx_data = tx_response.json().get("result", [])
-
-    # Fetch internal transactions (optional)
-    internal_tx_url = (
-        f"https://api.etherscan.io/api?module=account&action=txlistinternal"
-        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
-    )
-    internal_tx_response = requests.get(internal_tx_url)
-    internal_tx_data = internal_tx_response.json().get("result", [])
-
-    # Fetch ERC-20 token transfers (optional)
-    token_tx_url = (
-        f"https://api.etherscan.io/api?module=account&action=tokentx"
-        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
-    )
-    token_tx_response = requests.get(token_tx_url)
-    token_tx_data = token_tx_response.json().get("result", [])
-
-    # Combine all transaction data
-    combined_data = {
-        "normal_transactions": tx_data,
-        "internal_transactions": internal_tx_data,
-        "token_transfers": token_tx_data,
-    }
-
-    return combined_data
-
 def save_source_code(address: str, source_info: dict) -> None:
     """
     Save the contract source code into a file named <address>.sol in the "contracts" folder.
@@ -112,49 +71,6 @@ def save_source_code(address: str, source_info: dict) -> None:
     with open(filename, "w", encoding="utf-8") as f:
         f.write(source_code)
     print(f"Saved source code for {address} to {filename}")
-    
-
-
-def should_fetch_contract(tx_list) -> bool:
-    """
-    Return True if the contract meets the criteria for importance based on transaction data.
-    """
-    if not tx_list:
-        return False
-
-    now = int(time.time())
-    thirty_days = 30 * 24 * 3600  # 30 days in seconds
-
-    # Heuristic 1: Recent activity (at least one transaction in the last 30 days)
-    recent_activity = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
-    if not recent_activity:
-        return False
-
-    # Heuristic 2: Total transaction volume (more than 100 transactions)
-    total_tx = len(tx_list)
-    if total_tx <= 100:
-        return False
-
-    # Heuristic 3: Total transaction value (at least 0.1 ETH in wei)
-    total_value = sum(int(tx["value"]) for tx in tx_list)
-    min_total_value = 100000000000000000  # 0.1 ETH in wei
-    if total_value < min_total_value:
-        return False
-
-    # Heuristic 4: Unique interactors (at least 50 unique addresses)
-    unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
-    if len(unique_interactors) < 50:
-        return False
-
-    # Heuristic 5: Gas usage (total gas used above a threshold)
-    total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
-    min_gas_used = 10000000  # Example threshold (adjust as needed)
-    if total_gas_used < min_gas_used:
-        return False
-
-    # If all heuristics are satisfied, the contract is considered important
-    return True
-
 
 
 def match_erc_type(bytecode, event_topics):
@@ -165,7 +81,7 @@ def match_erc_type(bytecode, event_topics):
         if topic not in bytecode.lower():
             return False
     return True
-def ERC_classification():
+def ERC_classification_copy():
     
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
@@ -281,10 +197,6 @@ def ERC_classification():
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
-
-
-
-
    
 def verify_source():
      # Load CSV file containing contract addresses (with a "address" column).
@@ -311,6 +223,171 @@ def verify_source():
             print(f"address : {address}")
         else:
             print(f"Error fetching source code for {address}: {source_info.get('message', source_info)}")
+
+
+API_KEY = "your_etherscan_api_key"
+
+def fetch_tx_activity(address: str) -> dict:
+    """
+    Fetch the transaction activity for a contract address from Etherscan, including:
+    - Normal transactions
+    - Internal transactions
+    - ERC-20 token transfers
+    """
+    # Fetch normal transactions
+    tx_url = (
+        f"https://api.etherscan.io/api?module=account&action=txlist"
+        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
+    )
+    tx_response = requests.get(tx_url)
+    tx_data = tx_response.json().get("result", [])
+
+    # Fetch internal transactions (optional)
+    internal_tx_url = (
+        f"https://api.etherscan.io/api?module=account&action=txlistinternal"
+        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
+    )
+    internal_tx_response = requests.get(internal_tx_url)
+    internal_tx_data = internal_tx_response.json().get("result", [])
+
+    # Fetch ERC-20 token transfers (optional)
+    token_tx_url = (
+        f"https://api.etherscan.io/api?module=account&action=tokentx"
+        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
+    )
+    token_tx_response = requests.get(token_tx_url)
+    token_tx_data = token_tx_response.json().get("result", [])
+
+    # Combine all transaction data
+    combined_data = {
+        "normal_transactions": tx_data,
+        "internal_transactions": internal_tx_data,
+        "token_transfers": token_tx_data,
+    }
+
+    return combined_data
+
+def should_fetch_contract(tx_list) -> bool:
+    """
+    Return True if the contract meets the criteria for importance based on transaction data.
+    """
+    if not tx_list:
+        return False
+
+    now = int(time.time())
+    thirty_days = 30 * 24 * 3600  # 30 days in seconds
+
+    # Heuristic 1: Recent activity (at least one transaction in the last 30 days)
+    recent_activity = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
+    if not recent_activity:
+        return False
+
+    # Heuristic 2: Total transaction volume (more than 100 transactions)
+    total_tx = len(tx_list)
+    if total_tx <= 100:
+        return False
+
+    # Heuristic 3: Total transaction value (at least 0.1 ETH in wei)
+    total_value = sum(int(tx["value"]) for tx in tx_list)
+    min_total_value = 100000000000000000  # 0.1 ETH in wei
+    if total_value < min_total_value:
+        return False
+
+    # Heuristic 4: Unique interactors (at least 50 unique addresses)
+    unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
+    if len(unique_interactors) < 50:
+        return False
+
+    # Heuristic 5: Gas usage (total gas used above a threshold)
+    total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
+    min_gas_used = 10000000  # Example threshold (adjust as needed)
+    if total_gas_used < min_gas_used:
+        return False
+
+    # If all heuristics are satisfied, the contract is considered important
+    return True
+
+def ERC_classification():
+    common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
+    
+    # Load the ERC configuration JSON
+    with open("test_erc_config_top50.json", "r") as f:
+        erc_config = json.load(f)
+    
+    # Load the dataset
+    # df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    df_subset = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    
+    # Initialize a list to store matched ERC types for each bytecode
+    matched_erc_types = []
+    # Dictionary to track the count of matches per ERC type
+    erc_match_counts = defaultdict(int)
+    
+    # Iterate over each row in the dataset
+    for idx, row in df_subset.iterrows():
+        original_bytecode_str = row["bytecode"]
+        current_matches = []
+        
+        # Iterate over each ERC type in the configuration
+        for erc_type, config in erc_config.items():
+            # Skip if this ERC type has already reached the limit of 10 matches
+            if erc_match_counts[erc_type] >= 1:
+                continue
+            
+            # Get the required selectors and event topics for the ERC type
+            selectors = config.get("selectors", [])
+            event_topics = config.get("topics", [])
+            
+            # Check if all event topics and selectors are present in the bytecode
+            event_matched = match_erc_type(original_bytecode_str, event_topics)
+            selector_matched = match_erc_type(original_bytecode_str, selectors)
+            
+            # If both selectors and events match, add the ERC type to the current matches
+            if selector_matched and event_matched:
+                current_matches.append(erc_type)
+                erc_match_counts[erc_type] += 1
+        
+        # Add the current matches to the list of matched ERC types
+        matched_erc_types.append(current_matches)
+    
+    # Ensure that matched_erc_types has the same length as df_subset
+    if len(matched_erc_types) != len(df_subset):
+        raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
+    
+    # Add the matched ERC types to the DataFrame
+    df_subset.loc[:, "matched_erc"] = matched_erc_types
+    
+    # Create a shortened version of the bytecode for display purposes
+    df_subset.loc[:, "bytecode_short"] = df_subset["bytecode"].str[:40]
+    
+    # Filter the DataFrame to only include rows where "matched_erc" is non-empty
+    filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
+    
+    # Now, further filter by transaction activity.
+    final_rows = []
+    for idx, row in filtered_df.iterrows():
+        address = row["address"]
+        tx_info = fetch_tx_activity(address)
+        if tx_info.get("status") != "1":
+            continue
+        
+        tx_list = tx_info.get("normal_transactions", [])
+        if not should_fetch_contract(tx_list):
+            continue
+        
+        final_rows.append(row)
+    
+    # Create a new DataFrame from the final rows.
+    if final_rows:
+        final_df = pd.DataFrame(final_rows)
+        # Sort the DataFrame by matched_erc to group rows with the same ERC type together
+        final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
+        
+        print(final_df[["address", "bytecode_short", "matched_erc"]])
+        final_df.to_csv("test1_erc_classification_results_top50.csv", index=False)
+    else:
+        print("No contracts meet both the ERC match and transaction activity criteria.")
+
 
     
    
