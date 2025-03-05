@@ -92,10 +92,10 @@ def ERC_classification_copy():
     
     # Load the dataset
     # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
+    # df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
@@ -137,7 +137,7 @@ def ERC_classification_copy():
             # if erc_type in common_erc_types:
             #     continue
             # Skip if this ERC type has already reached the limit of 10 matches
-            if erc_match_counts[erc_type] >= 1:
+            if erc_match_counts[erc_type] >= 10:
                 continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
