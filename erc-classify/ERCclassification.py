@@ -87,7 +87,7 @@ def ERC_classification_copy():
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
     # with open("temp.json", "r") as f:
-    with open("test_erc_config_top50.json", "r") as f:
+    with open("erc_config_top50.json", "r") as f:
         erc_config = json.load(f)
     
     # Load the dataset
@@ -95,7 +95,7 @@ def ERC_classification_copy():
     df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    # df_subset = df.head(10000).copy()  # Adjust the number of rows as needed
+    df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
@@ -137,7 +137,7 @@ def ERC_classification_copy():
             # if erc_type in common_erc_types:
             #     continue
             # Skip if this ERC type has already reached the limit of 10 matches
-            if erc_match_counts[erc_type] >= 10:
+            if erc_match_counts[erc_type] >= 1:
                 continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
@@ -175,13 +175,13 @@ def ERC_classification_copy():
     final_rows = []
     for idx, row in filtered_df.iterrows():
         address = row["address"]
-        tx_info = fetch_tx_activity(address)
+        tx_info = fetch_tx_activity_copy(address)
         if tx_info.get("status") != "1":
             # print(f"Error fetching tx activity for {address}: {tx_info.get('message', tx_info)}")
             continue
         
         tx_list = tx_info.get("result", [])
-        if not should_fetch_contract(tx_list):
+        if not should_fetch_contract_copy(tx_list):
             # print(f"Skipping {address}: does not meet tx activity criteria.")
             continue
         
@@ -198,6 +198,49 @@ def ERC_classification_copy():
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
+
+def should_fetch_contract_copy(tx_list) -> bool:
+    """
+    Return True if the total number of transactions is > 100 and
+    at least one transaction happened in the last 30 days.
+    """
+    if not tx_list:
+        return False
+
+    # total_tx = len(tx_list)
+    # if total_tx <= 100:
+    #     return False
+
+    now = int(time.time())
+    thirty_days = 30 * 24 * 3600
+    recent = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
+
+    # Sum transaction values (in Wei)
+    total_value = sum(int(tx["value"]) for tx in tx_list)
+    min_total_value = 100000000000000000  # 0.1 ETH in wei
+
+    has_min_value = total_value >= min_total_value
+
+    # Debug prints (optional)
+    # print(f"Total transactions: {total_tx}, Recent? {recent}, Total value (wei): {total_value}, has_min_value : {has_min_value}")
+
+    # return recent and has_min_value
+    return recent
+
+
+def fetch_tx_activity_copy(address: str) -> dict:
+    """
+    Fetch the transaction activity for a contract address from Etherscan.
+    """
+    url = (
+        f"https://api.etherscan.io/api?module=account&action=txlist"
+        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
+    )
+    response = requests.get(url)
+    try:
+        return response.json()
+    except Exception as e:
+        return {"error": str(e)}
    
 def verify_source():
      # Load CSV file containing contract addresses (with a "address" column).
@@ -290,13 +333,13 @@ def ERC_classification():
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     
     # Load the ERC configuration JSON
-    with open("test_erc_config_top50.json", "r") as f:
+    with open("erc_config_top50.json", "r") as f:
         erc_config = json.load(f)
     
     # Load the dataset
-    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
-    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df_subset = df.head(10000).copy()
+    # df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    df_subset = df.head(1000).copy()
     
     
     # Initialize a list to store matched ERC types for each bytecode
@@ -375,7 +418,7 @@ def ERC_classification():
    
 
 def main():
-    ERC_classification()
+    ERC_classification_copy()
     # verify_source()
     
 
