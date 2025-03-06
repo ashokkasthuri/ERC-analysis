@@ -110,11 +110,11 @@ def ERC_classification():
     # Load the dataset
     # df = pd.read_csv("/Users/ashokk/Downloads/ethereum_deduplicated_results.csv")
     # df_subset = pd.read_csv("/home/ashok/data/ethereum_deduplicated_results.csv")
-    df = pd.read_csv("/home/ashok/data/binance_deduplicated_results.csv")
+    df_subset = pd.read_csv("/home/ashok/data/binance_deduplicated_results.csv")
     # df_subset = pd.read_csv("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/test1_erc_classification_results_top50_server.csv")
     
      # Use a subset of the data for testing
-    df_subset = df.head(1000).copy()  # Adjust the number of rows as needed
+    # df_subset = df.head(1000).copy()  # Adjust the number of rows as needed
     
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
