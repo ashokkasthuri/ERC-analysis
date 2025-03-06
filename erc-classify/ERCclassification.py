@@ -20,7 +20,9 @@ import rattle
 
 sys.setrecursionlimit(20000)
 
-load_dotenv()
+# Load .env file
+dotenv_loaded = load_dotenv()
+print(f"✅ .env Loaded: {dotenv_loaded}")  # Should print True
 
 # Get API key from environment variable
 API_KEY = os.getenv("ETHERSCAN_API_KEY")
@@ -91,8 +93,8 @@ def ERC_classification_copy():
         erc_config = json.load(f)
     
     # Load the dataset
-    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    df_subset = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    # df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
     # df_subset = df.head(1000000).copy()  # Adjust the number of rows as needed
@@ -194,7 +196,7 @@ def ERC_classification_copy():
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
         
         print(final_df[["address", "bytecode_short", "matched_erc"]])
-        final_df.to_csv("test1_erc_classification_results_top50_server.csv", index=False)
+        final_df.to_csv("test1_erc_classification_results_top50_local.csv", index=False)
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
