@@ -99,7 +99,7 @@ def match_erc_type(bytecode, event_topics):
             # print(f"topic not found: {topic}")  # Debugging statement
             return False
     return True
-def ERC_classification_copy():
+def ERC_classification():
     
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
@@ -108,12 +108,13 @@ def ERC_classification_copy():
         erc_config = json.load(f)
     
     # Load the dataset
-    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    # df = pd.read_csv("/Users/ashokk/Downloads/ethereum_deduplicated_results.csv")
+    # df_subset = pd.read_csv("/home/ashok/data/ethereum_deduplicated_results.csv")
+    df = pd.read_csv("/home/ashok/data/binance_deduplicated_results.csv")
     # df_subset = pd.read_csv("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/test1_erc_classification_results_top50_server.csv")
     
      # Use a subset of the data for testing
-    # df_subset = df.head(10).copy()  # Adjust the number of rows as needed
+    df_subset = df.head(1000).copy()  # Adjust the number of rows as needed
     
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
@@ -164,7 +165,7 @@ def ERC_classification_copy():
             if erc_type in common_erc_types:
                 continue
             # Skip if this ERC type has already reached the limit of 10 matches
-            if erc_match_counts[erc_type] >= 2:
+            if erc_match_counts[erc_type] >= 1:
                 continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
@@ -230,7 +231,7 @@ def ERC_classification_copy():
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
         
         print(final_df[["address", "bytecode_short", "matched_erc", "Binary Token Classification"]])
-        final_df.to_csv("test1_erc_classification_results_top50_server1.csv", index=False)
+        final_df.to_csv("test1_erc_classification_results_top50_server_binance.csv", index=False)
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
@@ -243,13 +244,14 @@ def should_fetch_contract_copy(tx_list) -> bool:
     if not tx_list:
         return False
 
-    # total_tx = len(tx_list)
-    # if total_tx <= 100:
-    #     return False
+    
 
     now = int(time.time())
-    thirty_days = 90 * 24 * 3600
+    thirty_days = 900 * 24 * 3600
     recent = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
+    
+    if not recent:
+        return False
 
     # Sum transaction values (in Wei)
     total_value = sum(int(tx["value"]) for tx in tx_list)
@@ -260,8 +262,33 @@ def should_fetch_contract_copy(tx_list) -> bool:
     # Debug prints (optional)
     # print(f"Total transactions: {total_tx}, Recent? {recent}, Total value (wei): {total_value}, has_min_value : {has_min_value}")
 
+    # Heuristic 2: Total transaction volume
+    # total_tx = len(tx_list)
+    # if total_tx <= 10:
+    #     print(f"Low transaction volume: {total_tx}.")
+    #     return False
+
+    # # Heuristic 3: Total transaction value
+    # total_value = sum(int(tx["value"]) for tx in tx_list)
+    # min_total_value = 10000000000000000
+    # if total_value < min_total_value:
+    #     print(f"Low transaction value: {total_value}.")
+    #     return False
+
+    # # Heuristic 4: Unique interactors
+    # unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
+    # if len(unique_interactors) < 10:
+    #     print(f"Low unique interactors: {len(unique_interactors)}.")
+    #     return False
+
+    # # Heuristic 5: Gas usage
+    # total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
+    # min_gas_used = 1000000
+    # if total_gas_used < min_gas_used:
+    #     print(f"Low gas usage: {total_gas_used}.")
+    #     return False
     # return recent and has_min_value
-    return recent
+    return True
 
 
 def fetch_tx_activity_copy(address: str) -> dict:
@@ -304,163 +331,12 @@ def verify_source():
         else:
             print(f"Error fetching source code for {address}: {source_info.get('message', source_info)}")
 
-def fetch_tx_activity(address: str) -> dict:
-    """
-    Fetch the transaction activity for a contract address from Etherscan.
-    """
-    url = (
-        f"https://api.etherscan.io/api?module=account&action=txlist"
-        f"&address={address}&startblock=0&endblock=99999999&sort=asc&apikey={API_KEY}"
-    )
-    response = requests.get(url)
-    try:
-        data = response.json()
-        # print(f"API Response for {address}: {data}")  # Debugging statement
-        return data
-    except Exception as e:
-        print(f"Error fetching transaction activity for {address}: {e}")
-        return {"error": str(e)}
-    
-    
-def should_fetch_contract(tx_list) -> bool:
-    if not tx_list:
-        print("No transaction data available.")
-        return False
-
-    now = int(time.time())
-    thirty_days = 30 * 24 * 3600
-
-    # Heuristic 1: Recent activity
-    recent_activity = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
-    if not recent_activity:
-        print("No recent activity.")
-        return False
-
-    # # Heuristic 2: Total transaction volume
-    # total_tx = len(tx_list)
-    # if total_tx <= 10:
-    #     print(f"Low transaction volume: {total_tx}.")
-    #     return False
-
-    # # Heuristic 3: Total transaction value
-    # total_value = sum(int(tx["value"]) for tx in tx_list)
-    # min_total_value = 10000000000000000
-    # if total_value < min_total_value:
-    #     print(f"Low transaction value: {total_value}.")
-    #     return False
-
-    # # Heuristic 4: Unique interactors
-    # unique_interactors = set(tx["from"] for tx in tx_list).union(set(tx["to"] for tx in tx_list))
-    # if len(unique_interactors) < 10:
-    #     print(f"Low unique interactors: {len(unique_interactors)}.")
-    #     return False
-
-    # # Heuristic 5: Gas usage
-    # total_gas_used = sum(int(tx["gasUsed"]) for tx in tx_list)
-    # min_gas_used = 1000000
-    # if total_gas_used < min_gas_used:
-    #     print(f"Low gas usage: {total_gas_used}.")
-    #     return False
-
-    print("Contract meets all criteria.")
-    return True
-
-def ERC_classification():
-    common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
-    
-    # Load the ERC configuration JSON
-    with open("erc_config_top50.json", "r") as f:
-        erc_config = json.load(f)
-    
-    # Load the dataset
-    # df = pd.read_csv("/home/ashok/deduplicated_results.csv")
-    df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df_subset = df.head(1000).copy()
-    
-    
-    # Initialize a list to store matched ERC types for each bytecode
-    matched_erc_types = []
-    # Dictionary to track the count of matches per ERC type
-    erc_match_counts = defaultdict(int)
-    
-    # Iterate over each row in the dataset
-    for idx, row in df_subset.iterrows():
-        original_bytecode_str = row["bytecode"]
-        current_matches = []
-        
-        # Iterate over each ERC type in the configuration
-        for erc_type, config in erc_config.items():
-            # Skip if this ERC type has already reached the limit of 10 matches
-            if erc_match_counts[erc_type] >= 1:
-                continue
-            
-            # Get the required selectors and event topics for the ERC type
-            selectors = config.get("selectors", [])
-            event_topics = config.get("topics", [])
-            
-            # Check if all event topics and selectors are present in the bytecode
-            event_matched = match_erc_type(original_bytecode_str, event_topics)
-            selector_matched = match_erc_type(original_bytecode_str, selectors)
-            
-            # If both selectors and events match, add the ERC type to the current matches
-            if selector_matched and event_matched:
-                current_matches.append(erc_type)
-                erc_match_counts[erc_type] += 1
-        
-        # Add the current matches to the list of matched ERC types
-        matched_erc_types.append(current_matches)
-    
-    # Ensure that matched_erc_types has the same length as df_subset
-    if len(matched_erc_types) != len(df_subset):
-        raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
-    
-    # Add the matched ERC types to the DataFrame
-    df_subset.loc[:, "matched_erc"] = matched_erc_types
-    
-    # Create a shortened version of the bytecode for display purposes
-    df_subset.loc[:, "bytecode_short"] = df_subset["bytecode"].str[:40]
-    
-    # Filter the DataFrame to only include rows where "matched_erc" is non-empty
-    filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
-    
-    # Now, further filter by transaction activity.
-    final_rows = []
-    for idx, row in filtered_df.iterrows():
-        address = row["address"]
-        tx_info = fetch_tx_activity(address)
-        if tx_info.get("status") != "1":
-            continue
-        
-        tx_list = tx_info.get("result", [])
-        if not should_fetch_contract(tx_list):
-            continue
-        
-        final_rows.append(row)
-    
-    # print(f"final_rows : {final_rows}")
-    # Create a new DataFrame from the final rows.
-    if final_rows:
-        final_df = pd.DataFrame(final_rows)
-        # Sort the DataFrame by matched_erc to group rows with the same ERC type together
-        final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
-        
-        print(final_df[["address", "bytecode_short", "matched_erc"]])
-        final_df.to_csv("test1_erc_classification_results_top50.csv", index=False)
-    else:
-        print("No contracts meet both the ERC match and transaction activity criteria.")
 
 
-
-
-   
 
 def main():
-    ERC_classification_copy()
+    ERC_classification()
     # verify_source()
-    
-   
-    
-    
 
 if __name__ == "__main__":
     main()
