@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from collections import defaultdict
 
 
+
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 
@@ -22,7 +24,8 @@ sys.setrecursionlimit(20000)
 
 # Load .env explicitly from the main project directory
 
-load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+load_env = load_dotenv()
 
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
@@ -34,6 +37,8 @@ if not API_KEY:
     raise ValueError("⚠️ API Key not found! Make sure to set ETHERSCAN_API_KEY in your .env file.")
 
 print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)")
+
+
 
 
 
@@ -96,11 +101,21 @@ def ERC_classification_copy():
         erc_config = json.load(f)
     
     # Load the dataset
-    # df_subset = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    # df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    # df_subset = pd.read_csv("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/test1_erc_classification_results_top50_local.csv")
     
-    # Use a subset of the data for testing
-    df_subset = df.head(10000).copy()  # Adjust the number of rows as needed
+     # Use a subset of the data for testing
+    df_subset = df.head(10).copy()  # Adjust the number of rows as needed
+    
+    # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
+    if "matched_erc" not in df_subset.columns:
+        df_subset["matched_erc"] = ""
+
+    if "bytecode_short" not in df_subset.columns:
+        df_subset["bytecode_short"] = df_subset["bytecode"].str[:40]  # Create if missing
+
+   
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
@@ -142,8 +157,8 @@ def ERC_classification_copy():
             if erc_type in common_erc_types:
                 continue
             # Skip if this ERC type has already reached the limit of 10 matches
-            # if erc_match_counts[erc_type] >= 10:
-            #     continue
+            if erc_match_counts[erc_type] >= 2:
+                continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
@@ -158,7 +173,7 @@ def ERC_classification_copy():
             # If both selectors and events match, add the ERC type to the current matches
             if selector_matched and event_matched:
                 current_matches.append(erc_type)
-                # erc_match_counts[erc_type] += 1
+                erc_match_counts[erc_type] += 1
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
@@ -168,10 +183,15 @@ def ERC_classification_copy():
         raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
     
     # Add the matched ERC types to the DataFrame
-    df_subset.loc[:, "matched_erc"] = matched_erc_types
+    # df_subset.loc[:, "matched_erc"] = matched_erc_types
     
-    # Create a shortened version of the bytecode for display purposes
-    df_subset.loc[:, "bytecode_short"] = df_subset["bytecode"].str[:40]
+    # Convert matched_erc_types to a flat string before assigning (if column was empty)
+    df_subset["matched_erc"] = [
+        ";".join(map(str, lst)) if isinstance(lst, list) else str(lst)
+        if val == "" else val  # Keep existing values
+        for lst, val in zip(matched_erc_types, df_subset["matched_erc"])
+    ]
+    
     
     # Filter the DataFrame to only include rows where "matched_erc" is non-empty
     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
@@ -199,7 +219,7 @@ def ERC_classification_copy():
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
         
         print(final_df[["address", "bytecode_short", "matched_erc"]])
-        final_df.to_csv("test1_erc_classification_results_top50_server.csv", index=False)
+        # final_df.to_csv("test1_erc_classification_results_top50_local_temp.csv", index=False)
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
@@ -419,13 +439,21 @@ def ERC_classification():
         print("No contracts meet both the ERC match and transaction activity criteria.")
 
 
-    
+
+
    
 
 def main():
     ERC_classification_copy()
     # verify_source()
     
+   
+    
+    
 
 if __name__ == "__main__":
     main()
+
+
+
+
