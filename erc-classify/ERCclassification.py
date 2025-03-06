@@ -24,8 +24,8 @@ sys.setrecursionlimit(20000)
 
 # Load .env explicitly from the main project directory
 
-# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
-load_env = load_dotenv()
+load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+# load_env = load_dotenv()
 
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
@@ -101,12 +101,12 @@ def ERC_classification_copy():
         erc_config = json.load(f)
     
     # Load the dataset
-    df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    # df = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
     # df_subset = pd.read_csv("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/test1_erc_classification_results_top50_local.csv")
     
      # Use a subset of the data for testing
-    df_subset = df.head(10).copy()  # Adjust the number of rows as needed
+    # df_subset = df.head(10).copy()  # Adjust the number of rows as needed
     
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
@@ -219,7 +219,7 @@ def ERC_classification_copy():
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
         
         print(final_df[["address", "bytecode_short", "matched_erc"]])
-        # final_df.to_csv("test1_erc_classification_results_top50_local_temp.csv", index=False)
+        final_df.to_csv("test1_erc_classification_results_top50_server1.csv", index=False)
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
