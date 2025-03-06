@@ -20,9 +20,12 @@ import rattle
 
 sys.setrecursionlimit(20000)
 
-# Load .env file
-dotenv_loaded = load_dotenv()
-print(f"✅ .env Loaded: {dotenv_loaded}")  # Should print True
+# Load .env explicitly from the main project directory
+
+load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+
+# Verify if .env is loaded
+print(f"✅ .env Loaded: {load_env}")
 
 # Get API key from environment variable
 API_KEY = os.getenv("ETHERSCAN_API_KEY")
