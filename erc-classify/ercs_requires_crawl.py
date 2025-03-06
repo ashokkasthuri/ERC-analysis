@@ -39,20 +39,17 @@ def get_requires(erc_number):
 
 # Prepare data for CSV
 data = []
+tokens = []
+non_tokens = []
 for erc in erc_list:
     requires = get_requires(erc)
     if requires is not None:
-        data.append({"ERC": f"ERC-{erc}", "Requires": requires})
+        row = {"ERC": f"ERC-{erc}", "Requires": requires}
     else:
-        data.append({"ERC": f"ERC-{erc}", "Requires": "No 'Requires' section found."})
-
-# Add "TOKEN" column to the data
-tokens = []
-non_tokens = []
-for row in data:
-    erc_number = int(row["ERC"].split("-")[1])  # Extract ERC number from "ERC-<number>"
+        row = {"ERC": f"ERC-{erc}", "Requires": "No 'Requires' section found."}
     
     # Check if the ERC itself is a token standard
+    erc_number = int(row["ERC"].split("-")[1])
     if erc_number in token_ercs:
         row["TOKEN"] = "TOKEN"
         tokens.append(row["ERC"])
@@ -72,19 +69,18 @@ for row in data:
         else:
             row["TOKEN"] = "Not a TOKEN"
             non_tokens.append(row["ERC"])
+    
+    data.append(row)
 
-# Add a new row for "All Tokens" and "All Non-Tokens"
-all_tokens_row = {"ERC": "All Tokens", "Requires": ", ".join(tokens), "TOKEN": ""}
-all_non_tokens_row = {"ERC": "All Non-Tokens", "Requires": ", ".join(non_tokens), "TOKEN": ""}
-
-# Insert the new rows at the beginning of the data
-data.insert(0, all_non_tokens_row)
-data.insert(0, all_tokens_row)
+# Add "All Tokens" and "All Non-Tokens" columns to each row
+for row in data:
+    row["All Tokens"] = ", ".join(tokens) if tokens else ""
+    row["All Non-Tokens"] = ", ".join(non_tokens) if non_tokens else ""
 
 # Write data to CSV
 csv_file = "erc_requires_with_token.csv"
 with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.DictWriter(file, fieldnames=["ERC", "Requires", "TOKEN"])
+    writer = csv.DictWriter(file, fieldnames=["ERC", "Requires", "TOKEN", "All Tokens", "All Non-Tokens"])
     writer.writeheader()
     writer.writerows(data)
 

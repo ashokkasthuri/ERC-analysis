@@ -39,7 +39,14 @@ if not API_KEY:
 print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)")
 
 
-
+# List of token ERCs
+token_ercs = {
+    "ERC20", "ERC721", "ERC777", "ERC1155", "ERC998", "ERC1046", "ERC1363", "ERC2309", 
+    "ERC2612", "ERC1948", "ERC1337", "ERC2021", "ERC2019", "ERC1996", "ERC2020", 
+    "ERC3135", "ERC3589", "ERC4524", "ERC3525", "ERC3643", "ERC4626", "ERC4907", 
+    "ERC4955", "ERC5169", "ERC5192", "ERC5380", "ERC5507", "ERC5528", "ERC5570", 
+    "ERC5585", "ERC5606", "ERC5615", "ERC5679", "ERC5725", "ERC6105", "ERC6808", "ERC6809"
+}
 
 
 def fetch_source_code(address: str) -> dict:
@@ -103,7 +110,7 @@ def ERC_classification_copy():
     # Load the dataset
     # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
     df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
-    # df_subset = pd.read_csv("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/test1_erc_classification_results_top50_local.csv")
+    # df_subset = pd.read_csv("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/test1_erc_classification_results_top50_server.csv")
     
      # Use a subset of the data for testing
     # df_subset = df.head(10).copy()  # Adjust the number of rows as needed
@@ -192,6 +199,10 @@ def ERC_classification_copy():
         for lst, val in zip(matched_erc_types, df_subset["matched_erc"])
     ]
     
+    # Add the "Binary Token Classification" column
+    df_subset["Binary Token Classification"] = df_subset["matched_erc"].apply(
+        lambda x: f"YES, {x}" if x in token_ercs else ""
+    )
     
     # Filter the DataFrame to only include rows where "matched_erc" is non-empty
     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
@@ -218,7 +229,7 @@ def ERC_classification_copy():
         # Sort the DataFrame by matched_erc to group rows with the same ERC type together
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
         
-        print(final_df[["address", "bytecode_short", "matched_erc"]])
+        print(final_df[["address", "bytecode_short", "matched_erc", "Binary Token Classification"]])
         final_df.to_csv("test1_erc_classification_results_top50_server1.csv", index=False)
         # final_df.to_csv("temp_results.csv", index=False)
     else:
