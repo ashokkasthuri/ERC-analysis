@@ -91,11 +91,11 @@ def ERC_classification_copy():
         erc_config = json.load(f)
     
     # Load the dataset
-    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
-    df_subset = pd.read_csv("/home/ashok/deduplicated_results.csv")
+    # df_subset = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    df = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
-    # df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
+    df_subset = df.head(1000000).copy()  # Adjust the number of rows as needed
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
@@ -134,11 +134,11 @@ def ERC_classification_copy():
         # Iterate over each ERC type in the configuration
         for erc_type, config in erc_config.items():
             
-            # if erc_type in common_erc_types:
-            #     continue
-            # Skip if this ERC type has already reached the limit of 10 matches
-            if erc_match_counts[erc_type] >= 10:
+            if erc_type in common_erc_types:
                 continue
+            # Skip if this ERC type has already reached the limit of 10 matches
+            # if erc_match_counts[erc_type] >= 10:
+            #     continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
@@ -153,7 +153,7 @@ def ERC_classification_copy():
             # If both selectors and events match, add the ERC type to the current matches
             if selector_matched and event_matched:
                 current_matches.append(erc_type)
-                erc_match_counts[erc_type] += 1
+                # erc_match_counts[erc_type] += 1
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
@@ -212,7 +212,7 @@ def should_fetch_contract_copy(tx_list) -> bool:
     #     return False
 
     now = int(time.time())
-    thirty_days = 30 * 24 * 3600
+    thirty_days = 90 * 24 * 3600
     recent = any(int(tx["timeStamp"]) >= (now - thirty_days) for tx in tx_list)
 
     # Sum transaction values (in Wei)
