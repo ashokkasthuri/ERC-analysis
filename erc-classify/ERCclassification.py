@@ -91,7 +91,7 @@ def ERC_classification_copy():
         erc_config = json.load(f)
     
     # Load the dataset
-    # df_subset = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
+    # df = pd.read_csv("/Users/ashokk/Downloads/deduplicated_results.csv")
     df = pd.read_csv("/home/ashok/deduplicated_results.csv")
     
     # Use a subset of the data for testing
