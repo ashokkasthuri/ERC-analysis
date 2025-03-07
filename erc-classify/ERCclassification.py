@@ -84,8 +84,8 @@ def process_csv_file(file_path, erc_config):
             if erc_type in common_erc_types:
                 continue
             # Skip if this ERC type has already reached the limit of 10 matches
-            if erc_match_counts[erc_type] >= 1:
-                continue
+            # if erc_match_counts[erc_type] >= 1:
+            #     continue
             # Get the required selectors and event topics for the ERC type
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
@@ -101,7 +101,7 @@ def process_csv_file(file_path, erc_config):
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
-    
+    print(f"erc_match_counts : {erc_match_counts}")
     # Ensure that matched_erc_types has the same length as df_subset
     if len(matched_erc_types) != len(df_subset):
         raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
