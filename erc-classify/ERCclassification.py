@@ -59,8 +59,8 @@ common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612"
 # Function to process a single CSV file
 def process_csv_file(file_path, erc_config):
     # Load the dataset
-    df = pd.read_csv(file_path)
-    df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
+    df_subset = pd.read_csv(file_path)
+    # df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
     
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
@@ -135,8 +135,12 @@ def process_csv_file(file_path, erc_config):
         # print(final_df[["address", "bytecode_short", "matched_erc", "Binary Token Classification"]])
         
         # Save the results to a new CSV file
-        output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
+        # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
+        output_file = "/home/ashok/ERC-analysis/erc-classify/processed_" + os.path.basename(file_path)
+
         final_df.to_csv(output_file, index=False)
+        # final_df.to_csv("test1_erc_classification_results_top10_server_full_dataset.csv", index=False)
+        
         print(f"Processed results saved to {output_file}")
     else:
         print(f"No contracts meet both the ERC match and transaction activity criteria in {file_path}.")
@@ -148,7 +152,7 @@ def ERC_classification():
         erc_config = json.load(f)
     
     # Directory containing CSV files
-    data_dir = "/home/ashok/"
+    data_dir = "/home/ashok/data"
     # data_dir = "/Users/ashokk/Downloads/evm_data"
     
     # Find all CSV files in the directory
@@ -345,7 +349,7 @@ def ERC_classification_copy():
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
         
         print(final_df[["address", "bytecode_short", "matched_erc", "Binary Token Classification"]])
-        final_df.to_csv("test1_erc_classification_results_top50_server_binance.csv", index=False)
+        final_df.to_csv("vtest1_erc_classification_results_top50_server_binance.cs", index=False)
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
