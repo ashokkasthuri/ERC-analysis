@@ -136,7 +136,7 @@ def process_csv_file(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/ERC-analysis/erc-classify/top50_processed_" + os.path.basename(file_path)
+        output_file = "/home/ashok/ERC-analysis/erc-classify/top10_processed_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
         # final_df.to_csv("test1_erc_classification_results_top10_server_full_dataset.csv", index=False)
@@ -148,7 +148,7 @@ def process_csv_file(file_path, erc_config):
 # Main function to process all CSV files in a directory
 def ERC_classification():
     # Load the ERC configuration JSON
-    with open("erc_config_top50.json", "r") as f:
+    with open("test_erc_config_top10.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
