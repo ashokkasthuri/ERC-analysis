@@ -39,6 +39,11 @@ if not API_KEY:
 print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)")
 
 
+import os
+import json
+import pandas as pd
+from collections import defaultdict
+
 # List of token ERCs
 token_ercs = {
     "ERC20", "ERC721", "ERC777", "ERC1155", "ERC998", "ERC1046", "ERC1363", "ERC2309", 
@@ -47,6 +52,118 @@ token_ercs = {
     "ERC4955", "ERC5169", "ERC5192", "ERC5380", "ERC5507", "ERC5528", "ERC5570", 
     "ERC5585", "ERC5606", "ERC5615", "ERC5679", "ERC5725", "ERC6105", "ERC6808", "ERC6809"
 }
+
+# Common ERC types to skip
+common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
+
+# Function to process a single CSV file
+def process_csv_file(file_path, erc_config):
+    # Load the dataset
+    df = pd.read_csv(file_path)
+    df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
+    
+    # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
+    if "matched_erc" not in df_subset.columns:
+        df_subset["matched_erc"] = ""
+
+    if "bytecode_short" not in df_subset.columns:
+        df_subset["bytecode_short"] = df_subset["bytecode"].str[:40]  # Create if missing
+
+    # Initialize a list to store matched ERC types for each bytecode
+    matched_erc_types = []
+    # Dictionary to track the count of matches per ERC type
+    erc_match_counts = defaultdict(int)
+    
+    # Iterate over each row in the dataset
+    for idx, row in df_subset.iterrows():
+        original_bytecode_str = row["bytecode"]
+        current_matches = []
+        
+        # Iterate over each ERC type in the configuration
+        for erc_type, config in erc_config.items():
+            if erc_type in common_erc_types:
+                continue
+            # Skip if this ERC type has already reached the limit of 10 matches
+            if erc_match_counts[erc_type] >= 1:
+                continue
+            # Get the required selectors and event topics for the ERC type
+            selectors = config.get("selectors", [])
+            event_topics = config.get("topics", [])
+            
+            # Check if all event topics are present in the bytecode
+            event_matched = match_erc_type(original_bytecode_str, event_topics)
+            selector_matched = match_erc_type(original_bytecode_str, selectors)
+            
+            # If both selectors and events match, add the ERC type to the current matches
+            if selector_matched and event_matched:
+                current_matches.append(erc_type)
+                erc_match_counts[erc_type] += 1
+        
+        # Add the current matches to the list of matched ERC types
+        matched_erc_types.append(current_matches)
+    
+    # Ensure that matched_erc_types has the same length as df_subset
+    if len(matched_erc_types) != len(df_subset):
+        raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
+    
+    # Convert matched_erc_types to a flat string before assigning (if column was empty)
+    df_subset["matched_erc"] = [
+        ";".join(map(str, lst)) if isinstance(lst, list) else str(lst)
+        if val == "" else val  # Keep existing values
+        for lst, val in zip(matched_erc_types, df_subset["matched_erc"])
+    ]
+    
+    # Add the "Binary Token Classification" column
+    df_subset["Binary Token Classification"] = df_subset["matched_erc"].apply(
+        lambda x: f"YES, {x}" if x in token_ercs else ""
+    )
+    
+    # Filter the DataFrame to only include rows where "matched_erc" is non-empty
+    filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
+    
+    # Now, further filter by transaction activity.
+    final_rows = []
+    for idx, row in filtered_df.iterrows():
+        final_rows.append(row)
+    
+    # Create a new DataFrame from the final rows.
+    if final_rows:
+        final_df = pd.DataFrame(final_rows)
+        # Sort the DataFrame by matched_erc to group rows with the same ERC type together
+        final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
+        
+        # print(final_df[["address", "bytecode_short", "matched_erc", "Binary Token Classification"]])
+        
+        # Save the results to a new CSV file
+        output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
+        final_df.to_csv(output_file, index=False)
+        print(f"Processed results saved to {output_file}")
+    else:
+        print(f"No contracts meet both the ERC match and transaction activity criteria in {file_path}.")
+
+# Main function to process all CSV files in a directory
+def ERC_classification():
+    # Load the ERC configuration JSON
+    with open("test_erc_config_top10.json", "r") as f:
+        erc_config = json.load(f)
+    
+    # Directory containing CSV files
+    data_dir = "/home/ashok/"
+    # data_dir = "/Users/ashokk/Downloads/evm_data"
+    
+    # Find all CSV files in the directory
+    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
+    
+    if not csv_files:
+        print(f"No CSV files found in {data_dir}.")
+        return
+    
+    # Process each CSV file
+    for csv_file in csv_files:
+        print(f"Processing file: {csv_file}")
+        process_csv_file(csv_file, erc_config)
+
+
 
 
 def fetch_source_code(address: str) -> dict:
@@ -99,7 +216,7 @@ def match_erc_type(bytecode, event_topics):
             # print(f"topic not found: {topic}")  # Debugging statement
             return False
     return True
-def ERC_classification():
+def ERC_classification_copy():
     
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON
@@ -190,9 +307,6 @@ def ERC_classification():
     if len(matched_erc_types) != len(df_subset):
         raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
     
-    # Add the matched ERC types to the DataFrame
-    # df_subset.loc[:, "matched_erc"] = matched_erc_types
-    
     # Convert matched_erc_types to a flat string before assigning (if column was empty)
     df_subset["matched_erc"] = [
         ";".join(map(str, lst)) if isinstance(lst, list) else str(lst)
@@ -211,16 +325,16 @@ def ERC_classification():
     # Now, further filter by transaction activity.
     final_rows = []
     for idx, row in filtered_df.iterrows():
-        address = row["address"]
-        tx_info = fetch_tx_activity_copy(address)
-        if tx_info.get("status") != "1":
-            # print(f"Error fetching tx activity for {address}: {tx_info.get('message', tx_info)}")
-            continue
+        # address = row["address"]
+        # tx_info = fetch_tx_activity_copy(address)
+        # if tx_info.get("status") != "1":
+        #     # print(f"Error fetching tx activity for {address}: {tx_info.get('message', tx_info)}")
+        #     continue
         
-        tx_list = tx_info.get("result", [])
-        if not should_fetch_contract_copy(tx_list):
-            # print(f"Skipping {address}: does not meet tx activity criteria.")
-            continue
+        # tx_list = tx_info.get("result", [])
+        # if not should_fetch_contract_copy(tx_list):
+        #     # print(f"Skipping {address}: does not meet tx activity criteria.")
+        #     continue
         
         final_rows.append(row)
     
@@ -235,6 +349,9 @@ def ERC_classification():
         # final_df.to_csv("temp_results.csv", index=False)
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
+
+
+
 
 def should_fetch_contract_copy(tx_list) -> bool:
     """
