@@ -304,7 +304,6 @@ def extract_functions_and_events(file_path):
                     continue
                 # Clean up the signature
                 function_signature = clean_signature(function_signature)
-                # print(f"function_signature : {function_signature}")
                 
                 # Generate the function hash
                 # function_hash = keccak(text=function_signature).hex()[:8]
@@ -368,6 +367,131 @@ def generate_json_structure(erc_name, functions, events):
 #         json.dump(final_json, json_file, indent=4)
 #     print("Final JSON file created: final_erc_specifications.json")
 
+# Function to load the final ERC specifications
+def load_final_erc_specifications(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+# Function to calculate precision and recall
+def calculate_precision_recall(extracted_functions, extracted_events, erc_spec):
+    # Get the expected functions and events from the ERC specification
+    expected_functions = erc_spec.get("functions", {})
+    expected_events = erc_spec.get("events", {})
+    
+    # Calculate true positives (TP), false positives (FP), and false negatives (FN)
+    tp_functions = 0
+    fp_functions = 0
+    fn_functions = 0
+    
+    tp_events = 0
+    fp_events = 0
+    fn_events = 0
+    
+    # Compare extracted functions with expected functions
+    for func, hash_ in extracted_functions.items():
+        if func in expected_functions and expected_functions[func] == hash_:
+            tp_functions += 1
+        else:
+            fp_functions += 1
+    
+    for func in expected_functions:
+        if func not in extracted_functions:
+            fn_functions += 1
+    
+    # Compare extracted events with expected events
+    for event_hash, event_sig in extracted_events.items():
+        if event_hash in expected_events and expected_events[event_hash] == event_sig:
+            tp_events += 1
+        else:
+            fp_events += 1
+    
+    for event_hash in expected_events:
+        if event_hash not in extracted_events:
+            fn_events += 1
+    
+    # Calculate precision and recall for functions
+    precision_functions = tp_functions / (tp_functions + fp_functions) if (tp_functions + fp_functions) > 0 else 0
+    recall_functions = tp_functions / (tp_functions + fn_functions) if (tp_functions + fn_functions) > 0 else 0
+    
+    # Calculate precision and recall for events
+    precision_events = tp_events / (tp_events + fp_events) if (tp_events + fp_events) > 0 else 0
+    recall_events = tp_events / (tp_events + fn_events) if (tp_events + fn_events) > 0 else 0
+    
+    return {
+        "functions": {"precision": precision_functions, "recall": recall_functions},
+        "events": {"precision": precision_events, "recall": recall_events}
+    }
+
+
+
+# Main function
+def main():
+    # Path to the final ERC specifications
+    final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
+    final_erc = load_final_erc_specifications(final_erc_file)
+    
+    # Path to the directory containing ERC folders
+    erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_source_code_ground_truth"
+    # erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ground_truth_test"
+    
+    
+    # Initialize dictionaries for matched and non-matched ERCs
+    matched_ercs = {}
+    non_matched_ercs = {}
+    
+    # Iterate through each ERC folder
+    for erc_name in final_erc:
+        erc_folder = os.path.join(erc_base_path, erc_name)
+        if not os.path.exists(erc_folder):
+            print(f"ERC folder {erc_folder} does not exist.")
+            continue
+        # Initialize lists for matched and non-matched files for this ERC
+        matched_files = []
+        non_matched_files = []
+        
+      # Iterate through all Solidity files in the ERC folder (including subfolders)
+        for root, _, files in os.walk(erc_folder):
+            for file in files:
+                if file.startswith("final_ERC") and file.endswith(".sol"):
+                    file_path = os.path.join(root, file)
+                    # Extract functions and events from the Solidity file
+                    extracted_functions, extracted_events = extract_functions_and_events(file_path)
+                    
+                    # Compare with the ERC specification
+                    erc_spec = final_erc[erc_name]
+                    precision_recall = calculate_precision_recall(extracted_functions, extracted_events, erc_spec)
+                    
+                    # Determine if the ERC matches
+                    if (precision_recall["functions"]["precision"] == 1.0 and
+                        precision_recall["functions"]["recall"] == 1.0 and
+                        precision_recall["events"]["precision"] == 1.0 and
+                        precision_recall["events"]["recall"] == 1.0):
+                        matched_files.append(file_path)
+                    # if (precision_recall["functions"]["precision"] == 1.0):
+                    #     matched_files.append(file_path)
+                    else:
+                        non_matched_files.append(file_path)
+        # Add to the matched or non-matched collections
+        if matched_files:
+            matched_ercs[erc_name] = matched_files
+        if non_matched_files:
+            non_matched_ercs[erc_name] = non_matched_files
+            
+    # Print matched ERCs
+    print("Matched ERCs:")
+    for erc_name, files in matched_ercs.items():
+        print(f"- ERC: {erc_name}")
+        # for file_path in files:
+        #     print(f"  - File: {file_path}")
+    
+    # Print non-matched ERCs
+    print("\nNon-Matched ERCs:")
+    for erc_name, files in non_matched_ercs.items():
+        print(f"- ERC: {erc_name}")
+        # for file_path in files:
+        #     print(f"  - File: {file_path}")
+
+
 
 # def main():
 #     for erc, dependencies in erc_dependencies.items():
@@ -375,97 +499,15 @@ def generate_json_structure(erc_name, functions, events):
 
 
 
-# Load the two JSON files
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        return json.load(file)
 
-# Normalize event signatures by removing the "event" keyword
-def normalize_events(events):
-    normalized = {}
-    for hash_, signature in events.items():
-        if signature.startswith("event "):
-            signature = signature[len("event "):]
-        normalized[hash_] = signature
-    return normalized
-
-# Compare two JSON files and identify differences
-def compare_json_files(file1, file2):
-    # Load the JSON data
-    final_erc = load_json(file1)
-    erc_config = load_json(file2)
+# # Main function
+# def main():
+#     # Paths to the JSON files
+#     final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
+#     erc_config_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_config_top50.json"
     
-    # Initialize lists to store matching and non-matching ERCs
-    matching_ercs = []
-    non_matching_ercs = []
-    missing_in_config = []
-    missing_in_final = []
-    
-    # Iterate through each ERC in the final_erc_specifications.json
-    for erc_name, erc_data in final_erc.items():
-        if erc_name in erc_config:
-            # Compare functions and events
-            config_data = erc_config[erc_name]
-            
-            # Normalize event signatures in erc_config_top50.json
-            config_data["events"] = normalize_events(config_data.get("events", {}))
-            
-            # Get functions and events
-            final_functions = erc_data.get("functions", {})
-            config_functions = config_data.get("functions", {})
-            
-            final_events = erc_data.get("events", {})
-            config_events = config_data.get("events", {})
-            
-            # Check if the number of functions and events matches
-            num_functions_match = len(final_functions) == len(config_functions)
-            num_events_match = len(final_events) == len(config_events)
-            
-            # Check if function hashes match (order-independent)
-            functions_match = final_functions == config_functions
-            
-            # Check if event hashes match (order-independent)
-            events_match = final_events == config_events
-            
-            # Determine if the ERC matches completely
-            if num_functions_match and num_events_match and functions_match and events_match:
-                matching_ercs.append(erc_name)
-            else:
-                non_matching_ercs.append(erc_name)
-        else:
-            missing_in_config.append(erc_name)
-    
-    # Check for ERCs in erc_config_top50.json that are not in final_erc_specifications.json
-    for erc_name in erc_config:
-        if erc_name not in final_erc:
-            missing_in_final.append(erc_name)
-    
-    # Print results
-    print(f"\nMatching ERCs: {matching_ercs}")
-    # for erc in matching_ercs:
-    #     print(f"- {erc} has the same number of functions and events, and all hashes match.")
-    
-    print(f"\nNon-Matching ERCs: {non_matching_ercs}")
-    # for erc in non_matching_ercs:
-    #     print(f"- {erc} has differences in the number of functions/events or their hashes.")
-    
-    print(f"\nERCs missing in 'erc_config_top50.json': {missing_in_config}")
-    # for erc in missing_in_config:
-    #     print(f"- {erc}")
-    
-    print(f"\nERCs missing in 'final_erc_specifications.json': {missing_in_final}")
-    # for erc in missing_in_final:
-    #     print(f"- {erc}")
-
-
-# Main function
-def main():
-    # Paths to the JSON files
-    final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
-    erc_config_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_config_top50.json"
-    
-    # Compare the two JSON files
-    compare_json_files(final_erc_file, erc_config_file)
+#     # Compare the two JSON files
+#     compare_json_files(final_erc_file, erc_config_file)
 
 if __name__ == "__main__":
     main()
