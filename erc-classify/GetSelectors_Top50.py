@@ -908,21 +908,19 @@ erc5380_config = build_erc_config("ERC5380", erc5380_functions, topics=erc5380_t
 #######################
 erc5528_specific_functions = {
     # ERC-5528 specific functions
-    "subscribe(uint256)": None,
-    "unsubscribe(uint256)": None
+    "escrowFund(address,uint256)": None,
+    "escrowRefund(address,uint256)": None, 
+    "escrowWithdraw()": None
 }
-erc5528_event_specific_signatures = {
-    "Subscribed": "Subscribed(uint256)",
-    "Unsubscribed": "Unsubscribed(uint256)"
-}
+erc5528_event_specific_signatures = {}
 
 # Merge ERC-721 and ERC-5528-specific functions
 erc5528_functions = {}
-erc5528_functions.update(erc721_functions)  # ERC-721 required functions
+erc5528_functions.update(erc20_functions)  # ERC-721 required functions
 erc5528_functions.update(erc5528_specific_functions)  # ERC-5528 specific functions
 
 erc5528_event_signatures = {}
-erc5528_event_signatures.update(erc721_event_signatures)  # ERC-721 events
+erc5528_event_signatures.update(erc20_event_signatures)  # ERC-721 events
 erc5528_event_signatures.update(erc5528_event_specific_signatures)  # ERC-5528 events
 
 erc5528_events = {}

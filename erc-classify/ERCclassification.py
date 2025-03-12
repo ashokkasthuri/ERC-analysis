@@ -39,10 +39,6 @@ if not API_KEY:
 print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)")
 
 
-import os
-import json
-import pandas as pd
-from collections import defaultdict
 
 # List of token ERCs
 token_ercs = {
@@ -54,7 +50,8 @@ token_ercs = {
 }
 
 # Common ERC types to skip
-common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
+# common_erc_types = {"ERC20", "ERC721","ERC165", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754", "ERC6492", "ERC1271"}
+common_erc_types = {"ERC165", "ERC6492", "ERC1271"}
 
 # Function to process a single CSV file
 def process_csv_file(file_path, erc_config):
@@ -136,7 +133,8 @@ def process_csv_file(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/ERC-analysis/erc-classify/top10_processed_" + os.path.basename(file_path)
+        output_file = "/home/ashok/ERC-analysis/erc-classify/final_server_processed_" + os.path.basename(file_path)
+        # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_processed_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
         # final_df.to_csv("test1_erc_classification_results_top10_server_full_dataset.csv", index=False)
@@ -148,7 +146,7 @@ def process_csv_file(file_path, erc_config):
 # Main function to process all CSV files in a directory
 def ERC_classification():
     # Load the ERC configuration JSON
-    with open("test_erc_config_top10.json", "r") as f:
+    with open("final_erc_specifications.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
