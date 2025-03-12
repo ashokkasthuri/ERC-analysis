@@ -83,12 +83,45 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
     
     # Recover the SSA representation from the input bytecode (and optional CFG edges)
     
-    ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
-                         split_functions=args.no_split_functions)
+    # ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
+    #                      split_functions=args.no_split_functions)
+    
+    with args.input as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row_number, row in enumerate(reader, start=1):
+            if row_number > 10:
+                break  # Stop after processing 10 rows
+
+            if 'bytecode' not in row:
+                logger.error(f"Row {row_number}: No 'bytecode' column found.")
+                continue
+
+            bytecode = row['bytecode']
+
+            # Remove the "0x" prefix if it exists
+            if bytecode.startswith('0x'):
+                bytecode = bytecode[2:]
+
+            # Validate bytecode
+            if not is_valid_bytecode(bytecode):
+                logger.error(f"Row {row_number}: Invalid bytecode format.")
+                continue
+
+            logger.info(f"Processing row {row_number}: Bytecode length = {len(bytecode)}")
+
+            try:
+                # Pass the bytecode to the Recover class
+                ssa = rattle.Recover(bytecode.encode(), edges=edges, optimize=args.optimize,
+                                     split_functions=args.no_split_functions)
+                logger.info(f"Successfully processed row {row_number}")
+                # PermitMain(ssa)
+                # analyze_received_implementation(ssa)
+            except Exception as e:
+                logger.error(f"Error processing row {row_number}: {e}")
     
     # Run the permit check analysis on all functions that match the permit signature.
     # PermitMain(ssa)
-    analyze_received_implementation(ssa)
+    # analyze_received_implementation(ssa)
 
     if args.stdout_to:
         sys.stdout = orig_stdout
