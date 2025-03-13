@@ -1,8 +1,17 @@
+'''
+Author: ashokkasthuri ashokk@smu.edu.sg
+Date: 2025-03-09 18:53:43
+LastEditors: ashokkasthuri ashokk@smu.edu.sg
+LastEditTime: 2025-03-13 09:08:32
+FilePath: /ERC-analysis-master/erc-classify/results_analysis.py
+Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+'''
 import pandas as pd
 import os
 
 # Define the folder containing the CSV files
-folder_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output"  # Replace with your actual file path
+# folder_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output"  # Replace with your actual file path
+folder_path = "/home/ashok/Documents/ERC-analysis-master/erc-classify/" 
 
 output_combined_file = os.path.join(folder_path, "combined_erc_analysis_results.csv")
 
@@ -11,7 +20,7 @@ if not os.path.exists(folder_path):
     raise ValueError(f"Folder '{folder_path}' does not exist.")
 
 # List all CSV files in the folder
-csv_files = [f for f in os.listdir(folder_path) if f.endswith(".csv")]
+csv_files = [f for f in os.listdir(folder_path) if f.startswith("final_server") and f.endswith(".csv")]
 
 # Ensure there are CSV files to process
 if not csv_files:
