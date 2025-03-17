@@ -1,72 +1,4 @@
 {
-    "ERC7401": {
-        "selectors": [
-            "01ffc9a7",
-            "70a08231",
-            "6352211e",
-            "b88d4fde",
-            "42842e0e",
-            "23b872dd",
-            "095ea7b3",
-            "a22cb465",
-            "081812fc",
-            "e985e9c5",
-            "fb25fb7a",
-            "b390c0ab",
-            "35440faf",
-            "e97ceaa8",
-            "97961336",
-            "defa80c3",
-            "6f19951c",
-            "44ec9344",
-            "2f32f937",
-            "a898e364",
-            "064c0a3a"
-        ],
-        "topics": [
-            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-            "8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
-            "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
-            "04444026cefd1b05506559cab59d1b865ae3ba4ed2fe5c894f04e522776c552d",
-            "e65085e689b77b126ba0bac3b079aa8288f19f4d5445af11c76003f8ab3075dd",
-            "29486b9e2ae569b440933a9b1b421467306fa21f3dcad439c262910a634963a9",
-            "8ac4a0d65950c3e40448afb2260e2e0ec36ea15644d9b39e37e85472e5f94451",
-            "02d6d6dbcb604d5e1e8c7886456e82a9cdce88b0a580071358f206b5a4d58f70"
-        ],
-        "functions": {
-            "supportsInterface(bytes4)": "01ffc9a7",
-            "balanceOf(address)": "70a08231",
-            "ownerOf(uint256)": "6352211e",
-            "safeTransferFrom(address,address,uint256,bytes)": "b88d4fde",
-            "safeTransferFrom(address,address,uint256)": "42842e0e",
-            "transferFrom(address,address,uint256)": "23b872dd",
-            "approve(address,uint256)": "095ea7b3",
-            "setApprovalForAll(address,bool)": "a22cb465",
-            "getApproved(uint256)": "081812fc",
-            "isApprovedForAll(address,address)": "e985e9c5",
-            "directOwnerOf(uint256)": "fb25fb7a",
-            "burn(uint256,uint256)": "b390c0ab",
-            "addChild(uint256,uint256)": "35440faf",
-            "acceptChild(uint256,uint256,address,uint256)": "e97ceaa8",
-            "rejectAllChildren(uint256,uint256)": "97961336",
-            "transferChild(uint256,address,uint256,uint256,address,uint256,bool,bytes)": "defa80c3",
-            "childrenOf(uint256)": "6f19951c",
-            "pendingChildrenOf(uint256)": "44ec9344",
-            "childOf(uint256,uint256)": "2f32f937",
-            "pendingChildOf(uint256,uint256)": "a898e364",
-            "nestTransferFrom(address,address,uint256,uint256,bytes)": "064c0a3a"
-        },
-        "events": {
-            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": "Transfer(address,address,uint256)",
-            "8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": "Approval(address,address,uint256)",
-            "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": "ApprovalForAll(address,address,bool)",
-            "04444026cefd1b05506559cab59d1b865ae3ba4ed2fe5c894f04e522776c552d": "NestTransfer(address,address,uint256,uint256,uint256)",
-            "e65085e689b77b126ba0bac3b079aa8288f19f4d5445af11c76003f8ab3075dd": "ChildProposed(uint256,uint256,address,uint256)",
-            "29486b9e2ae569b440933a9b1b421467306fa21f3dcad439c262910a634963a9": "ChildAccepted(uint256,uint256,address,uint256)",
-            "8ac4a0d65950c3e40448afb2260e2e0ec36ea15644d9b39e37e85472e5f94451": "AllChildrenRejected(uint256)",
-            "02d6d6dbcb604d5e1e8c7886456e82a9cdce88b0a580071358f206b5a4d58f70": "ChildTransferred(uint256,uint256,address,uint256,bool,bool)"
-        }
-    },
     "ERC1948": {
         "selectors": [
             "70a08231",
@@ -1138,7 +1070,6 @@
             "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": "Transfer(address,address,uint256)"
         }
     },
-
     "ERC173": {
         "selectors": [
             "8da5cb5b",
@@ -2405,6 +2336,46 @@
             "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": "ApprovalForAll(address,address,bool)"
         }
     },
+    "ERC223-1": {
+        "selectors": [
+            "18160ddd",
+            "70a08231",
+            "6cb927d8",
+            "9a837db3"
+        ],
+        "topics": [
+            "7cb74cd01a697bfd8e59936d9ff98bd88ee6795ae83c4de40900ecd767af76ca"
+        ],
+        "functions": {
+            "totalSupply()": "18160ddd",
+            "balanceOf(address)": "70a08231",
+            "transfer(address,uint)": "6cb927d8",
+            "transfer(address,uint,bytes)": "9a837db3"
+        },
+        "events": {
+            "7cb74cd01a697bfd8e59936d9ff98bd88ee6795ae83c4de40900ecd767af76ca": "Transfer(address,address,uint,bytes)"
+        }
+    },
+    "ERC223": {
+        "selectors": [
+            "18160ddd",
+            "70a08231",
+            "6cb927d8",
+            "9a837db3"
+        ],
+        "topics": [
+            "e19260aff97b920c7df27010903aeb9c8d2be5d310a2c67824cf3f15396e4c16"
+        ],
+        "functions": {
+            "totalSupply()": "18160ddd",
+            "balanceOf(address)": "70a08231",
+            "transfer(address,uint)": "6cb927d8",
+            "transfer(address,uint,bytes)": "9a837db3"
+        },
+        "events": {
+            "e19260aff97b920c7df27010903aeb9c8d2be5d310a2c67824cf3f15396e4c16": "Transfer(address,address,uint256,bytes)"
+        }
+    },
     "ERC5773": {
         "selectors": [
             "01ffc9a7",
@@ -3477,26 +3448,6 @@
             "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": "ApprovalForAll(address,address,bool)"
         }
     },
-    "ERC223": {
-        "selectors": [
-            "18160ddd",
-            "70a08231",
-            "6cb927d8",
-            "9a837db3"
-        ],
-        "topics": [
-            "7cb74cd01a697bfd8e59936d9ff98bd88ee6795ae83c4de40900ecd767af76ca"
-        ],
-        "functions": {
-            "totalSupply()": "18160ddd",
-            "balanceOf(address)": "70a08231",
-            "transfer(address,uint)": "6cb927d8",
-            "transfer(address,uint,bytes)": "9a837db3"
-        },
-        "events": {
-            "7cb74cd01a697bfd8e59936d9ff98bd88ee6795ae83c4de40900ecd767af76ca": "Transfer(address,address,uint,bytes)"
-        }
-    },
     "ERC1271": {
         "selectors": [
             "1626ba7e"
@@ -3506,6 +3457,143 @@
             "isValidSignature(bytes32,bytes)": "1626ba7e"
         },
         "events": {}
+    },
+    "ERC7401": {
+        "selectors": [
+            "01ffc9a7",
+            "70a08231",
+            "6352211e",
+            "b88d4fde",
+            "42842e0e",
+            "23b872dd",
+            "095ea7b3",
+            "a22cb465",
+            "081812fc",
+            "e985e9c5",
+            "fb25fb7a",
+            "b390c0ab",
+            "35440faf",
+            "e97ceaa8",
+            "97961336",
+            "defa80c3",
+            "6f19951c",
+            "44ec9344",
+            "2f32f937",
+            "a898e364",
+            "064c0a3a"
+        ],
+        "topics": [
+            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+            "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+            "04444026cefd1b05506559cab59d1b865ae3ba4ed2fe5c894f04e522776c552d",
+            "e65085e689b77b126ba0bac3b079aa8288f19f4d5445af11c76003f8ab3075dd",
+            "29486b9e2ae569b440933a9b1b421467306fa21f3dcad439c262910a634963a9",
+            "8ac4a0d65950c3e40448afb2260e2e0ec36ea15644d9b39e37e85472e5f94451",
+            "02d6d6dbcb604d5e1e8c7886456e82a9cdce88b0a580071358f206b5a4d58f70"
+        ],
+        "functions": {
+            "supportsInterface(bytes4)": "01ffc9a7",
+            "balanceOf(address)": "70a08231",
+            "ownerOf(uint256)": "6352211e",
+            "safeTransferFrom(address,address,uint256,bytes)": "b88d4fde",
+            "safeTransferFrom(address,address,uint256)": "42842e0e",
+            "transferFrom(address,address,uint256)": "23b872dd",
+            "approve(address,uint256)": "095ea7b3",
+            "setApprovalForAll(address,bool)": "a22cb465",
+            "getApproved(uint256)": "081812fc",
+            "isApprovedForAll(address,address)": "e985e9c5",
+            "directOwnerOf(uint256)": "fb25fb7a",
+            "burn(uint256,uint256)": "b390c0ab",
+            "addChild(uint256,uint256)": "35440faf",
+            "acceptChild(uint256,uint256,address,uint256)": "e97ceaa8",
+            "rejectAllChildren(uint256,uint256)": "97961336",
+            "transferChild(uint256,address,uint256,uint256,address,uint256,bool,bytes)": "defa80c3",
+            "childrenOf(uint256)": "6f19951c",
+            "pendingChildrenOf(uint256)": "44ec9344",
+            "childOf(uint256,uint256)": "2f32f937",
+            "pendingChildOf(uint256,uint256)": "a898e364",
+            "nestTransferFrom(address,address,uint256,uint256,bytes)": "064c0a3a"
+        },
+        "events": {
+            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": "Transfer(address,address,uint256)",
+            "8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": "Approval(address,address,uint256)",
+            "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": "ApprovalForAll(address,address,bool)",
+            "04444026cefd1b05506559cab59d1b865ae3ba4ed2fe5c894f04e522776c552d": "NestTransfer(address,address,uint256,uint256,uint256)",
+            "e65085e689b77b126ba0bac3b079aa8288f19f4d5445af11c76003f8ab3075dd": "ChildProposed(uint256,uint256,address,uint256)",
+            "29486b9e2ae569b440933a9b1b421467306fa21f3dcad439c262910a634963a9": "ChildAccepted(uint256,uint256,address,uint256)",
+            "8ac4a0d65950c3e40448afb2260e2e0ec36ea15644d9b39e37e85472e5f94451": "AllChildrenRejected(uint256)",
+            "02d6d6dbcb604d5e1e8c7886456e82a9cdce88b0a580071358f206b5a4d58f70": "ChildTransferred(uint256,uint256,address,uint256,bool,bool)"
+        }
+    },
+
+    "ERC7401-1": {
+        "selectors": [
+            "01ffc9a7",
+            "70a08231",
+            "6352211e",
+            "b88d4fde",
+            "42842e0e",
+            "23b872dd",
+            "095ea7b3",
+            "a22cb465",
+            "081812fc",
+            "e985e9c5",
+            "fb25fb7a",
+            "b390c0ab",
+            "635490cc",
+            "e97ceaa8",
+            "97961336",
+            "defa80c3",
+            "6f19951c",
+            "44ec9344",
+            "2f32f937",
+            "a898e364",
+            "064c0a3a"
+        ],
+        "topics": [
+            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+            "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+            "04444026cefd1b05506559cab59d1b865ae3ba4ed2fe5c894f04e522776c552d",
+            "e65085e689b77b126ba0bac3b079aa8288f19f4d5445af11c76003f8ab3075dd",
+            "29486b9e2ae569b440933a9b1b421467306fa21f3dcad439c262910a634963a9",
+            "8ac4a0d65950c3e40448afb2260e2e0ec36ea15644d9b39e37e85472e5f94451",
+            "02d6d6dbcb604d5e1e8c7886456e82a9cdce88b0a580071358f206b5a4d58f70"
+        ],
+        "functions": {
+            "supportsInterface(bytes4)": "01ffc9a7",
+            "balanceOf(address)": "70a08231",
+            "ownerOf(uint256)": "6352211e",
+            "safeTransferFrom(address,address,uint256,bytes)": "b88d4fde",
+            "safeTransferFrom(address,address,uint256)": "42842e0e",
+            "transferFrom(address,address,uint256)": "23b872dd",
+            "approve(address,uint256)": "095ea7b3",
+            "setApprovalForAll(address,bool)": "a22cb465",
+            "getApproved(uint256)": "081812fc",
+            "isApprovedForAll(address,address)": "e985e9c5",
+            "directOwnerOf(uint256)": "fb25fb7a",
+            "burn(uint256,uint256)": "b390c0ab",
+            "addChild(uint256,uint256,bytes)": "635490cc",
+            "acceptChild(uint256,uint256,address,uint256)": "e97ceaa8",
+            "rejectAllChildren(uint256,uint256)": "97961336",
+            "transferChild(uint256,address,uint256,uint256,address,uint256,bool,bytes)": "defa80c3",
+            "childrenOf(uint256)": "6f19951c",
+            "pendingChildrenOf(uint256)": "44ec9344",
+            "childOf(uint256,uint256)": "2f32f937",
+            "pendingChildOf(uint256,uint256)": "a898e364",
+            "nestTransferFrom(address,address,uint256,uint256,bytes)": "064c0a3a"
+        },
+        "events": {
+            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": "Transfer(address,address,uint256)",
+            "8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": "Approval(address,address,uint256)",
+            "17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": "ApprovalForAll(address,address,bool)",
+            "04444026cefd1b05506559cab59d1b865ae3ba4ed2fe5c894f04e522776c552d": "NestTransfer(address,address,uint256,uint256,uint256)",
+            "e65085e689b77b126ba0bac3b079aa8288f19f4d5445af11c76003f8ab3075dd": "ChildProposed(uint256,uint256,address,uint256)",
+            "29486b9e2ae569b440933a9b1b421467306fa21f3dcad439c262910a634963a9": "ChildAccepted(uint256,uint256,address,uint256)",
+            "8ac4a0d65950c3e40448afb2260e2e0ec36ea15644d9b39e37e85472e5f94451": "AllChildrenRejected(uint256)",
+            "02d6d6dbcb604d5e1e8c7886456e82a9cdce88b0a580071358f206b5a4d58f70": "ChildTransferred(uint256,uint256,address,uint256,bool,bool)"
+        }
     },
     "ERC6982": {
         "selectors": [
