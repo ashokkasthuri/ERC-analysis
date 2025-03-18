@@ -258,10 +258,10 @@ def is_comment(line):
     return line.strip().startswith(("//", "///", "*", "/*", "*/", "**"))
 
 def get_event_topic(event_signature: str) -> str:
-    return Web3.keccak(text=event_signature).hex()
+    return keccak(text=event_signature).hex()
 
 def get_selector(function_signature: str) -> str:
-    hash_bytes = Web3.keccak(text=function_signature)
+    hash_bytes = keccak(text=function_signature)
     selector = hash_bytes[:4].hex()
     # print(f"selector : {selector}")
     return selector
@@ -385,12 +385,27 @@ def calculate_precision_recall(extracted_functions, extracted_events, erc_spec):
         if func in extracted_functions and extracted_functions[func] == hash_:
             tp_functions += 1
         else:
+            
             fp_functions += 1
     
     for func in expected_functions:
         if func not in extracted_functions:
+            # print(f"missing func : {func}")
             fn_functions += 1
+   
+    # for func, hash_ in extracted_functions.items():
+    #     # print(f"func : {func}")
+    #     if func in expected_functions and expected_functions[func] == hash_:
+    #         # tp_functions += 1
+    #         continue
+    #     else:
+    #         print(f"func : {func}")
     
+    # for func in extracted_functions:
+    #     if func not in expected_functions:
+    #         print(f"missing func : {func}")
+            
+            
     # print(f"extracted_events :{extracted_functions}")
     # print(f"\nextracted_events :{extracted_events}")
     
@@ -480,85 +495,110 @@ def custom_functions(extracted_functions, extracted_events, erc_spec):
 def save_to_json(custom_data, filename="custom_functions_events.json"):
     with open(filename, "w") as file:
         json.dump(custom_data, file, indent=4)
-def precision_and_recall():
-        # Path to the final ERC specifications
-    final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
+
+def precision_and_recall(final_erc_file, erc_base_path):
+    
     final_erc = load_final_erc_specifications(final_erc_file)
-    
-    # Path to the directory containing ERC folders
-    erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_source_code_ground_truth"
-    # erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ground_truth_test"
-    
-    
     # Initialize dictionaries for matched and non-matched ERCs
     matched_ercs = {}
-    non_matched_ercs = {}
-    
-    extracted_functions = {}
-    extracted_events = {}       
+    non_matched_ercs = {}       
     
     # Initialize list to store precision and recall results
     precision_recall_results = []
     
+    erc_name_present_count = 0
+    erc_name_NOT_present_count = 0
+    contract_files = 0
+    missing_count = 0 
     
+    print(f"final_erc : {len(final_erc)}")
     # Iterate through each ERC folder
     for erc_name in final_erc:
         erc_folder = os.path.join(erc_base_path, erc_name)
         if not os.path.exists(erc_folder):
-            # print(f"ERC folder {erc_folder} does not exist.")
+            print(f"ERC folder {erc_folder} does not exist.")
+            erc_name_NOT_present_count = erc_name_NOT_present_count + 1
             continue
+        else:
+            erc_name_present_count = erc_name_present_count + 1
         # Initialize lists for matched and non-matched files for this ERC
         matched_files = []
         non_matched_files = []
+        
         
       # Iterate through all Solidity files in the ERC folder (including subfolders)
         for root, _, files in os.walk(erc_folder):
             for file in files:
                 if file.startswith("ERC") and file.endswith(".sol") and "_contract" in file:
+                # if file.startswith("ERC") and file.endswith(".sol"):
+                    contract_files = contract_files + 1
                 # if file.endswith(".sol"):    
                     file_path = os.path.join(root, file)
                     # Extract functions and events from the Solidity file
                     extracted_functions, extracted_events = extract_functions_and_events(file_path)
-                    # print(f"extracted_functions, extracted_events :{extracted_functions} {extracted_events}")
+                    
                     # Compare with the ERC specification
                     erc_spec = final_erc[erc_name]
                     precision_recall = calculate_precision_recall(extracted_functions, extracted_events, erc_spec)
                     precision_recall_results.append(precision_recall)
                     # print(f"precision_recall :{precision_recall}")
+                    # print(f"overall_precision_recall :{calculate_overall_precision_recall(precision_recall_results)}")
+                    each_file_precision_recall = calculate_overall_precision_recall(precision_recall_results)
                     
+                    if (each_file_precision_recall['functions']['precision'] > 0.7 and \
+                        each_file_precision_recall['functions']['recall'] > 0.7 and \
+                        each_file_precision_recall['events']['precision'] > 0.7 and 
+                        each_file_precision_recall['events']['recall'] > 0.7) :
+                        
+                        matched_files.append(file_path)
+                        
+                    elif(each_file_precision_recall['functions']['precision'] > 0.7 and \
+                        each_file_precision_recall['functions']['recall'] > 0.7):
+                        
+                        matched_files.append(file_path)
+                    else:
+                        missing_count = missing_count + 1
+                        non_matched_files.append(file_path)
+                        
                     
-                     # Determine if the ERC matches
-                    if extracted_functions and extracted_events:
-                        if (precision_recall["functions"]["tp"] == len(erc_spec.get("functions", {}))) and \
-                           (precision_recall["events"]["tp"] == len(erc_spec.get("events", {}))):
-                            matched_files.append(file_path)
-                            # precision_recall_results.append(precision_recall)
-                        else:
-                            non_matched_files.append(file_path)
-                            # precision_recall_results.append(precision_recall)
-                    elif extracted_functions and not extracted_events:
-                        if (precision_recall["functions"]["tp"] == len(erc_spec.get("functions", {}))) and \
-                           (precision_recall["events"]["tp"] == 0):
-                            matched_files.append(file_path)
-                            # precision_recall_results.append(precision_recall)
-                        else:
-                            non_matched_files.append(file_path)
-                            # precision_recall_results.append(precision_recall)
+                    #  # Determine if the ERC matches
+                    # if extracted_functions and extracted_events:
+                    #     if (precision_recall["functions"]["tp"] == len(erc_spec.get("functions", {}))) and \
+                    #        (precision_recall["events"]["tp"] == len(erc_spec.get("events", {}))):
+                    #         matched_files.append(file_path)
+                    #         # precision_recall_results.append(precision_recall)
+                    #     else:
+                    #         non_matched_files.append(file_path)
+                    #         # precision_recall_results.append(precision_recall)
+                    # elif extracted_functions :
+                    #     if (precision_recall["functions"]["tp"] == len(erc_spec.get("functions", {}))) :
+                    #         matched_files.append(file_path)
+                    #         # precision_recall_results.append(precision_recall)
+                    #     else:
+                    #         non_matched_files.append(file_path)
+                    #         # precision_recall_results.append(precision_recall)
+                    # else:
+                    #     missing_count = missing_count + 1
                         
         # Add to the matched or non-matched collections
         if matched_files:
             matched_ercs[erc_name] = matched_files
+            
         if non_matched_files and erc_name not in matched_ercs:
             non_matched_ercs[erc_name] = non_matched_files
+            
+    print(f"erc_name_present_count : {erc_name_present_count}")
+    print(f"erc_name_NOT_present_count : {erc_name_NOT_present_count}")
+    
+    print(f"contract_files : {contract_files}")
+    
+    print(f"matched_ercs : {len(matched_ercs)}")
+    print(f"non_matched_ercs : {len(non_matched_ercs)}")
+    print(f"missing_count: {missing_count}")
             
      # Calculate overall precision and recall
     overall_precision_recall = calculate_overall_precision_recall(precision_recall_results)
    
-    # Calculate custom functions 
-    # if extracted_functions:
-    #     save_to_json(custom_functions(extracted_functions, extracted_events))
-  
-    
     # Print overall precision and recall
     print("Overall Precision and Recall:")
     print(f"Functions - Precision: {overall_precision_recall['functions']['precision']}, Recall: {overall_precision_recall['functions']['recall']}")
@@ -579,8 +619,6 @@ def precision_and_recall():
         #     print(f"  - File: {file_path}")
 
 
-
-
 def final_erc_specifications():
     final_json = {}
     for root, dirs, files in os.walk(folder_path):
@@ -597,16 +635,83 @@ def final_erc_specifications():
         json.dump(final_json, json_file, indent=4)
     print("Final JSON file created: final_erc_specifications.json")
     
+def final_basic_erc_specifications():
+    final_json = {}
+     
+    for erc_folder in os.listdir(folder_path):
+        erc_folder_path = os.path.join(folder_path, erc_folder)
+        
+        if os.path.isdir(erc_folder_path) and erc_folder.startswith("ERC"):
+            # Iterate through files directly inside the folder (not subfolders)
+            for file in os.listdir(erc_folder_path):
+                file_path = os.path.join(erc_folder_path, file)
+                
+                # Check if the file starts with "IERC" and ends with ".sol"
+                if file.startswith("IERC") and file.endswith(".sol"):
+                    erc_name = file.split("I")[1].split(".")[0]  # Extract ERC name from file name
+                    # print(f"erc_name: {erc_name}")
+                    # print(f"file_path: {file_path}")
+                    functions, events = extract_functions_and_events(file_path)
+                    erc_json = generate_json_structure(erc_name, functions, events)
+                    final_json.update(erc_json)
+    # # Write the final JSON to a file
+    with open("final_basic_erc_specifications.json", "w") as json_file:
+        json.dump(final_json, json_file, indent=4)
+    print("Final JSON file created: final_basic_erc_specifications.json")
+    
+    
 
+# Main function to process ERC folders and files
+def custom_function_erc_folders(final_erc_file, erc_base_path):
+    # Load final ERC specifications
+    final_erc = load_final_erc_specifications(final_erc_file)
+    
+    # Iterate through each ERC folder
+    for erc_name in final_erc:
+        erc_folder = os.path.join(erc_base_path, erc_name)
+        if not os.path.exists(erc_folder):
+            print(f"ERC folder {erc_folder} does not exist.")
+            continue
+        
+        # Iterate through all Solidity files in the ERC folder (including subfolders)
+        for root, _, files in os.walk(erc_folder):
+            for file in files:
+                if file.startswith("ERC") and file.endswith(".sol") and "_contract" in file:
+                    file_path = os.path.join(root, file)
+                    print(f"Processing file: {file_path}")
+                    
+                    # Extract functions and events from the Solidity file
+                    extracted_functions, extracted_events = extract_functions_and_events(file_path)
+                    
+                    # Compare with the ERC specification
+                    erc_spec = final_erc[erc_name]
+                    
+                    # Calculate custom functions and events
+                    custom_data = custom_functions(extracted_functions, extracted_events, erc_spec)
+                    
+                    # Save custom data to JSON
+                    output_file = os.path.join(root, f"{os.path.splitext(file)[0]}_custom.json")
+                    save_to_json(custom_data, output_file)
+                    print(f"Saved custom data to: {output_file}")
 
 
 # Main function
 def main():
+    # Example usage
+    # final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
+    final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_basic_erc_specifications.json"
+    erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_source_code_ground_truth"
+    # erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ground_truth_test"
+    
+    # custom_function_erc_folders(final_erc_file, erc_base_path)
     # for erc, dependencies in erc_dependencies.items():
     #     merge_dependencies(erc, dependencies)
     
+    print(f"erc_dependencies : {len(erc_dependencies)}")
+    
     # final_erc_specifications()
-    precision_and_recall()
+    # final_basic_erc_specifications()
+    precision_and_recall(final_erc_file, erc_base_path)
     # Example usage
     
     

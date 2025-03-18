@@ -42,22 +42,28 @@ print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)"
 
 # List of token ERCs
 token_ercs = {
-    "ERC20", "ERC721", "ERC777", "ERC1155", "ERC998", "ERC1046", "ERC1363", "ERC2309", 
-    "ERC2612", "ERC1948", "ERC1337", "ERC2021", "ERC2019", "ERC1996", "ERC2020", 
-    "ERC3135", "ERC3589", "ERC4524", "ERC3525", "ERC3643", "ERC4626", "ERC4907", 
-    "ERC4955", "ERC5169", "ERC5192", "ERC5380", "ERC5507", "ERC5528", "ERC5570", 
-    "ERC5585", "ERC5606", "ERC5615", "ERC5679", "ERC5725", "ERC6105", "ERC6808", "ERC6809"
+    "ERC20", "ERC165", "ERC173", "ERC721", "ERC223", "ERC777", "ERC1155", "ERC884", "ERC998", 
+    "ERC875", "ERC1046", "ERC1363", "ERC2135", "ERC2309", "ERC2612", "ERC1948", "ERC1261", 
+    "ERC1271", "ERC1337", "ERC1820", "ERC2021", "ERC2018", "ERC2019", "ERC1996", "ERC2020", 
+    "ERC2981", "ERC3135", "ERC3440", "ERC3589", "ERC3754", "ERC4494", "ERC4524", "ERC4675", 
+    "ERC3525", "ERC3643", "ERC4400", "ERC4519", "ERC4626", "ERC4906", "ERC4907", "ERC4337", 
+    "ERC4910", "ERC4955", "ERC5006", "ERC5007", "ERC5023", "ERC5169", "ERC5192", "ERC5267", 
+    "ERC5375", "ERC5380", "ERC5484", "ERC5489", "ERC5507", "ERC5521", "ERC5528", "ERC5570", 
+    "ERC5585", "ERC5606", "ERC5615", "ERC5646", "ERC5679", "ERC5725", "ERC5773", "ERC6059", 
+    "ERC6066", "ERC6105", "ERC6147", "ERC6150", "ERC6220", "ERC6239", "ERC6381", "ERC6454", 
+    "ERC6492", "ERC6551", "ERC6672", "ERC6808", "ERC6809", "ERC6982", "ERC7160", "ERC7231", 
+    "ERC7401", "ERC7409"
 }
 
 # Common ERC types to skip
 # common_erc_types = {"ERC20", "ERC721","ERC165", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754", "ERC6492", "ERC1271"}
-common_erc_types = {"ERC165", "ERC6492", "ERC1271"}
+common_erc_types = {"ERC20", "ERC165", "ERC173"}
 
 # Function to process a single CSV file
-def process_csv_file(file_path, erc_config):
+def ERC_classification(file_path, erc_config):
     # Load the dataset
     df_subset = pd.read_csv(file_path)
-    # df_subset = df.head(100000).copy()  # Adjust the number of rows as needed
+    # df_subset = df.head(1000).copy()  # Adjust the number of rows as needed
     
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
@@ -70,6 +76,7 @@ def process_csv_file(file_path, erc_config):
     matched_erc_types = []
     # Dictionary to track the count of matches per ERC type
     erc_match_counts = defaultdict(int)
+    erc_NOT_match_counts = defaultdict(int)
     
     # Iterate over each row in the dataset
     for idx, row in df_subset.iterrows():
@@ -87,18 +94,40 @@ def process_csv_file(file_path, erc_config):
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
             
-            # Check if all event topics are present in the bytecode
-            event_matched = match_erc_type(original_bytecode_str, event_topics)
-            selector_matched = match_erc_type(original_bytecode_str, selectors)
+            if(len(selectors)!=0 and len(event_topics)!=0):
+                selector_matched = match_erc_type(original_bytecode_str, selectors)
+                event_matched = match_erc_type(original_bytecode_str, event_topics)
+                
+            elif(len(selectors)!=0 and len(event_topics)==0) :
+                selector_matched = match_erc_type(original_bytecode_str, selectors)
+                
+            elif(len(selectors)==0 and len(event_topics)!=0):
+                event_matched = match_erc_type(original_bytecode_str, event_topics)
+                # print(f"ONLY-EVENT case: {erc_type}" )
+                
+            else:
+                print(f"RANDOM case: {erc_type}" )
+            
             
             # If both selectors and events match, add the ERC type to the current matches
             if selector_matched and event_matched:
                 current_matches.append(erc_type)
                 erc_match_counts[erc_type] += 1
+            elif selector_matched and not event_matched:
+                current_matches.append(erc_type)
+                erc_match_counts[erc_type] += 1
+            elif not selector_matched and event_matched:
+                current_matches.append(erc_type)
+                erc_match_counts[erc_type] += 1
+            else:
+                erc_NOT_match_counts[erc_type] += 1
+                # print(f"Missing ERC type")
+                
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
     print(f"erc_match_counts : {erc_match_counts}")
+    # print(f"erc_NOT_match_counts : {erc_NOT_match_counts}")
     # Ensure that matched_erc_types has the same length as df_subset
     if len(matched_erc_types) != len(df_subset):
         raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
@@ -118,10 +147,18 @@ def process_csv_file(file_path, erc_config):
     # Filter the DataFrame to only include rows where "matched_erc" is non-empty
     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
     
-    # Now, further filter by transaction activity.
+   # Now, further filter by transaction activity.
     final_rows = []
+    unique_addresses = set()  # Track unique addresses
+
     for idx, row in filtered_df.iterrows():
         final_rows.append(row)
+        # address = row["address"]  
+        
+        # # Check if the address is already in the set
+        # if address not in unique_addresses:
+        #     unique_addresses.add(address)
+        #     final_rows.append(row)
     
     # Create a new DataFrame from the final rows.
     if final_rows:
@@ -133,8 +170,8 @@ def process_csv_file(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/ERC-analysis/erc-classify/final_server_processed_" + os.path.basename(file_path)
-        # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_processed_" + os.path.basename(file_path)
+        output_file = "/home/ashok/ERC-analysis/erc-classify/final_basic_server_processed_" + os.path.basename(file_path)
+        # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_basic_local_processed_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
         # final_df.to_csv("test1_erc_classification_results_top10_server_full_dataset.csv", index=False)
@@ -143,27 +180,7 @@ def process_csv_file(file_path, erc_config):
     else:
         print(f"No contracts meet both the ERC match and transaction activity criteria in {file_path}.")
 
-# Main function to process all CSV files in a directory
-def ERC_classification():
-    # Load the ERC configuration JSON
-    with open("final_erc_specifications.json", "r") as f:
-        erc_config = json.load(f)
-    
-    # Directory containing CSV files
-    data_dir = "/home/ashok/data"
-    # data_dir = "/Users/ashokk/Downloads/evm_data"
-    
-    # Find all CSV files in the directory
-    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
-    
-    if not csv_files:
-        print(f"No CSV files found in {data_dir}.")
-        return
-    
-    # Process each CSV file
-    for csv_file in csv_files:
-        print(f"Processing file: {csv_file}")
-        process_csv_file(csv_file, erc_config)
+
 
 
 
@@ -209,15 +226,41 @@ def save_source_code(address: str, source_info: dict) -> None:
     print(f"Saved source code for {address} to {filename}")
 
 
-def match_erc_type(bytecode, event_topics):
-    event_topics = [topic.lower() for topic in event_topics]
+# def match_erc_type(bytecode, functions_events):
+#     functions_events = [topic.lower() for topic in functions_events]
+#     actual_count = len(functions_events)
+#     not_matched_erc = 0
     
-    # Check if all event topics are present in the bytecode
-    for topic in event_topics:
+#     # Check if all event topics are present in the bytecode
+#     for topic in functions_events:
+#         if topic not in bytecode.lower():
+#             # print(f"topic not found: {topic}")  # Debugging statement
+#             not_matched_erc = not_matched_erc + 1
+    
+    
+#     if not_matched_erc == 0:        
+#         return True
+
+def match_erc_type(bytecode, functions_events):
+    functions_events = [topic.lower() for topic in functions_events]
+    
+    actual_count = len(functions_events)
+    
+    if actual_count == 0:
+        return False
+    
+    not_matched_erc = 0
+    
+    for topic in functions_events:
         if topic not in bytecode.lower():
-            # print(f"topic not found: {topic}")  # Debugging statement
-            return False
-    return True
+            not_matched_erc += 1  
+    
+    # Calculate the percentage of matched functions/events
+    matched_percentage = ((actual_count - not_matched_erc) / actual_count) * 100
+    
+    # Return True if the matched percentage is more than 70%, else False
+    return matched_percentage > 70
+
 def ERC_classification_copy():
     
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
@@ -352,9 +395,6 @@ def ERC_classification_copy():
     else:
         print("No contracts meet both the ERC match and transaction activity criteria.")
 
-
-
-
 def should_fetch_contract_copy(tx_list) -> bool:
     """
     Return True if the total number of transactions is > 100 and
@@ -454,7 +494,23 @@ def verify_source():
 
 
 def main():
-    ERC_classification()
+    
+    with open("final_basic_erc_specifications.json", "r") as f:
+        erc_config = json.load(f)
+    
+    # Directory containing CSV files
+    data_dir = "/home/ashok/data"
+    # data_dir = "/Users/ashokk/Downloads/evm_data"
+    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
+    
+    if not csv_files:
+        print(f"No CSV files found in {data_dir}.")
+        return
+    for csv_file in csv_files:
+        print(f"Processing file: {csv_file}")
+        ERC_classification(csv_file, erc_config)
+        
+    # ERC_classification(erc_config, data_dir)
     # verify_source()
 
 if __name__ == "__main__":
