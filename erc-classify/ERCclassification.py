@@ -171,7 +171,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/config_basic_server_processed_" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/config_FULL_server_processed_" + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_basic_local_processed_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -496,7 +496,7 @@ def verify_source():
 
 def main():
     
-    with open("final_basic_erc_specifications.json", "r") as f:
+    with open("final_full_erc_specifications.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files

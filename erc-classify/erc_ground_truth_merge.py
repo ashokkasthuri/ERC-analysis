@@ -639,9 +639,9 @@ def final_erc_specifications():
                 final_json.update(erc_json)
     
     # Write the final JSON to a file
-    with open("final_erc_specifications.json", "w") as json_file:
+    with open("final_full_erc_specifications.json", "w") as json_file:
         json.dump(final_json, json_file, indent=4)
-    print("Final JSON file created: final_erc_specifications.json")
+    print("Final JSON file created: final_full_erc_specifications.json")
     
 def final_basic_erc_specifications():
     final_json = {}
@@ -717,8 +717,8 @@ def main():
     
     print(f"erc_dependencies : {len(erc_dependencies)}")
     
-    final_erc_specifications()
-    final_basic_erc_specifications()
+    # final_erc_specifications()
+    # final_basic_erc_specifications()
     # precision_and_recall(final_erc_file, erc_base_path)
     
     
