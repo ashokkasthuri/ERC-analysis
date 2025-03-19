@@ -220,15 +220,16 @@ def merge_dependencies(erc, dependencies):
 
 
 
-# Function to clean up function or event signature
 def clean_signature(signature):
     # Remove newlines and extra spaces
     cleaned = " ".join(signature.replace("\n", " ").split())
+    
     # Remove "function" or "event" keyword
     if cleaned.startswith("function "):
         cleaned = cleaned[len("function "):]
     elif cleaned.startswith("event "):
         cleaned = cleaned[len("event "):]
+    
     # Remove trailing semicolon
     if cleaned.endswith(";"):
         cleaned = cleaned[:-1]
@@ -245,6 +246,13 @@ def clean_signature(signature):
             if param:
                 # Extract the data type (e.g., "address", "uint256", etc.)
                 data_type = param.split()[0]
+                
+                # Replace "uint" with "uint256" if necessary
+                if data_type == "uint" :
+                    data_type = "uint256"
+                if data_type == "uint[]" :
+                    data_type = "uint256[]"
+                
                 cleaned_params.append(data_type)
         
         # Reconstruct the cleaned signature
@@ -709,10 +717,14 @@ def main():
     
     print(f"erc_dependencies : {len(erc_dependencies)}")
     
-    # final_erc_specifications()
-    # final_basic_erc_specifications()
-    precision_and_recall(final_erc_file, erc_base_path)
-    # Example usage
+    final_erc_specifications()
+    final_basic_erc_specifications()
+    # precision_and_recall(final_erc_file, erc_base_path)
+    
+    
+    # hash_bytes = keccak(text="assignTo(address,uint256[])")
+    # selector = hash_bytes[:4].hex()
+    # print(f"selector : {selector}")
     
     
 

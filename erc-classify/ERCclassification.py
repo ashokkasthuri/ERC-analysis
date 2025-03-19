@@ -57,7 +57,8 @@ token_ercs = {
 
 # Common ERC types to skip
 # common_erc_types = {"ERC20", "ERC721","ERC165", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754", "ERC6492", "ERC1271"}
-common_erc_types = {"ERC20", "ERC165", "ERC173"}
+common_erc_types = {"ERC165", "ERC173"}
+# common_erc_types = {}
 
 # Function to process a single CSV file
 def ERC_classification(file_path, erc_config):
