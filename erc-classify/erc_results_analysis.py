@@ -2,7 +2,7 @@
 Author: ashokkasthuri ashokk@smu.edu.sg
 Date: 2025-03-09 18:53:43
 LastEditors: ashokkasthuri ashokk@smu.edu.sg
-LastEditTime: 2025-03-20 16:30:54
+LastEditTime: 2025-03-20 16:33:53
 FilePath: /ERC-analysis-master/erc-classify/results_analysis.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -15,7 +15,7 @@ folder_path = "/home/ashok/output"
 
 
 # output_combined_file = os.path.join(folder_path, "results_config_basic_analysis.csv")
-output_combined_file = "/home/ashok/ERC-analysis/erc-classify/results_config_basic_analysis.csv"
+output_combined_file = "/home/ashok/ERC-analysis/erc-classify/results_config_FULL_analysis.csv"
 
 
 # Ensure the folder exists
@@ -23,7 +23,7 @@ if not os.path.exists(folder_path):
     raise ValueError(f"Folder '{folder_path}' does not exist.")
 
 # List all CSV files in the folder
-csv_files = [f for f in os.listdir(folder_path) if f.startswith("config_basic_") and f.endswith(".csv")]
+csv_files = [f for f in os.listdir(folder_path) if f.startswith("config_FULL_") and f.endswith(".csv")]
 
 # Ensure there are CSV files to process
 if not csv_files:
