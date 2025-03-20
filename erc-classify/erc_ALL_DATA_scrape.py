@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import re
 
 # # List of token ERCs
 # token_ercs = {
@@ -16,8 +17,9 @@ import pandas as pd
 #     "ERC6492", "ERC6551", "ERC6672", "ERC6808", "ERC6809", "ERC6982", "ERC7160", "ERC7231", 
 #     "ERC7401", "ERC7409"
 # }
-token_ercs = {
-    "ERC20"}
+
+# List of token ERCs
+token_ercs = {"ERC223"}
 
 # Base URL for EIPs
 base_url = "https://eips.ethereum.org/EIPS/eip-"
@@ -41,6 +43,30 @@ def extract_insights(text):
         if any(keyword in line.lower() for keyword in important_keywords):
             insights.append(line.strip())
     return "\n".join(insights)
+
+# Function to extract section content
+def extract_section_content(section_title, soup):
+    # Search for both <h2> and <h3> headers with similar section titles
+    section_header = soup.find(lambda tag: tag.name in ["h2", "h3"] and re.search(section_title, tag.text, re.IGNORECASE))
+
+    # Debug: Print the section header found
+    print(f"Section found for '{section_title}': {section_header}")
+
+    if section_header:
+        # Get all sibling elements after the section header until the next header
+        content = []
+        for sibling in section_header.find_next_siblings():
+            if sibling.name in ["h2", "h3"]:
+                break  # Stop at the next section
+            if sibling.name == "p":
+                content.append(sibling.text.strip())
+            elif sibling.name == "div":  # Handle nested content in <div> tags
+                for p in sibling.find_all("p"):
+                    content.append(p.text.strip())
+        
+        return " ".join(content)
+    
+    return "Section not found"
 
 # Iterate through each ERC in the list
 for erc in token_ercs:
@@ -66,44 +92,19 @@ for erc in token_ercs:
             toc = [li.text.strip() for li in toc_section.find_next("ul").find_all("li")]
         
         # Extract other sections
-        abstract = ""
-        abstract_insights = ""
-        motivation = ""
-        motivation_insights = ""
-        specification = ""
-        specification_insights = ""
-        rationale = ""
-        rationale_insights = ""
-        backward_compatibility = ""
-        backward_compatibility_insights = ""
-        security_considerations = ""
-        security_considerations_insights = ""
+        abstract = extract_section_content("Abstract", soup)
+        print(f"abstract: {abstract}")
         
-        for section in toc:
-            section_title = section.lower()
-            section_content = soup.find("h2", string=section)
-            if section_content:
-                section_text = section_content.find_next("p").text.strip()
-                
-                if "abstract" in section_title:
-                    abstract = section_text
-                    abstract_insights = extract_insights(section_text)
-                elif "motivation" in section_title:
-                    motivation = section_text
-                    motivation_insights = extract_insights(section_text)
-                elif "specification" in section_title:
-                    specification = section_text
-                    specification_insights = extract_insights(section_text)
-                elif "rationale" in section_title:
-                    rationale = section_text
-                    rationale_insights = extract_insights(section_text)
-                elif "backward compatibility" in section_title:
-                    backward_compatibility = section_text
-                    backward_compatibility_insights = extract_insights(section_text)
-                elif "security considerations" in section_title:
-                    security_considerations = section_text
-                    security_considerations_insights = extract_insights(section_text)
+        motivation = extract_section_content("Motivation", soup)
         
+        specification = extract_section_content("Specification", soup)
+        
+        rationale = extract_section_content("Rationale", soup)
+        
+        backward_compatibility = extract_section_content("Backward Compatibility", soup)
+        
+        security_considerations = extract_section_content("Security|Security Considerations", soup)  # Handle variations in title
+
         # Append data to DataFrame using pd.concat
         new_row = pd.DataFrame([{
             "ERC": erc,
@@ -111,17 +112,17 @@ for erc in token_ercs:
             "Requires": requires,
             "Table of Contents": "; ".join(toc),
             "Abstract": abstract,
-            "Abstract insights": abstract_insights,
+            "Abstract insights": extract_insights(abstract),
             "Motivation": motivation,
-            "Motivation insights": motivation_insights,
+            "Motivation insights": extract_insights(motivation),
             "Specification": specification,
-            "Specification insights": specification_insights,
+            "Specification insights": extract_insights(specification),
             "Rationale": rationale,
-            "Rationale insights": rationale_insights,
+            "Rationale insights": extract_insights(rationale),
             "Backward Compatibility": backward_compatibility,
-            "Backward Compatibility insights": backward_compatibility_insights,
+            "Backward Compatibility insights": extract_insights(backward_compatibility),
             "Security Considerations": security_considerations,
-            "Security Considerations insights": security_considerations_insights
+            "Security Considerations insights": extract_insights(security_considerations)
         }])
         df = pd.concat([df, new_row], ignore_index=True)
     else:
@@ -129,4 +130,4 @@ for erc in token_ercs:
 
 # Save the DataFrame to a CSV file
 df.to_csv("erc_ALL_DATA_scrape.csv", index=False)
-print("Data saved to erc_data.csv")
+print("Data saved to erc_ALL_DATA_scrape.csv")
