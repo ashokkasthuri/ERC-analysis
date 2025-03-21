@@ -435,39 +435,93 @@ def calculate_precision_recall(extracted_functions, extracted_events, erc_spec):
     precision_events = tp_events / (tp_events + fp_events) if (tp_events + fp_events) > 0 else 0
     recall_events = tp_events / (tp_events + fn_events) if (tp_events + fn_events) > 0 else 0
     
+    # return {
+    #     "functions": {"tp": tp_functions, "fp": fp_functions, "fn": fn_functions},
+    #     "events": {"tp": tp_events, "fp": fp_events, "fn": fn_events}
+    # }
     return {
-        "functions": {"tp": tp_functions, "fp": fp_functions, "fn": fn_functions},
-        "events": {"tp": tp_events, "fp": fp_events, "fn": fn_events}
+        "functions": {"precision": precision_functions, "recall": recall_functions},
+        "events": {"precision": precision_events, "recall": recall_events}
     }
 
 # Function to calculate overall precision and recall
-def calculate_overall_precision_recall(results):
-    total_tp_functions = 0
-    total_fp_functions = 0
-    total_fn_functions = 0
+# def calculate_overall_precision_recall(results):
+#     # total_tp_functions = 0
+#     # total_fp_functions = 0
+#     # total_fn_functions = 0
     
-    total_tp_events = 0
-    total_fp_events = 0
-    total_fn_events = 0
+#     # total_tp_events = 0
+#     # total_fp_events = 0
+#     # total_fn_events = 0
     
-    # Aggregate TP, FP, and FN for functions and events
-    for result in results:
-        total_tp_functions += result["functions"]["tp"]
-        total_fp_functions += result["functions"]["fp"]
-        total_fn_functions += result["functions"]["fn"]
+#     # Aggregate TP, FP, and FN for functions and events
+#     # for result in results:
+#     #     total_tp_functions += result["functions"]["tp"]
+#     #     total_fp_functions += result["functions"]["fp"]
+#     #     total_fn_functions += result["functions"]["fn"]
         
-        total_tp_events += result["events"]["tp"]
-        total_fp_events += result["events"]["fp"]
-        total_fn_events += result["events"]["fn"]
+#     #     total_tp_events += result["events"]["tp"]
+#     #     total_fp_events += result["events"]["fp"]
+#     #     total_fn_events += result["events"]["fn"]
+        
+#     for result in results:
+#         precision_functions += result["functions"]["precision"]
+#         recall_functions += result["functions"]["recall"]
+        
+#         precision_events += result["events"]["precision"]
+#         recall_events += result["events"]["recall"]
+        
+#     print(f"total_tp_functions :{total_tp_functions}")
+#     print(f"total_fp_functions :{total_fp_functions}")
+#     print(f"total_fn_functions :{total_fn_functions}")
+#     print(f"total_tp_events :{total_tp_events}")
+#     print(f"total_fp_events :{total_fp_events}")
+#     print(f"total_fn_events :{total_fn_events}")
+#     # Calculate overall precision and recall for functions
+#     # precision_functions = total_tp_functions / (total_tp_functions + total_fp_functions) if (total_tp_functions + total_fp_functions) > 0 else 0
+#     # recall_functions = total_tp_functions / (total_tp_functions + total_fn_functions) if (total_tp_functions + total_fn_functions) > 0 else 0
     
-    # Calculate overall precision and recall for functions
-    precision_functions = total_tp_functions / (total_tp_functions + total_fp_functions) if (total_tp_functions + total_fp_functions) > 0 else 0
-    recall_functions = total_tp_functions / (total_tp_functions + total_fn_functions) if (total_tp_functions + total_fn_functions) > 0 else 0
+#     precision_functions = precision_functions/len(precision_functions)
+#     recall_functions = recall_functions/len(recall_functions)
     
-    # Calculate overall precision and recall for events
-    precision_events = total_tp_events / (total_tp_events + total_fp_events) if (total_tp_events + total_fp_events) > 0 else 0
-    recall_events = total_tp_events / (total_tp_events + total_fn_events) if (total_tp_events + total_fn_events) > 0 else 0
+#     precision_events = precision_events/len(precision_events)
+#     recall_events = recall_events/len(recall_events)
     
+#     # Calculate overall precision and recall for events
+#     # precision_events = total_tp_events / (total_tp_events + total_fp_events) if (total_tp_events + total_fp_events) > 0 else 0
+#     # recall_events = total_tp_events / (total_tp_events + total_fn_events) if (total_tp_events + total_fn_events) > 0 else 0
+    
+#     return {
+#         "functions": {"precision": precision_functions, "recall": recall_functions},
+#         "events": {"precision": precision_events, "recall": recall_events}
+#     }
+
+# Function to calculate overall precision and recall
+def calculate_overall_precision_recall(results):
+    # Initialize variables to store cumulative precision and recall
+    precision_functions = 0
+    recall_functions = 0
+    precision_events = 0
+    recall_events = 0
+    
+    # Aggregate precision and recall for functions and events
+    for result in results:
+        precision_functions += result["functions"]["precision"]
+        recall_functions += result["functions"]["recall"]
+        
+        precision_events += result["events"]["precision"]
+        recall_events += result["events"]["recall"]
+    
+    # Calculate average precision and recall for functions and events
+    num_results = len(results)
+    if num_results > 0:
+        precision_functions /= num_results
+        recall_functions /= num_results
+        
+        precision_events /= num_results
+        recall_events /= num_results
+    
+    # Return the overall precision and recall
     return {
         "functions": {"precision": precision_functions, "recall": recall_functions},
         "events": {"precision": precision_events, "recall": recall_events}
@@ -509,7 +563,8 @@ def precision_and_recall(final_erc_file, erc_base_path):
     final_erc = load_final_erc_specifications(final_erc_file)
     # Initialize dictionaries for matched and non-matched ERCs
     matched_ercs = {}
-    non_matched_ercs = {}       
+    non_matched_ercs = {} 
+    partial_matched_ercs = {}      
     
     # Initialize list to store precision and recall results
     precision_recall_results = []
@@ -533,6 +588,9 @@ def precision_and_recall(final_erc_file, erc_base_path):
         matched_files = []
         non_matched_files = []
         
+        partial_matched_files = []
+        
+        
         
       # Iterate through all Solidity files in the ERC folder (including subfolders)
         for root, _, files in os.walk(erc_folder):
@@ -545,52 +603,60 @@ def precision_and_recall(final_erc_file, erc_base_path):
                     # Extract functions and events from the Solidity file
                     extracted_functions, extracted_events = extract_functions_and_events(file_path)
                     
+                        
+                    
                     # Compare with the ERC specification
                     erc_spec = final_erc[erc_name]
                     precision_recall = calculate_precision_recall(extracted_functions, extracted_events, erc_spec)
-                    precision_recall_results.append(precision_recall)
-                    # print(f"precision_recall :{precision_recall}")
-                    # print(f"overall_precision_recall :{calculate_overall_precision_recall(precision_recall_results)}")
-                    each_file_precision_recall = calculate_overall_precision_recall(precision_recall_results)
                     
-                    if (each_file_precision_recall['functions']['precision'] > 0.7 and \
-                        each_file_precision_recall['functions']['recall'] > 0.7 and \
-                        each_file_precision_recall['events']['precision'] > 0.7 and 
-                        each_file_precision_recall['events']['recall'] > 0.7) :
+                    precision_recall_results.append(precision_recall)
+                    
+                    if (precision_recall['functions']['precision'] == 1 and \
+                        precision_recall['functions']['recall'] == 1 and \
+                        precision_recall['events']['precision'] == 1 and 
+                        precision_recall['events']['recall'] == 1) :
+                        
+                        matched_files.append(file_path)
+                    
+                    
+                    elif (precision_recall['functions']['precision'] > 0.7 and \
+                        precision_recall['functions']['recall'] > 0.7 and \
+                        precision_recall['events']['precision'] > 0.7 and 
+                        precision_recall['events']['recall'] > 0.7) :
+                        
+                        partial_matched_files.append(file_path)
+                        
+                    elif(precision_recall['functions']['precision'] == 1 and \
+                        precision_recall['functions']['recall'] == 1 ):
                         
                         matched_files.append(file_path)
                         
-                    elif(each_file_precision_recall['functions']['precision'] > 0.7 and \
-                        each_file_precision_recall['functions']['recall'] > 0.7):
+                    elif(precision_recall['functions']['precision'] > 0.7 and \
+                        precision_recall['functions']['recall'] > 0.7):
                         
-                        matched_files.append(file_path)
+                        partial_matched_files.append(file_path)
+                        
+                    elif(precision_recall['events']['precision'] == 1 and \
+                        precision_recall['events']['recall'] == 1):
+                        
+                        matched_files.append(file_path)    
+                        
+                    elif(precision_recall['events']['precision'] > 0.7 and \
+                        precision_recall['events']['recall'] > 0.7):
+                        
+                        partial_matched_files.append(file_path)
+                        
                     else:
                         missing_count = missing_count + 1
                         non_matched_files.append(file_path)
-                        
-                    
-                    #  # Determine if the ERC matches
-                    # if extracted_functions and extracted_events:
-                    #     if (precision_recall["functions"]["tp"] == len(erc_spec.get("functions", {}))) and \
-                    #        (precision_recall["events"]["tp"] == len(erc_spec.get("events", {}))):
-                    #         matched_files.append(file_path)
-                    #         # precision_recall_results.append(precision_recall)
-                    #     else:
-                    #         non_matched_files.append(file_path)
-                    #         # precision_recall_results.append(precision_recall)
-                    # elif extracted_functions :
-                    #     if (precision_recall["functions"]["tp"] == len(erc_spec.get("functions", {}))) :
-                    #         matched_files.append(file_path)
-                    #         # precision_recall_results.append(precision_recall)
-                    #     else:
-                    #         non_matched_files.append(file_path)
-                    #         # precision_recall_results.append(precision_recall)
-                    # else:
-                    #     missing_count = missing_count + 1
+ 
                         
         # Add to the matched or non-matched collections
         if matched_files:
             matched_ercs[erc_name] = matched_files
+            
+        if partial_matched_files:
+            partial_matched_ercs[erc_name] = matched_files
             
         if non_matched_files and erc_name not in matched_ercs:
             non_matched_ercs[erc_name] = non_matched_files
@@ -601,6 +667,7 @@ def precision_and_recall(final_erc_file, erc_base_path):
     print(f"contract_files : {contract_files}")
     
     print(f"matched_ercs : {len(matched_ercs)}")
+    print(f"partial_matched_ercs : {len(partial_matched_ercs)}")
     print(f"non_matched_ercs : {len(non_matched_ercs)}")
     print(f"missing_count: {missing_count}")
             
@@ -613,9 +680,9 @@ def precision_and_recall(final_erc_file, erc_base_path):
     print(f"Events - Precision: {overall_precision_recall['events']['precision']}, Recall: {overall_precision_recall['events']['recall']}")
             
     # Print matched ERCs
-    print("Matched ERCs:")
-    for erc_name, files in matched_ercs.items():
-        print(f"- ERC: {erc_name}")
+    # print("Matched ERCs:")
+    # for erc_name, files in matched_ercs.items():
+    #     print(f"- ERC: {erc_name}")
         # for file_path in files:
         #     print(f"  - File: {file_path}")
     
@@ -707,7 +774,7 @@ def custom_function_erc_folders(final_erc_file, erc_base_path):
 def main():
     # Example usage
     # final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
-    final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_basic_erc_specifications.json"
+    final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_full_erc_specifications.json"
     erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_source_code_ground_truth"
     # erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ground_truth_test"
     
@@ -719,7 +786,7 @@ def main():
     
     # final_erc_specifications()
     # final_basic_erc_specifications()
-    # precision_and_recall(final_erc_file, erc_base_path)
+    precision_and_recall(final_erc_file, erc_base_path)
     
     
     # hash_bytes = keccak(text="assignTo(address,uint256[])")

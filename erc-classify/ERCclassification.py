@@ -69,20 +69,28 @@ def ERC_classification(file_path, erc_config):
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
         df_subset["matched_erc"] = ""
+        
+    if "partially_matched_erc" not in df_subset.columns:
+        df_subset["partially_matched_erc"] = ""
 
-    if "bytecode_short" not in df_subset.columns:
-        df_subset["bytecode_short"] = df_subset["bytecode"].str[:40]  # Create if missing
+    # if "bytecode_short" not in df_subset.columns:
+    #     df_subset["bytecode_short"] = df_subset["bytecode"].str[:40]  # Create if missing
 
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
+    matched_erc_types_partial = []
     # Dictionary to track the count of matches per ERC type
     erc_match_counts = defaultdict(int)
+    erc_match_counts_partial = defaultdict(int)
+    
     erc_NOT_match_counts = defaultdict(int)
     
     # Iterate over each row in the dataset
     for idx, row in df_subset.iterrows():
         original_bytecode_str = row["bytecode"]
         current_matches = []
+        current_matches_partial = []
+        
         
         # Iterate over each ERC type in the configuration
         for erc_type, config in erc_config.items():
@@ -95,43 +103,67 @@ def ERC_classification(file_path, erc_config):
             selectors = config.get("selectors", [])
             event_topics = config.get("topics", [])
             
-            if(len(selectors)!=0 and len(event_topics)!=0):
-                selector_matched = match_erc_type(original_bytecode_str, selectors)
-                event_matched = match_erc_type(original_bytecode_str, event_topics)
+            selector_matched = match_erc_type(original_bytecode_str, selectors)
+            event_matched = match_erc_type(original_bytecode_str, event_topics)
+            
+            # if(len(selectors)!=0 and len(event_topics)!=0):
+            #     selector_matched = match_erc_type(original_bytecode_str, selectors)
+            #     event_matched = match_erc_type(original_bytecode_str, event_topics)
                 
-            elif(len(selectors)!=0 and len(event_topics)==0) :
-                selector_matched = match_erc_type(original_bytecode_str, selectors)
+            # elif(len(selectors)!=0 and len(event_topics)==0) :
+            #     selector_matched = match_erc_type(original_bytecode_str, selectors)
                 
-            elif(len(selectors)==0 and len(event_topics)!=0):
-                event_matched = match_erc_type(original_bytecode_str, event_topics)
-                # print(f"ONLY-EVENT case: {erc_type}" )
+            # elif(len(selectors)==0 and len(event_topics)!=0):
+            #     event_matched = match_erc_type(original_bytecode_str, event_topics)
+            #     # print(f"ONLY-EVENT case: {erc_type}" )
                 
-            else:
-                print(f"RANDOM case: {erc_type}" )
+            # else:
+            #     print(f"RANDOM case: {erc_type}" )
             
             
+            # # If both selectors and events match, add the ERC type to the current matches
+            # if selector_matched and event_matched:
+            #     current_matches.append(erc_type)
+            #     erc_match_counts[erc_type] += 1
+            # elif selector_matched and not event_matched:
+            #     current_matches.append(erc_type)
+            #     erc_match_counts[erc_type] += 1
+            # elif not selector_matched and event_matched:
+            #     current_matches.append(erc_type)
+            #     erc_match_counts[erc_type] += 1
+            # else:
+            #     erc_NOT_match_counts[erc_type] += 1
+            #     # print(f"Missing ERC type")
             # If both selectors and events match, add the ERC type to the current matches
-            if selector_matched and event_matched:
+            if selector_matched == 100  and event_matched == 100:
                 current_matches.append(erc_type)
                 erc_match_counts[erc_type] += 1
-            elif selector_matched and not event_matched:
+            elif selector_matched > 70  and event_matched > 70:
+                current_matches_partial.append(erc_type)
+                erc_match_counts_partial[erc_type] += 1
+            elif selector_matched == 100 :
                 current_matches.append(erc_type)
                 erc_match_counts[erc_type] += 1
-            elif not selector_matched and event_matched:
-                current_matches.append(erc_type)
-                erc_match_counts[erc_type] += 1
+            elif selector_matched > 70 :
+                current_matches_partial.append(erc_type)
+                erc_match_counts_partial[erc_type] += 1
             else:
                 erc_NOT_match_counts[erc_type] += 1
-                # print(f"Missing ERC type")
                 
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
+        matched_erc_types_partial.append(current_matches_partial)
     print(f"erc_match_counts : {erc_match_counts}")
+    print(f"erc_match_counts_partial : {erc_match_counts_partial}")
+    
     # print(f"erc_NOT_match_counts : {erc_NOT_match_counts}")
     # Ensure that matched_erc_types has the same length as df_subset
     if len(matched_erc_types) != len(df_subset):
         raise ValueError(f"Length mismatch: {len(matched_erc_types)} vs {len(df_subset)}")
+    
+    if len(matched_erc_types_partial) != len(df_subset):
+        raise ValueError(f"Length mismatch: {len(matched_erc_types_partial)} vs {len(df_subset)}")
     
     # Convert matched_erc_types to a flat string before assigning (if column was empty)
     df_subset["matched_erc"] = [
@@ -140,13 +172,20 @@ def ERC_classification(file_path, erc_config):
         for lst, val in zip(matched_erc_types, df_subset["matched_erc"])
     ]
     
+    df_subset["partially_matched_erc"] = [
+        ";".join(map(str, lst)) if isinstance(lst, list) else str(lst)
+        if val == "" else val  # Keep existing values
+        for lst, val in zip(matched_erc_types_partial, df_subset["partially_matched_erc"])
+    ]
+    
     # Add the "Binary Token Classification" column
     df_subset["Binary Token Classification"] = df_subset["matched_erc"].apply(
         lambda x: f"YES, {x}" if x in token_ercs else ""
     )
     
     # Filter the DataFrame to only include rows where "matched_erc" is non-empty
-    filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)]
+    filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)] 
+    filtered_df = df_subset[df_subset["partially_matched_erc"].apply(lambda x: len(x) > 0)]
     
    # Now, further filter by transaction activity.
     final_rows = []
@@ -166,13 +205,14 @@ def ERC_classification(file_path, erc_config):
         final_df = pd.DataFrame(final_rows)
         # Sort the DataFrame by matched_erc to group rows with the same ERC type together
         final_df = final_df.explode("matched_erc").sort_values(by="matched_erc")
+        final_df = final_df.explode("partially_matched_erc").sort_values(by="partially_matched_erc")
         
         # print(final_df[["address", "bytecode_short", "matched_erc", "Binary Token Classification"]])
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/config_FULL_server_processed_" + os.path.basename(file_path)
-        # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_basic_local_processed_" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/partial_match_config_basic_" + os.path.basename(file_path)
+        # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
         # final_df.to_csv("test1_erc_classification_results_top10_server_full_dataset.csv", index=False)
@@ -227,20 +267,7 @@ def save_source_code(address: str, source_info: dict) -> None:
     print(f"Saved source code for {address} to {filename}")
 
 
-# def match_erc_type(bytecode, functions_events):
-#     functions_events = [topic.lower() for topic in functions_events]
-#     actual_count = len(functions_events)
-#     not_matched_erc = 0
-    
-#     # Check if all event topics are present in the bytecode
-#     for topic in functions_events:
-#         if topic not in bytecode.lower():
-#             # print(f"topic not found: {topic}")  # Debugging statement
-#             not_matched_erc = not_matched_erc + 1
-    
-    
-#     if not_matched_erc == 0:        
-#         return True
+
 
 def match_erc_type(bytecode, functions_events):
     functions_events = [topic.lower() for topic in functions_events]
@@ -259,8 +286,19 @@ def match_erc_type(bytecode, functions_events):
     # Calculate the percentage of matched functions/events
     matched_percentage = ((actual_count - not_matched_erc) / actual_count) * 100
     
-    # Return True if the matched percentage is more than 70%, else False
-    return matched_percentage > 70
+    return matched_percentage
+    
+    # # Return True if the matched percentage is more than 70%, else False
+    # if matched_percentage == 100 :
+    #     return "EXACT_MATCH"
+        
+    # elif matched_percentage > 70:
+    #     return "PARTIAL_MATCH"
+    
+    # else:
+    #     return "NOT_MATCHED"
+        
+
 
 def ERC_classification_copy():
     
@@ -290,13 +328,16 @@ def ERC_classification_copy():
     
     # Initialize a list to store matched ERC types for each bytecode
     matched_erc_types = []
+    matched_erc_types_partial = []
     # Dictionary to track the count of matches per ERC type
     erc_match_counts = defaultdict(int)
+    erc_match_counts_partial = defaultdict(int)
     
     # Iterate over each row in the dataset
     for idx, row in df_subset.iterrows():
         original_bytecode_str = row["bytecode"]
         current_matches = []
+        current_matches_partial = []
         
         # # Check that we have a string and remove "0x" prefix if present.
         # if isinstance(original_bytecode_str, str):
@@ -342,9 +383,18 @@ def ERC_classification_copy():
             selector_matched = match_erc_type(original_bytecode_str, selectors)
             
             # If both selectors and events match, add the ERC type to the current matches
-            if selector_matched and event_matched:
+            if selector_matched == 100  and event_matched == 100:
                 current_matches.append(erc_type)
                 erc_match_counts[erc_type] += 1
+            elif selector_matched > 70  and event_matched > 70:
+                current_matches_partial.append(erc_type)
+                erc_match_counts_partial[erc_type] += 1
+            elif selector_matched == 100 :
+                current_matches.append(erc_type)
+                erc_match_counts[erc_type] += 1
+            elif selector_matched > 70 :
+                current_matches_partial.append(erc_type)
+                erc_match_counts_partial[erc_type] += 1
         
         # Add the current matches to the list of matched ERC types
         matched_erc_types.append(current_matches)
@@ -496,7 +546,7 @@ def verify_source():
 
 def main():
     
-    with open("final_full_erc_specifications.json", "r") as f:
+    with open("final_basic_erc_specifications.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
