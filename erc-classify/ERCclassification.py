@@ -211,7 +211,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/partial_match_config_basic_" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/partial_match_config_FULL_" + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -546,7 +546,7 @@ def verify_source():
 
 def main():
     
-    with open("final_basic_erc_specifications.json", "r") as f:
+    with open("final_full_erc_specifications.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
