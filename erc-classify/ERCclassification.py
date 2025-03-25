@@ -544,25 +544,117 @@ def verify_source():
 
 
 
+
+
+def compare_json_files(basic_file, full_file):
+    # Load JSON files
+    with open(basic_file, 'r') as f:
+        basic_data = json.load(f)
+    
+    with open(full_file, 'r') as f:
+        full_data = json.load(f)
+
+    missing_ercs = []
+    non_matched_ercs = {}
+
+    # Check for missing ERCs
+    for erc in basic_data:
+        if erc not in full_data:
+            missing_ercs.append(erc)
+
+    # Compare selectors and topics for existing ERCs
+    for erc, details in basic_data.items():
+        if erc in full_data:
+            full_details = full_data[erc]
+
+            # Get selectors and topics
+            basic_selectors = set(details.get("selectors", []))
+            full_selectors = set(full_details.get("selectors", []))
+
+            basic_topics = set(details.get("topics", []))
+            full_topics = set(full_details.get("topics", []))
+
+            # Check if all basic_selectors and basic_topics are present in full_data
+            missing_selectors = basic_selectors - full_selectors
+            missing_topics = basic_topics - full_topics
+
+            if missing_selectors or missing_topics:
+                non_matched_ercs[erc] = {
+                    "missing_selectors": list(missing_selectors),
+                    "missing_topics": list(missing_topics)
+                }
+
+    # Print results
+    # if missing_ercs:
+    #     print("Missing ERCs in full.json:")
+    #     print(missing_ercs)
+    print(f"len : {len(non_matched_ercs)}")
+    if non_matched_ercs:
+        print("\nERCs with missing selectors or topics:")
+        
+        for erc, mismatches in non_matched_ercs.items():
+            print(f"\nERC: {erc}")
+            # for key, value in mismatches.items():
+            #     if value:
+            #         print(f"  {key}: {value}")
+
+
+
+
+
+
+
+def process_all_csv(folder_path):
+    # List all files in the folder
+    for file_name in os.listdir(folder_path):
+        if folder_path.__contains__("output") and file_name.__contains__("partial") and file_name.endswith(".csv"):
+            file_path = os.path.join(folder_path, file_name)
+            try:
+                df = pd.read_csv(file_path)
+                print(f"Processed '{file_name}' - Number of rows: {len(df)}")
+            except Exception as e:
+                print(f"Error processing '{file_name}': {e}")
+        if folder_path.__contains__("data") and file_name.endswith(".csv"):  # Process only CSV files
+            file_path = os.path.join(folder_path, file_name)
+            try:
+                df = pd.read_csv(file_path)
+                print(f"Processed '{file_name}' - Number of rows: {len(df)}")
+            except Exception as e:
+                print(f"Error processing '{file_name}': {e}")
+
+
+
+
+
+
+
+
 def main():
     
-    with open("final_full_erc_specifications.json", "r") as f:
-        erc_config = json.load(f)
+    # with open("final_full_erc_specifications.json", "r") as f:
+    #     erc_config = json.load(f)
     
-    # Directory containing CSV files
-    data_dir = "/home/ashok/data"
-    # data_dir = "/Users/ashokk/Downloads/evm_data"
-    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
+    # # Directory containing CSV files
+    # # data_dir = "/home/ashok/data"
+    # data_dir = "/home/ashok/output"
+    # # data_dir = "/Users/ashokk/Downloads/evm_data"
+    # csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
     
-    if not csv_files:
-        print(f"No CSV files found in {data_dir}.")
-        return
-    for csv_file in csv_files:
-        print(f"Processing file: {csv_file}")
-        ERC_classification(csv_file, erc_config)
+    # if not csv_files:
+    #     print(f"No CSV files found in {data_dir}.")
+    #     return
+    # for csv_file in csv_files:
+    #     print(f"Processing file: {csv_file}")
+    #     ERC_classification(csv_file, erc_config)
         
-    # ERC_classification(erc_config, data_dir)
+    
     # verify_source()
+    
+    # compare_json_files("final_basic_erc_specifications.json", "final_full_erc_specifications.json")
+    process_all_csv("/home/ashok/output")
+    process_all_csv("/home/ashok/data")
+    
+    
 
 if __name__ == "__main__":
     main()

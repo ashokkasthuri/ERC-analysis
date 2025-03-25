@@ -8,6 +8,12 @@ from dotenv import load_dotenv
 
 import logging
 
+import networkx as nx
+import plotly.graph_objects as go
+from pyvis.network import Network
+import matplotlib.pyplot as plt
+import pandas as pd
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,20 +48,113 @@ token_ercs = {
 }
 
 # List of token ERCs
-# token_ercs = {"ERC223", "ERC165"}
+# token_ercs = {"ERC20"}
 
 # Base URL for EIPs
 base_url = "https://eips.ethereum.org/EIPS/eip-"
 
 API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 
+
+# Define the dependencies for each ERC standard
+erc_dependencies = {
+    "ERC20": [],
+    "ERC165": ["ERC214"],
+    "ERC173": ["ERC165"],
+    "ERC721": ["ERC165"],
+    "ERC223": [],
+    "ERC777": ["ERC1820"],
+    "ERC1155": ["ERC165"],
+    "ERC884": [],
+    "ERC998": ["ERC20", "ERC165", "ERC721"],
+    "ERC875": [],
+    "ERC1046": ["ERC20", "ERC721", "ERC1155"],
+    "ERC1363": ["ERC20", "ERC165"],
+    "ERC2135": ["ERC165", "ERC721", "ERC1155"],
+    "ERC2309": ["ERC721"],
+    "ERC2612": ["ERC20", "ERC712"],
+    "ERC1948": ["ERC721"],
+    "ERC1261": ["ERC165", "ERC173"],
+    "ERC1271": [],
+    "ERC1337": ["ERC20", "ERC165"],
+    "ERC1820": ["ERC165", "ERC214"],
+    "ERC2021": ["ERC20", "ERC1066", "ERC1996"],
+    "ERC2018": ["ERC1996"],
+    "ERC2019": ["ERC20"],
+    "ERC1996": ["ERC20"],
+    "ERC2020": ["ERC20", "ERC1066", "ERC1996", "ERC2009", "ERC2018", "ERC2019", "ERC2021"],
+    "ERC2981": ["ERC165"],
+    "ERC3135": ["ERC20"],
+    "ERC3440": ["ERC712", "ERC721"],
+    "ERC3589": ["ERC721"],
+    "ERC3754": [],
+    "ERC4494": ["ERC165", "ERC712", "ERC721"],
+    "ERC4524": ["ERC20", "ERC165"],
+    "ERC4675": ["ERC165", "ERC721"],
+    "ERC3525": ["ERC20", "ERC165", "ERC721"],
+    "ERC3643": ["ERC20", "ERC173"],
+    "ERC4400": ["ERC165", "ERC721"],
+    "ERC4519": ["ERC165", "ERC721"],
+    "ERC4626": ["ERC20", "ERC2612"],
+    "ERC4906": ["ERC165", "ERC721"],
+    "ERC4907": ["ERC165", "ERC721"],
+    "ERC4337": ["ERC712", "ERC7562"],
+    "ERC4910": ["ERC165", "ERC721"],
+    "ERC4955": ["ERC721", "ERC1155"],
+    "ERC5006": ["ERC165", "ERC1155"],
+    "ERC5007": ["ERC165", "ERC721"],
+    "ERC5023": ["ERC165"],
+    "ERC5169": ["ERC20", "ERC165", "ERC721", "ERC777", "ERC1155"],
+    "ERC5192": ["ERC165", "ERC721"],
+    "ERC5267": ["ERC155", "ERC712", "ERC2612"],
+    "ERC5375": ["ERC55", "ERC155", "ERC712", "ERC721", "ERC1155"],
+    "ERC5380": ["ERC165", "ERC721", "ERC1046"],
+    "ERC5484": ["ERC165", "ERC721"],
+    "ERC5489": ["ERC165", "ERC721"],
+    "ERC5507": ["ERC20", "ERC165", "ERC721", "ERC1155"],
+    "ERC5521": ["ERC165", "ERC721"],
+    "ERC5528": ["ERC20"],
+    "ERC5570": ["ERC721"],
+    "ERC5585": ["ERC721"],
+    "ERC5606": ["ERC721", "ERC1155"],
+    "ERC5615": ["ERC1155"],
+    "ERC5646": ["ERC165"],
+    "ERC5679": ["ERC20", "ERC165", "ERC721", "ERC1155"],
+    "ERC5725": ["ERC721"],
+    "ERC5773": ["ERC165", "ERC721"],
+    "ERC6059": ["ERC165", "ERC721"],
+    "ERC6066": ["ERC165", "ERC721", "ERC1155", "ERC1271", "ERC5750"],
+    "ERC6105": ["ERC20", "ERC165", "ERC721", "ERC2981"],
+    "ERC6147": ["ERC165", "ERC721"],
+    "ERC6150": ["ERC165", "ERC721"],
+    "ERC6220": ["ERC165", "ERC721", "ERC5773", "ERC6059"],
+    "ERC6239": ["ERC165", "ERC721", "ERC5192"],
+    "ERC6381": ["ERC165"],
+    "ERC6454": ["ERC165", "ERC721"],
+    "ERC6492": ["ERC1271"],
+    "ERC6551": ["ERC165", "ERC721", "ERC1167", "ERC1271"],
+    "ERC6672": ["ERC165", "ERC721"],
+    "ERC6808": ["ERC20"],
+    "ERC6809": ["ERC721"],
+    "ERC6982": ["ERC165", "ERC721"],
+    "ERC7160": ["ERC165", "ERC721"],
+    "ERC7231": ["ERC165", "ERC721", "ERC1271"],
+    "ERC7401": ["ERC165", "ERC721"],
+    "ERC7409": ["ERC165"]
+}
+
+optional_erc_dependencies = {
+    "ERC4626": ["ERC2612"],  # EIP-2612 permit() is optional for ERC4626 vaults
+    "ERC5267": ["ERC712"],   # EIP-712 signatures are optional for ERC5267
+    "ERC6551": ["ERC721"],   # Can work with just ERC1167 minimal proxies
+    "ERC4337": ["ERC7562"]   # ERC7562 is for advanced account abstraction features
+}
+
 # Define the columns for the DataFrame
 columns = [
     "ERC", "Description", "Requires", "Table of Contents", "Abstract", "Motivation",
     "Specification", "Rationale", "Backwards Compatibility", "Security Considerations"
 ]
-
-
 
 
 def insights_from_scrape_data(csv_path, output_path, api_key):
@@ -167,6 +266,51 @@ def requires_insights(csv_path, output_path, api_key):
    
 
     def analyze_erc_row(row):
+        
+        EIP_requires_prompt = f"""
+        Conduct a thorough analysis of ERC {row['ERC']} with required EIPs {row['Requires']} by examining:
+
+        1. Specification: {row['Specification']}
+        2. Rationale: {row['Rationale']} 
+        3. Security Considerations: {row['Security Considerations']}
+
+        Answer in precise technical detail:
+
+        ### Mandatory vs Optional Requirements Analysis
+        1. For each required, dependent, underlying EIP for an ERC:
+        - Is all EIP absolutely mandatory (MUST implement) or optional (MAY implement)?
+        - Cite specific language from the specification that proves its status (e.g., "MUST implement" vs "SHOULD implement")
+        - Explain why the standard authors made this EIP requirement mandatory/optional
+
+        2. For mandatory EIPs:
+        - What core functionality would break if omitted the requires, dependent, underlying EIP?
+        - What specific security mechanisms would be compromised?
+        - Would the ERC still be considered compliant without it?
+
+        3. For optional EIPs:
+        - What additional benefits do they provide?
+        - Why were they included as ERC requirements or dependency (as EIP) if not mandatory?
+        - Under what conditions would you recommend implementing them?
+
+        ### Consequences of Non-Compliance
+        1. Security Impact:
+        - List specific software bugs that would emerge
+        - List specific vulnerabilities that would emerge 
+        - List specific malicious activities that would emerge 
+        - Known historical exploits related to omitting these EIP requirements for an ERC
+        - Worst-case attack scenarios
+
+        2. Functional Impact:
+        - Which features would become unusable?
+        - How would interoperability be affected?
+        - Would the contract still pass standard compliance checks?
+
+        3. Ecosystem Impact:
+        - How would wallets/exchanges/DApps handle non-compliant implementations?
+        - Would the contract still work with major infrastructure?
+
+        Format your response with clear technical justification for each point, quoting relevant specification text when possible.
+        """
        
         requires_prompt = f"""
         Analyze this ERC standard's requirements and security considerations:
@@ -223,6 +367,14 @@ def requires_insights(csv_path, output_path, api_key):
         else:
             requires_analysis = "Error: Failed to analyze requirements"
             logger.error(f"Requires analysis failed for {row['ERC']}")
+            
+        # Get EIP requirements analysis
+        EIP_requires_response = call_api(EIP_requires_prompt)
+        if EIP_requires_response and "choices" in EIP_requires_response:
+            EIP_requires_analysis = EIP_requires_response['choices'][0]['message']['content']
+        else:
+            EIP_requires_analysis = "Error: Failed to analyze EIP requirements"
+            logger.error(f"EIP Requires analysis failed for {row['ERC']}")
 
         # Get security impact analysis
         security_prompt = f"""
@@ -248,6 +400,7 @@ def requires_insights(csv_path, output_path, api_key):
 
         return {
             "Requirements Analysis": requires_analysis,
+            "EIP_Requirements Analysis": EIP_requires_analysis,
             "Security Impact Analysis": security_analysis,
             "Critical Requirements": extract_critical_requirements(row),
             "Optional Requirements": extract_optional_requirements(row)
@@ -266,7 +419,9 @@ def requires_insights(csv_path, output_path, api_key):
         return " | ".join(optional_requirements[:3])  # Return first 3 for brevity
 
     # Read and process data
-    df = pd.read_csv(csv_path)
+    # df = pd.read_csv(csv_path)
+    df1 = pd.read_csv(csv_path)
+    df = df1.head(2).copy()
     results = df.apply(analyze_erc_row, axis=1)
     
     # Add new analysis columns
@@ -376,6 +531,12 @@ def scrape_ALL_data():
             
             motivation = extract_section_content("Motivation", soup)
             specification = extract_section_content("Specification", soup)
+            token = extract_section_content("Token", soup)
+            if(len(specification) == 0) and (len(token) != 0):
+                # print(f"specification : {specification}")
+                # print(f"specification : {len(token)}")
+                specification = token
+                
             
               
             rationale = extract_section_content("Rationale", soup)
@@ -413,17 +574,172 @@ def scrape_ALL_data():
     print("Data saved to erc_ALL_DATA_scrape.csv (sorted by ERC number)")
 
 
+def graph_erc_requires():
+    # Create a directed graph
+    G = nx.DiGraph()
+
+    # Add nodes and edges
+    for erc, deps in erc_dependencies.items():
+        G.add_node(erc, size=20, title=erc)
+        for dep in deps:
+            G.add_edge(dep, erc)
+
+    # Calculate node importance metrics
+    betweenness = nx.betweenness_centrality(G)
+    degree = dict(G.degree())
+    pagerank = nx.pagerank(G)
+
+    # Add metrics to node attributes
+    for node in G.nodes():
+        G.nodes[node]['betweenness'] = betweenness[node]
+        G.nodes[node]['degree'] = degree[node]
+        G.nodes[node]['pagerank'] = pagerank[node]
+        
+    
+    
+    # Create interactive visualization with PyVis
+    def create_pyvis_network():
+        net = Network(height="750px", width="100%", directed=True, notebook=True)
+        net.from_nx(G)
+        
+        # Customize node appearance based on importance
+        for node in net.nodes:
+            node['size'] = 10 + 15 * G.nodes[node['id']]['pagerank']
+            node['title'] = (
+                f"ERC: {node['id']}<br>"
+                f"Dependencies: {', '.join(erc_dependencies.get(node['id'], []))}<br>"
+                f"Betweenness: {G.nodes[node['id']]['betweenness']:.3f}<br>"
+                f"Degree: {G.nodes[node['id']]['degree']}<br>"
+                f"PageRank: {G.nodes[node['id']]['pagerank']:.3f}"
+            )
+            # Color core standards differently
+            if G.nodes[node['id']]['degree'] > 5:
+                node['color'] = '#FF7F0E'  # Orange for high-degree nodes
+            elif node['id'] in ['ERC20', 'ERC721', 'ERC1155', 'ERC165']:
+                node['color'] = '#1F77B4'  # Blue for foundational standards
+        
+        # Physics layout configuration
+        net.set_options("""
+        {
+        "physics": {
+            "forceAtlas2Based": {
+            "gravitationalConstant": -100,
+            "centralGravity": 0.01,
+            "springLength": 200,
+            "springConstant": 0.08
+            },
+            "minVelocity": 0.75,
+            "solver": "forceAtlas2Based"
+        }
+        }
+        """)
+        
+        return net
+
+    def create_plotly_figure():
+        pos = nx.spring_layout(G, k=0.5, iterations=50)
+        
+        edge_x = []
+        edge_y = []
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_x.extend([x0, x1, None])
+            edge_y.extend([y0, y1, None])
+
+        edge_trace = go.Scatter(
+            x=edge_x, y=edge_y,
+            line=dict(width=0.5, color='#888'),
+            hoverinfo='none',
+            mode='lines')
+
+        node_x = []
+        node_y = []
+        node_text = []
+        node_size = []
+        node_color = []
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            node_text.append(
+                f"<b>{node}</b><br>"
+                f"Dependencies: {len(erc_dependencies.get(node, []))}<br>"
+                f"Used by: {G.degree(node)} standards"
+            )
+            node_size.append(10 + 20 * G.nodes[node]['pagerank'])
+            node_color.append(G.nodes[node]['pagerank'])
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers+text',
+            text=list(G.nodes()),
+            textposition="top center",
+            hovertext=node_text,
+            hoverinfo='text',
+            marker=dict(
+                showscale=True,
+                colorscale='YlGnBu',
+                size=node_size,
+                color=node_color,
+                colorbar=dict(
+                    thickness=15,
+                    title='PageRank',
+                    xanchor='left',
+                    title_side='right'
+                ),
+                line_width=2))
+
+        fig = go.Figure(data=[edge_trace, node_trace],
+                    layout=go.Layout(
+                        title_text='<b>ERC Standards Dependency Network</b>',  # Changed from title
+                        title_font_size=16,  # Changed from titlefont_size
+                        showlegend=False,
+                        hovermode='closest',
+                        margin=dict(b=20,l=5,r=5,t=40),
+                        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
+                    )
+        return fig   
+   
+   
+    # Generate both visualizations
+    pyvis_net = create_pyvis_network()
+    plotly_fig = create_plotly_figure()
+
+    # Save outputs
+    pyvis_net.show("erc_dependencies.html")  # Interactive HTML
+    plotly_fig.write_html("erc_dependencies_plotly.html")  # Publication-quality
+    plotly_fig.show()
+
 
 def main():
+    
+    # Generate both visualizations
+    graph_erc_requires()
+    
     
     # scrape_ALL_data()
     
 
-    insights_from_scrape_data(
-        "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
-        "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_insights.csv",  # Output CSV
-        API_KEY
-    )
+    # insights_from_scrape_data(
+    #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
+    #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_insights.csv",  # Output CSV
+    #     API_KEY
+    # )
+    
+    
+    # requires_insights(
+    #     "/home/ashok/ERC-analysis/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
+    #     "/home/ashok/ERC-analysis/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
+    #     API_KEY
+    # )
+    
+    # requires_insights(
+    #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
+    #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
+    #     API_KEY
+    # )
 
     
 if __name__ == "__main__":
