@@ -607,7 +607,7 @@ def compare_json_files(basic_file, full_file):
 def process_all_csv(folder_path):
     # List all files in the folder
     for file_name in os.listdir(folder_path):
-        if folder_path.__contains__("output") and file_name.__contains__("partial") and file_name.endswith(".csv"):
+        if folder_path.__contains__("output") and file_name.__contains__("config") and file_name.endswith(".csv"):
             file_path = os.path.join(folder_path, file_name)
             try:
                 df = pd.read_csv(file_path)
@@ -652,7 +652,7 @@ def main():
     
     # compare_json_files("final_basic_erc_specifications.json", "final_full_erc_specifications.json")
     process_all_csv("/home/ashok/output")
-    process_all_csv("/home/ashok/data")
+    # process_all_csv("/home/ashok/data")
     
     
 
