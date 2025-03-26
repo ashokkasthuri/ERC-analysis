@@ -415,9 +415,9 @@ def requires_insights(csv_path, output_path, api_key):
         return " | ".join(optional_requirements[:3])  # Return first 3 for brevity
 
     # Read and process data
-    # df = pd.read_csv(csv_path)
-    df1 = pd.read_csv(csv_path)
-    df = df1.head(2).copy()
+    df = pd.read_csv(csv_path)
+    # df1 = pd.read_csv(csv_path)
+    # df = df1.head(2).copy()
     results = df.apply(analyze_erc_row, axis=1)
     
     # Add new analysis columns
