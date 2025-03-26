@@ -57,7 +57,7 @@ token_ercs = {
 
 # Common ERC types to skip
 # common_erc_types = {"ERC20", "ERC721","ERC165", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754", "ERC6492", "ERC1271"}
-common_erc_types = {"ERC165", "ERC173"}
+common_erc_types = {}
 # common_erc_types = {}
 
 # Function to process a single CSV file
@@ -211,7 +211,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/partial_match_config_FULL_" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/BASIC_config" + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -604,7 +604,7 @@ def compare_json_files(basic_file, full_file):
 
 
 
-def process_all_csv(folder_path):
+def number_of_rows(folder_path):
     # List all files in the folder
     for file_name in os.listdir(folder_path):
         if folder_path.__contains__("output") and file_name.__contains__("config") and file_name.endswith(".csv"):
@@ -631,28 +631,28 @@ def process_all_csv(folder_path):
 
 def main():
     
-    # with open("final_full_erc_specifications.json", "r") as f:
-    #     erc_config = json.load(f)
+    with open("final_basic_erc_specifications.json", "r") as f:
+        erc_config = json.load(f)
     
-    # # Directory containing CSV files
-    # # data_dir = "/home/ashok/data"
-    # data_dir = "/home/ashok/output"
-    # # data_dir = "/Users/ashokk/Downloads/evm_data"
-    # csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
+    # Directory containing CSV files
+    # data_dir = "/home/ashok/data"
+    data_dir = "/home/ashok/output"
+    # data_dir = "/Users/ashokk/Downloads/evm_data"
+    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
     
-    # if not csv_files:
-    #     print(f"No CSV files found in {data_dir}.")
-    #     return
-    # for csv_file in csv_files:
-    #     print(f"Processing file: {csv_file}")
-    #     ERC_classification(csv_file, erc_config)
+    if not csv_files:
+        print(f"No CSV files found in {data_dir}.")
+        return
+    for csv_file in csv_files:
+        print(f"Processing file: {csv_file}")
+        ERC_classification(csv_file, erc_config)
         
     
     # verify_source()
     
     # compare_json_files("final_basic_erc_specifications.json", "final_full_erc_specifications.json")
-    process_all_csv("/home/ashok/output")
-    # process_all_csv("/home/ashok/data")
+    # number_of_rows("/home/ashok/output")
+    # number_of_rows("/home/ashok/data")
     
     
 
@@ -664,7 +664,7 @@ if __name__ == "__main__":
 
 # Processed 'partial_match_config_FULL_binance_deduplicated_results.csv' - Number of rows: 1602719
 # Processed 'partial_match_config_basic_binance_deduplicated_results.csv' - Number of rows: 1602251
-# Processed 'binance_deduplicated_results.csv' - Number of rows: 2308899
+
 
 # Processed 'partial_match_config_basic_ethereum_deduplicated_results.csv' - Number of rows: 630846
 # Processed 'partial_match_config_FULL_deduplicated_avalanche.csv' - Number of rows: 43805
@@ -673,9 +673,11 @@ if __name__ == "__main__":
 
 # Processed 'partial_match_config_basic_deduplicated_polygon.csv' - Number of rows: 123017
 # Processed 'partial_match_config_basic_deduplicated_avalanche.csv' - Number of rows: 43777
+
+
+# Processed 'binance_deduplicated_results.csv' - Number of rows: 2308899
 # Processed 'ethereum_deduplicated_results.csv' - Number of rows: 1114861
 # Processed 'deduplicated_polygon.csv' - Number of rows: 288611
-
 # Processed 'deduplicated_avalanche.csv' - Number of rows: 96173
 
 
