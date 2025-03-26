@@ -662,3 +662,27 @@ if __name__ == "__main__":
 
 
 
+# Processed 'partial_match_config_FULL_binance_deduplicated_results.csv' - Number of rows: 1602719
+# Processed 'partial_match_config_basic_binance_deduplicated_results.csv' - Number of rows: 1602251
+# Processed 'binance_deduplicated_results.csv' - Number of rows: 2308899
+
+# Processed 'partial_match_config_basic_ethereum_deduplicated_results.csv' - Number of rows: 630846
+# Processed 'partial_match_config_FULL_deduplicated_avalanche.csv' - Number of rows: 43805
+# Processed 'partial_match_config_FULL_ethereum_deduplicated_results.csv' - Number of rows: 631220
+# Processed 'partial_match_config_FULL_deduplicated_polygon.csv' - Number of rows: 123127
+
+# Processed 'partial_match_config_basic_deduplicated_polygon.csv' - Number of rows: 123017
+# Processed 'partial_match_config_basic_deduplicated_avalanche.csv' - Number of rows: 43777
+# Processed 'ethereum_deduplicated_results.csv' - Number of rows: 1114861
+# Processed 'deduplicated_polygon.csv' - Number of rows: 288611
+
+# Processed 'deduplicated_avalanche.csv' - Number of rows: 96173
+
+
+
+
+# Processed 'config_FULL_server_processed_ethereum_deduplicated_results.csv' - Number of rows: 636069
+# Processed 'partial_match_config_basic_deduplicated_polygon.csv' - Number of rows: 123017
+# Processed 'partial_match_config_basic_deduplicated_avalanche.csv' - Number of rows: 43777
+# Processed 'config_FULL_server_processed_deduplicated_polygon.csv' - Number of rows: 124388
+# Processed 'config_basic_server_processed_deduplicated_avalanche.csv' - Number of rows: 44490

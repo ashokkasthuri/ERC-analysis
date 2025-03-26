@@ -19,8 +19,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
-load_env = load_dotenv()
+load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+# load_env = load_dotenv()
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
 
@@ -48,7 +48,7 @@ token_ercs = {
 }
 
 # List of token ERCs
-# token_ercs = {"ERC20"}
+# token_ercs = {"ERC20", "ERC2612"}
 
 # Base URL for EIPs
 base_url = "https://eips.ethereum.org/EIPS/eip-"
@@ -268,7 +268,7 @@ def requires_insights(csv_path, output_path, api_key):
     def analyze_erc_row(row):
         
         EIP_requires_prompt = f"""
-        Conduct a thorough analysis of ERC {row['ERC']} with required EIPs {row['Requires']} by examining:
+        Conduct a thorough analysis of ERC {row['ERC']} with required dependencies {row['Requires']} by examining:
 
         1. Specification: {row['Specification']}
         2. Rationale: {row['Rationale']} 
@@ -277,20 +277,16 @@ def requires_insights(csv_path, output_path, api_key):
         Answer in precise technical detail:
 
         ### Mandatory vs Optional Requirements Analysis
-        1. For each required, dependent, underlying EIP for an ERC:
-        - Is all EIP absolutely mandatory (MUST implement) or optional (MAY implement)?
-        - Cite specific language from the specification that proves its status (e.g., "MUST implement" vs "SHOULD implement")
-        - Explain why the standard authors made this EIP requirement mandatory/optional
+        1. For each dependencies for an ERC (like EIP-20, EIP-712 for ERC2612):
+        - Is all dependencies absolutely mandatory (MUST implement) or optional (MAY implement)?
+        - Explain why the standard authors made this dependencies requirement mandatory/optional
 
-        2. For mandatory EIPs:
-        - What core functionality would break if omitted the requires, dependent, underlying EIP?
+        2. For an ERC which does not properly implement dependencies:
+        - What core functionality would break if omitted the dependencies ?
         - What specific security mechanisms would be compromised?
         - Would the ERC still be considered compliant without it?
 
-        3. For optional EIPs:
-        - What additional benefits do they provide?
-        - Why were they included as ERC requirements or dependency (as EIP) if not mandatory?
-        - Under what conditions would you recommend implementing them?
+        
 
         ### Consequences of Non-Compliance
         1. Security Impact:
@@ -716,7 +712,7 @@ def graph_erc_requires():
 def main():
     
     # Generate both visualizations
-    graph_erc_requires()
+    # graph_erc_requires()
     
     
     # scrape_ALL_data()
@@ -729,11 +725,11 @@ def main():
     # )
     
     
-    # requires_insights(
-    #     "/home/ashok/ERC-analysis/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
-    #     "/home/ashok/ERC-analysis/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
-    #     API_KEY
-    # )
+    requires_insights(
+        "/home/ashok/ERC-analysis/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
+        "/home/ashok/ERC-analysis/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
+        API_KEY
+    )
     
     # requires_insights(
     #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
