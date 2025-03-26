@@ -635,8 +635,8 @@ def main():
         erc_config = json.load(f)
     
     # Directory containing CSV files
-    # data_dir = "/home/ashok/data"
-    data_dir = "/home/ashok/output"
+    data_dir = "/home/ashok/data"
+    
     # data_dir = "/Users/ashokk/Downloads/evm_data"
     csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
     
