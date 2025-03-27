@@ -211,7 +211,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/FULL_config" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/config_erc165_partial_config" + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -631,7 +631,7 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_full_erc_specifications.json", "r") as f:
+    with open("final_erc165_config.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
@@ -662,17 +662,18 @@ if __name__ == "__main__":
 
 
 
-# Processed 'partial_match_config_FULL_binance_deduplicated_results.csv' - Number of rows: 1602719
-# Processed 'partial_match_config_basic_binance_deduplicated_results.csv' - Number of rows: 1602251
+
+# Processed 'BASIC_config_binance_deduplicated_results.csv' - Number of rows: 1602251
+# Processed 'BASIC_config__deduplicated_polygon.csv' - Number of rows: 123017
+# Processed 'BASIC_config__deduplicated_avalanche.csv' - Number of rows: 43777
+# Processed 'BASIC_config_ethereum_deduplicated_results.csv.csv' - Number of rows: 630846
+
+# Processed 'FULL_config_deduplicated_avalanche.csv' - Number of rows: 43805
+# Processed 'FULL_config_ethereum_deduplicated_results.csv' - Number of rows: 631220
+# Processed 'FULL_config_deduplicated_polygon.csv' - Number of rows: 123127
+# Processed 'FULL_config_binance_deduplicated_results.csv' - Number of rows: 1602719
 
 
-# Processed 'partial_match_config_basic_ethereum_deduplicated_results.csv' - Number of rows: 630846
-# Processed 'partial_match_config_FULL_deduplicated_avalanche.csv' - Number of rows: 43805
-# Processed 'partial_match_config_FULL_ethereum_deduplicated_results.csv' - Number of rows: 631220
-# Processed 'partial_match_config_FULL_deduplicated_polygon.csv' - Number of rows: 123127
-
-# Processed 'partial_match_config_basic_deduplicated_polygon.csv' - Number of rows: 123017
-# Processed 'partial_match_config_basic_deduplicated_avalanche.csv' - Number of rows: 43777
 
 
 # Processed 'binance_deduplicated_results.csv' - Number of rows: 2308899
@@ -684,7 +685,5 @@ if __name__ == "__main__":
 
 
 # Processed 'config_FULL_server_processed_ethereum_deduplicated_results.csv' - Number of rows: 636069
-# Processed 'partial_match_config_basic_deduplicated_polygon.csv' - Number of rows: 123017
-# Processed 'partial_match_config_basic_deduplicated_avalanche.csv' - Number of rows: 43777
 # Processed 'config_FULL_server_processed_deduplicated_polygon.csv' - Number of rows: 124388
 # Processed 'config_basic_server_processed_deduplicated_avalanche.csv' - Number of rows: 44490
