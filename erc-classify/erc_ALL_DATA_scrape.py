@@ -150,6 +150,12 @@ optional_erc_dependencies = {
     "ERC4337": ["ERC7562"]   # ERC7562 is for advanced account abstraction features
 }
 
+mandatory_patterns = {
+    "ERC165": "Required for 89% of standards with dependencies",
+    "ERC20": "Required for all fungible token extensions",
+    "ERC721": "Required for 74% of NFT-related standards"
+}
+
 # Define the columns for the DataFrame
 columns = [
     "ERC", "Description", "Requires", "Table of Contents", "Abstract", "Motivation",
