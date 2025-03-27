@@ -211,7 +211,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/config_erc165_partial_config" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/config_er223_transfer_test" + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -631,7 +631,7 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_erc165_config.json", "r") as f:
+    with open("final_erc223_transfer.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
