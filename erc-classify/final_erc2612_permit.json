@@ -1,0 +1,12 @@
+{
+    "ERC2612": {
+        "selectors": [
+            "d505accf"
+        ],
+        "topics": [],
+        "functions": {
+            "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": "d505accf"
+        },
+        "events": {}
+    }
+    }
