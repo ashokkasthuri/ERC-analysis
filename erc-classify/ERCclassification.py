@@ -59,7 +59,7 @@ print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)"
 #     "ERC1155","ERC5005","ERC5169","ERC5606","ERC5615"}
 
 token_ercs = {
-    "ERC6672"
+    "ERC6808"
     }
 
 # Common ERC types to skip
@@ -218,7 +218,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/ERC-6672_basic_" + os.path.basename(file_path)
+        output_file = "/home/ashok/output/ERC-6808_basic_" + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -306,8 +306,6 @@ def match_erc_type(bytecode, functions_events):
     #     return "NOT_MATCHED"
         
 
-
-def ERC_classification_copy():
     
     common_erc_types = {"ERC20", "ERC721", "ERC1155", "ERC173", "ERC2981", "ERC2612", "ERC3754"}
     # Load the ERC configuration JSON

@@ -902,7 +902,7 @@ def custom_function_erc_folders(final_erc_file, erc_base_path):
         # Iterate through all Solidity files in the ERC folder
         for root, _, files in os.walk(erc_folder):
             for file in files:
-                if file.startswith("ERC4494_0x1e1b4e1") and file.endswith(".sol"):
+                if file.startswith("ERC") and file.endswith(".sol"):
                     file_path = os.path.join(root, file)
                     print(f"Processing file: {file_path}")
                     
