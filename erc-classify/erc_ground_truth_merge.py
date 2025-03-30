@@ -3,6 +3,9 @@ import os
 import json
 from eth_utils import keccak
 from web3 import Web3
+from typing import Dict, List, Optional
+import re
+
 
 
 
@@ -273,6 +276,59 @@ def get_selector(function_signature: str) -> str:
     selector = hash_bytes[:4].hex()
     # print(f"selector : {selector}")
     return selector
+
+
+def extract_custom_functions(file_path):
+    functions = {}
+    events = {}
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        
+        # Track whether we are inside a multi-line comment
+        inside_multi_line_comment = False
+        
+        # Iterate through each line
+        for i, line in enumerate(lines):
+            # Skip empty lines
+            if not line.strip():
+                continue
+            
+            # Handle multi-line comments
+            if line.strip().startswith("/*"):
+                inside_multi_line_comment = True
+            if inside_multi_line_comment:
+                if line.strip().endswith("*/"):
+                    inside_multi_line_comment = False
+                continue
+            
+            # Skip single-line comments
+            if is_comment(line):
+                continue
+            
+            # Extract functions
+            if line.strip().__contains__("function"):
+                # Capture the entire function signature
+                function_signature = line.strip()
+                # Continue reading until we find the closing parenthesis
+                try:
+                    while ")" not in function_signature:
+                        i += 1
+                        next_line = lines[i].strip()
+                        function_signature += " " + next_line
+                except IndexError:
+                    # Handle the case where the file ends unexpectedly
+                    print(f"Warning: Incomplete function signature in file {file_path}")
+                    continue
+                # Clean up the signature
+                function_signature = clean_signature(function_signature)
+                
+                # Generate the function hash
+                function_hash = get_selector(function_signature)
+                # function_hash = get_selector("balanceOf(address who)")
+                # print(f"function_hash : {function_hash}")
+                functions[function_signature] = function_hash
+                
+    return functions, events
 # Function to extract functions and events from a Solidity file
 def extract_functions_and_events(file_path):
     functions = {}
@@ -736,7 +792,103 @@ def final_basic_erc_specifications():
     
     
 
-# Main function to process ERC folders and files
+def find_all_functions(solidity_code: str) -> List[Dict]:
+    """
+    Find all function declarations in Solidity code and return their positions.
+    Returns a list of dictionaries with function info including start/end positions.
+    """
+    # Pattern to find function declarations (simplified but effective)
+    func_pattern = re.compile(
+        r'function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)'
+        r'([^{]*)\{',
+        re.DOTALL
+    )
+    
+    functions = []
+    for match in func_pattern.finditer(solidity_code):
+        func_name = match.group(1)
+        params = match.group(2).strip()
+        modifiers = match.group(3).strip()
+        start_pos = match.start()
+        open_brace_pos = match.end() - 1  # Position of opening brace
+        
+        # Find matching closing brace
+        brace_level = 1
+        close_brace_pos = open_brace_pos + 1
+        while brace_level > 0 and close_brace_pos < len(solidity_code):
+            char = solidity_code[close_brace_pos]
+            if char == '{':
+                brace_level += 1
+            elif char == '}':
+                brace_level -= 1
+            close_brace_pos += 1
+        
+        if brace_level == 0:
+            functions.append({
+                'name': func_name,
+                'params': params,
+                'modifiers': modifiers,
+                'start': start_pos,
+                'end': close_brace_pos,
+                'body': solidity_code[start_pos:close_brace_pos].strip()
+            })
+    
+    return functions
+
+def normalize_signature(signature: str) -> str:
+    """Normalize function signature for comparison."""
+    # Remove all whitespace and parameter names, keep only types
+    if '(' not in signature:
+        return signature
+    
+    func_name = signature.split('(')[0]
+    params = signature[len(func_name)+1:-1].split(',')
+    param_types = []
+    
+    for param in params:
+        param = param.strip()
+        # Remove parameter name if present (anything after last space)
+        if ' ' in param:
+            param = param.rsplit(' ', 1)[0].strip()
+        param_types.append(param)
+    
+    return f"{func_name}({','.join(param_types)})"
+
+def extract_matching_functions(custom_data: Dict, solidity_file_path: str) -> Dict[str, str]:
+    """Extract functions matching custom_data signatures from Solidity file."""
+    with open(solidity_file_path, 'r', encoding='utf-8') as f:
+        solidity_code = f.read()
+    
+    # First find all functions in the file
+    all_functions = find_all_functions(solidity_code)
+    matched_functions = {}
+    
+    if "custom_functions" not in custom_data:
+        return matched_functions
+    
+    for target in custom_data["custom_functions"]:
+        target_sig = target["function"]
+        target_normalized = normalize_signature(target_sig)
+        found = False
+        
+        for func in all_functions:
+            # Build the signature from the found function
+            current_sig = f"{func['name']}({func['params']})"
+            current_normalized = normalize_signature(current_sig)
+            
+            if current_normalized == target_normalized:
+                print(f"func['modifiers']: {func['modifiers']}")
+                if "onlyOwner" in  func['modifiers']:
+                    matched_functions[target_sig] = func['body']
+                    found = True
+                    break
+        
+        if not found:
+            print(f"Function not found: {target_sig}")
+    
+    return matched_functions
+
+# Updated main processing function
 def custom_function_erc_folders(final_erc_file, erc_base_path):
     # Load final ERC specifications
     final_erc = load_final_erc_specifications(final_erc_file)
@@ -745,18 +897,19 @@ def custom_function_erc_folders(final_erc_file, erc_base_path):
     for erc_name in final_erc:
         erc_folder = os.path.join(erc_base_path, erc_name)
         if not os.path.exists(erc_folder):
-            print(f"ERC folder {erc_folder} does not exist.")
             continue
         
-        # Iterate through all Solidity files in the ERC folder (including subfolders)
+        # Iterate through all Solidity files in the ERC folder
         for root, _, files in os.walk(erc_folder):
             for file in files:
-                if file.startswith("ERC") and file.endswith(".sol") and "_contract" in file:
+                if file.startswith("ERC4494_0x1e1b4e1") and file.endswith(".sol"):
                     file_path = os.path.join(root, file)
                     print(f"Processing file: {file_path}")
                     
                     # Extract functions and events from the Solidity file
-                    extracted_functions, extracted_events = extract_functions_and_events(file_path)
+                    # extracted_functions, extracted_events = extract_functions_and_events(file_path)
+                    extracted_functions, extracted_events = extract_custom_functions(file_path)
+                    
                     
                     # Compare with the ERC specification
                     erc_spec = final_erc[erc_name]
@@ -768,6 +921,15 @@ def custom_function_erc_folders(final_erc_file, erc_base_path):
                     output_file = os.path.join(root, f"{os.path.splitext(file)[0]}_custom.json")
                     save_to_json(custom_data, output_file)
                     print(f"Saved custom data to: {output_file}")
+                    
+                    # Extract and save function bodies
+                    matched_functions = extract_matching_functions(custom_data, file_path)
+                    if matched_functions:
+                        functions_output_file = os.path.join(
+                            root, f"{os.path.splitext(file)[0]}_function_bodies.json"
+                        )
+                        save_to_json(matched_functions, functions_output_file)
+                        print(f"Saved function bodies to: {functions_output_file}")
 
 
 # Main function
@@ -775,23 +937,23 @@ def main():
     # Example usage
     # final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_erc_specifications.json"
     final_erc_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/final_full_erc_specifications.json"
-    erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_source_code_ground_truth"
+    # erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_source_code_ground_truth"
     # erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ground_truth_test"
+    erc_base_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    # custom_function_erc_folders(final_erc_file, erc_base_path)
+    
+    custom_function_erc_folders(final_erc_file, erc_base_path)
     # for erc, dependencies in erc_dependencies.items():
     #     merge_dependencies(erc, dependencies)
     
-    print(f"erc_dependencies : {len(erc_dependencies)}")
+    # print(f"erc_dependencies : {len(erc_dependencies)}")
     
     # final_erc_specifications()
     # final_basic_erc_specifications()
-    precision_and_recall(final_erc_file, erc_base_path)
+    # precision_and_recall(final_erc_file, erc_base_path)
     
     
-    # hash_bytes = keccak(text="assignTo(address,uint256[])")
-    # selector = hash_bytes[:4].hex()
-    # print(f"selector : {selector}")
+   
     
     
 
