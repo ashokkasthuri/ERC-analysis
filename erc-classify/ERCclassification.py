@@ -68,7 +68,7 @@ common_erc_types = {}
 # common_erc_types = {}
 
 # Function to process a single CSV file
-def ERC_classification(file_path, erc_config):
+def ERC_classification(file_path, erc_config, output_file):
     # Load the dataset
     df_subset = pd.read_csv(file_path)
     # df_subset = df.head(1000).copy()  # Adjust the number of rows as needed
@@ -190,7 +190,7 @@ def ERC_classification(file_path, erc_config):
         lambda x: f"YES, {x}" if x in token_ercs else ""
     )
     
-    # Filter the DataFrame to only include rows where "matched_erc" is non-empty
+    # Filter the DataFrame to only include rows where "matched_erc" and partially_matched_erc is non-empty
     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)] 
     filtered_df_partial = df_subset[df_subset["partially_matched_erc"].apply(lambda x: len(x) > 0)]
     
@@ -218,7 +218,7 @@ def ERC_classification(file_path, erc_config):
         
         # Save the results to a new CSV file
         # output_file = os.path.join(os.path.dirname(file_path), f"processed_{os.path.basename(file_path)}")
-        output_file = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_" + os.path.basename(file_path)
+        output_file = output_file + os.path.basename(file_path)
         # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/partial_match_" + os.path.basename(file_path)
 
         final_df.to_csv(output_file, index=False)
@@ -498,6 +498,7 @@ def main():
     
     # Directory containing CSV files
     data_dir = "/home/ashok/data"
+    output_file = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_"
     
     # data_dir = "/Users/ashokk/Downloads/evm_data"
     csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
@@ -507,7 +508,7 @@ def main():
         return
     for csv_file in csv_files:
         print(f"Processing file: {csv_file}")
-        ERC_classification(csv_file, erc_config)
+        ERC_classification(csv_file, erc_config, output_file)
         
     
     # verify_source()

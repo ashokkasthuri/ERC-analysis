@@ -201,7 +201,8 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  # Replace with your actual CSV file
+    # csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  
+    csv_file_path = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"  
 
     base_dir = "ERC_Solidity_Source"
     csv_address_source_fetch(base_dir, csv_file_path)
