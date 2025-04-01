@@ -608,6 +608,32 @@ def custom_functions(extracted_functions, extracted_events, erc_spec):
     return {
         "custom_functions": custom_functions
     }
+    
+def all_functions(extracted_functions, extracted_events, erc_spec):
+    # Get expected functions and events from the ERC specification
+    expected_functions = erc_spec.get("functions", {})
+    expected_events = erc_spec.get("events", {})
+    
+    # Initialize lists to store custom functions and events
+    custom_functions = []
+    custom_events = []
+    
+    # Check for custom functions
+    for func, hash_ in extracted_functions.items():
+        # If the function is not in the expected list or the hash doesn't match, it's custom
+        # if func not in expected_functions or expected_functions[func] != hash_:
+        custom_functions.append({"function": func, "hash": hash_})
+    
+    # Check for custom events
+    # for event_hash, event_sig in extracted_events.items():
+    #     # If the event is not in the expected list or the signature doesn't match, it's custom
+    #     if event_hash not in expected_events or expected_events[event_hash] != event_sig:
+    #         custom_events.append({"event_hash": event_hash, "event_signature": event_sig})
+    
+    # Return the custom functions and events
+    return {
+        "all_functions": custom_functions
+    }
 
 # Save custom functions and events to a JSON file
 def save_to_json(custom_data, filename="custom_functions_events.json"):

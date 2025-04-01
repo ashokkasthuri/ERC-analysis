@@ -12,8 +12,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 # Load environment variables
-# load_env = load_dotenv()
-load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+load_env = load_dotenv()
+# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
 
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
@@ -205,8 +205,27 @@ def main():
     # csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  
     csv_file_path = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"  
 
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    csv_address_source_fetch(base_dir, csv_file_path)
+    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    
+    base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
+    
+    # csv_address_source_fetch(base_dir, csv_file_path)
+    
+    solidity_code = fetch_solidity_source("0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949")
+    # Create a directory for this ERC type
+    erc_dir = os.path.join(base_dir, "ERC1155")
+    os.makedirs(erc_dir, exist_ok=True)
+                
+    if solidity_code:
+        # Define file path and save Solidity code
+        file_path = os.path.join(erc_dir, f"ERC1155_0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949.sol")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(solidity_code)
+        
+        
+        print(f"✅ Saved: {file_path}")
+    else:
+        print(f"❌ No source code found for {0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949}")
 
     # for erc_type in erc_types:
     #     print(f"\n🔍 Searching for {erc_type} contracts on Etherscan...")
