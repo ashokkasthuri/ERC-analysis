@@ -192,7 +192,7 @@ def ERC_classification(file_path, erc_config):
     
     # Filter the DataFrame to only include rows where "matched_erc" is non-empty
     filtered_df = df_subset[df_subset["matched_erc"].apply(lambda x: len(x) > 0)] 
-    filtered_df = df_subset[df_subset["partially_matched_erc"].apply(lambda x: len(x) > 0)]
+    filtered_df_partial = df_subset[df_subset["partially_matched_erc"].apply(lambda x: len(x) > 0)]
     
    # Now, further filter by transaction activity.
     final_rows = []

@@ -23,21 +23,7 @@ ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
 # Set recursion limit
 sys.setrecursionlimit(20000)
 
-# Define the CSV file path
-csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  # Replace with your actual CSV file
 
-# Load the CSV file
-df = pd.read_csv(csv_file_path)
-
-# Ensure required columns exist
-if "matched_erc" not in df.columns or "address" not in df.columns:
-    raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
-
-# Remove empty ERC matches and get unique ERC types
-erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
-
-# Base directory for storing contracts
-base_dir = "ERC_Solidity_Source"
 
 # Function to fetch Solidity source code from Etherscan
 def fetch_solidity_source(contract_address):
@@ -81,7 +67,17 @@ def fetch_solidity_source(contract_address):
         print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
         return None
 
-def csv_address_source_fetch():
+def csv_address_source_fetch(base_dir, csv_file_path):
+     # Load the CSV file
+    df = pd.read_csv(csv_file_path)
+
+    # Ensure required columns exist
+    if "matched_erc" not in df.columns or "address" not in df.columns:
+        raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
+
+    # Remove empty ERC matches and get unique ERC types
+    erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
+    
     # Iterate over each unique ERC type
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
@@ -204,7 +200,11 @@ def save_contract_details(erc_type, contract_address, contract_data):
 # Main execution function
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
-    csv_address_source_fetch()
+    
+    csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  # Replace with your actual CSV file
+
+    base_dir = "ERC_Solidity_Source"
+    csv_address_source_fetch(base_dir, csv_file_path)
 
     # for erc_type in erc_types:
     #     print(f"\n🔍 Searching for {erc_type} contracts on Etherscan...")
