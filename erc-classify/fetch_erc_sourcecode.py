@@ -12,7 +12,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 # Load environment variables
-load_env = load_dotenv()
+# load_env = load_dotenv()
+load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
 
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
@@ -82,7 +83,7 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
-        required_count = 10  # Adjust as needed
+        required_count = 2  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
@@ -204,7 +205,7 @@ def main():
     # csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  
     csv_file_path = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"  
 
-    base_dir = "ERC_Solidity_Source"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     csv_address_source_fetch(base_dir, csv_file_path)
 
     # for erc_type in erc_types:
