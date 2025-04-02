@@ -1,50 +1,30 @@
 [
   {
     "function": "safeBatchTransferFrom",
-    "requirements": {
-      "approval_check": false,
-      "zero_address_check": false,
-      "length_matching_check": false,
-      "balance_checks": false,
-      "event_emission_before_transfers": true,
-      "transfer_batch_event_found": true
+    "parameters": {
+      "_from": "address",
+      "_to": "address",
+      "_ids": "uint256[] memory",
+      "_amounts": "uint256[] memory",
+      "_data": "bytes memory"
     },
-    "internal_calls": [
-      "_safeBatchTransferFrom"
-    ],
-    "transfer_batch_event_found": true,
-    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155/ERC1155_0xbb68cc7398884f7046eab37153a5d6f85eb3b6a3.sol"
-  },
-  {
-    "function": "safeBatchTransferFrom",
     "requirements": {
+      "sender_check": true,
       "approval_check": true,
       "zero_address_check": true,
       "length_matching_check": true,
       "balance_checks": false,
       "event_emission_before_transfers": true,
-      "transfer_batch_event_found": true
+      "transfer_batch_event_found": true,
+      "on_received_check": false
     },
     "internal_calls": [
-      "_safeBatchTransferFrom"
+      "_safeBatchTransferFrom",
+      "sub",
+      "add"
     ],
     "transfer_batch_event_found": true,
+    "on_received_check_found": false,
     "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155/ERC1155_0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949.sol"
-  },
-  {
-    "function": "safeBatchTransferFrom",
-    "requirements": {
-      "approval_check": false,
-      "zero_address_check": false,
-      "length_matching_check": false,
-      "balance_checks": false,
-      "event_emission_before_transfers": true,
-      "transfer_batch_event_found": true
-    },
-    "internal_calls": [
-      "_safeBatchTransferFrom"
-    ],
-    "transfer_batch_event_found": true,
-    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155/ERC1155_0xf985021107140419eae3ed18b5a5366f63ca95b5.sol"
   }
 ]
