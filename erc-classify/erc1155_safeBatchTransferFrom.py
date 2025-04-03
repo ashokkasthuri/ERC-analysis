@@ -17,23 +17,48 @@ def find_function_by_signature(functions: List[Dict], target_signature: str) -> 
             return func
     return None
 
+
 def get_all_internal_calls(function_body: str, all_functions: List[Dict], visited: Set[str] = None) -> List[Dict]:
     """Recursively get all internal function calls (including nested calls)."""
     if visited is None:
         visited = set()
     
     internal_calls = []
-    call_pattern = re.compile(r'(\w+)\s*\([^)]*\)\s*(?={|;)')
     
-    for match in call_pattern.finditer(function_body):
-        call_name = match.group(1)
+    # Split code into tokens to better identify function calls
+    tokens = re.split(r'(\W)', function_body)  # Split on non-word characters
+    tokens = [t for t in tokens if t.strip()]  # Remove empty tokens
+    
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
         
-        # Skip known keywords and built-ins
-        if call_name in ['require', 'assert', 'revert', 'emit', 'new', 'return', 'if', 'try', 'isContract']:
-            continue
+        # Look for potential function calls (identifier followed by parenthesis)
+        if (token.isidentifier() and i+1 < len(tokens) and 
+            tokens[i+1] == '(' and 
+            token not in visited):
             
-        # Find the called function if not already visited
-        if call_name not in visited:
+            call_name = token
+            
+            # Skip keywords and built-ins
+            if (call_name.lower() in {
+                'require', 'assert', 'revert', 'emit', 'new', 'return',
+                'returns', 'if', 'try', 'iscontract', 'continue', 'break',
+                'for', 'while', 'do', 'else', 'catch', 'delete', 'length'
+            } or call_name in {
+                'gasleft', 'msg', 'block', 'tx', 'abi', 'type', 'this',
+                'super', 'selfdestruct', 'sha3', 'keccak256', 'ripemd160',
+                'ecrecover', 'addmod', 'mulmod', 'balance', 'sub', 'add'
+            }):
+                i += 1
+                continue
+            
+            # Skip library calls (those with dots)
+            if '.' in call_name:
+                i += 1
+                continue
+            
+            # Find matching function definition
             for func in all_functions:
                 if func['name'] == call_name:
                     visited.add(call_name)
@@ -41,10 +66,23 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
                     # Recursively get calls from this function
                     internal_calls.extend(get_all_internal_calls(func['body'], all_functions, visited))
                     break
-                
+            
+            # Skip past the parameters
+            paren_count = 1
+            i += 2  # Skip past '('
+            while i < len(tokens) and paren_count > 0:
+                if tokens[i] == '(':
+                    paren_count += 1
+                elif tokens[i] == ')':
+                    paren_count -= 1
+                i += 1
+        else:
+            i += 1
+    
     return internal_calls
 
-def verify_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+
+def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
     """Verify if the function and its internal calls meet ERC1155 requirements."""
     requirements = {
         'sender_check': False,
@@ -202,8 +240,10 @@ def check_on_received_implementation(code: str, params: Dict[str, str]) -> bool:
     normalized_code = re.sub(r'//.*?\n|/\*.*?\*/', '', code, flags=re.DOTALL)
     normalized_code = re.sub(r'\s+', ' ', normalized_code)
     
+    
     # 1. Check for isContract() guard
     if not re.search(rf'if\s*\(\s*{to_param}\s*\.\s*isContract\s*\(\s*\)\s*\)', normalized_code):
+        print(f"param_matched")
         return False
     
     # 2. Check for onERC1155BatchReceived call with increasingly flexible parameter matching
@@ -298,17 +338,16 @@ def check_on_received_implementation(code: str, params: Dict[str, str]) -> bool:
         )
         retval_match = re.search(retval_pattern, normalized_code)
         
+        
         if retval_match:
             retval_name = retval_match.group(2)
             
-            # Check if the return value is used in a require/if condition
             retval_check_pattern = (
-                r'(?:require|if)\s*\(\s*'
-                + re.escape(retval_name) +
-                r'\s*(?:==|!=)\s*'
-                r'(?:I?ERC1155(?:Receiver|_BATCH_RECEIVED_VALUE)\.onERC1155BatchReceived\.selector|\w+_\w+_\w+)'
+                r'(?:require|if)\s*\(\s*' + 
+                re.escape(retval_name) + 
+                r'\s*(==|!=)\s*[^)]+' +
                 r'\s*\)'
-            )
+)
             if re.search(retval_check_pattern, normalized_code):
                 return_valid = True
     
@@ -353,13 +392,15 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
     if not target_func:
         return {"error": "safeBatchTransferFrom function not found"}
     
-    # Get ALL internal calls recursively
+    # Get ALL internal calls recursively with debug prints
+    print("Analyzing function:", target_func['name'])
+    # print("Function body:", target_func['body'])
+    
     internal_calls = get_all_internal_calls(target_func['body'], all_functions)
+    # print("Found internal calls:", [f['name'] for f in internal_calls])
     
     # Verify requirements with strict ordering
-    requirements = verify_requirements(target_func, internal_calls)
-    
-    
+    requirements = verify_erc1155_requirements(target_func, internal_calls)
     
     return {
         "function": target_func['name'],
@@ -376,7 +417,7 @@ def analyze_directory(directory_path: str) -> List[Dict]:
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.endswith('.sol'):
+            if file.startswith('ERC1155_0xbB62') and file.endswith('.sol'):
                 file_path = os.path.join(root, file)
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:

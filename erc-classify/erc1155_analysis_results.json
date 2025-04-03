@@ -16,15 +16,16 @@
       "balance_checks": false,
       "event_emission_before_transfers": true,
       "transfer_batch_event_found": true,
-      "on_received_check": false
+      "on_received_check": true
     },
     "internal_calls": [
+      "safeBatchTransferFrom",
+      "isApprovedForAll",
       "_safeBatchTransferFrom",
-      "sub",
-      "add"
+      "_callonERC1155BatchReceived"
     ],
     "transfer_batch_event_found": true,
-    "on_received_check_found": false,
+    "on_received_check_found": true,
     "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155/ERC1155_0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949.sol"
   }
 ]
