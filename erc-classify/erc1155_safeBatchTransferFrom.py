@@ -8,8 +8,6 @@ def find_functions_by_signature(functions: List[Dict], target_signature: str) ->
     """Find all functions matching the normalized signature with parameter types."""
     target_normalized = normalize_signature(target_signature)
     target_normalized_hash = keccak(text=target_normalized).hex()
-    
-    print(f"target_signature:{target_signature}")
     print(f"target_normalized_hash:{target_normalized_hash}")
     matching_functions = []
     
@@ -24,7 +22,7 @@ def find_functions_by_signature(functions: List[Dict], target_signature: str) ->
             func['parameters'] = get_parameter_dict(func['params'])
             matching_functions.append(func)
     
-    print(f"matching_functions:{len(matching_functions)}")
+    # print(f"matching_functions:{len(matching_functions)}")
     return matching_functions
 
 def get_all_internal_calls(function_body: str, all_functions: List[Dict], visited: Set[str] = None) -> List[Dict]:
@@ -70,11 +68,18 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
             # Find matching function definition
             for func in all_functions:
                 if func['name'] == call_name:
-                    visited.add(call_name)
-                    internal_calls.append(func)
-                    # Recursively get calls from this function
-                    internal_calls.extend(get_all_internal_calls(func['body'], all_functions, visited))
-                    break
+                    # Skip self-references
+                    if func['body'] == function_body:
+                        continue
+                    
+                    # Only process if we haven't visited this function before
+                    if call_name not in visited:
+                        visited.add(call_name)
+                        internal_calls.append(func)
+                        # Recursively get calls from this function
+                        nested_calls = get_all_internal_calls(func['body'], all_functions, visited)
+                        if nested_calls:  # Only extend if we got valid results
+                            internal_calls.extend(nested_calls)
             
             # Skip past the parameters
             paren_count = 1
@@ -88,7 +93,8 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
         else:
             i += 1
     
-    return internal_calls
+    return internal_calls if internal_calls else None
+
 
 def find_if_revert_conditions(code: str):
     """Find all if conditions containing revert statements"""
@@ -192,7 +198,9 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         'balance_checks': False,
         'event_emission_before_transfers': False,
         'transfer_batch_event_found': False,
+        'to_isContract_check':False,
         'on_received_check': False
+        
     }
     
     
@@ -263,21 +271,41 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             for sender in sender_reprs:
                 if condition_type == "if-revert":
                     pattern1 = rf'!isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)'
-                    if re.search(pattern1, condition_content) :
+                    exact_pattern1 = rf'operatorApproval\[{from_param}\]\[{re.escape(sender)}\]\s*==\s*false'
+                    if re.search(pattern1, condition_content) or re.search(exact_pattern1, condition_content, re.IGNORECASE):
                         requirements['approval_check'] = True
                         break
+                    if not requirements['approval_check']:
+                        if (re.search(r'Approval', condition_content, re.IGNORECASE) and
+                            re.search(rf'{from_param}', condition_content) and
+                            re.search(rf'{re.escape(sender)}', condition_content) and
+                            re.search(r'false', condition_content, re.IGNORECASE)):
+                            requirements['approval_check'] = True
+                            break
                 if condition_type == "require" :
                     pattern2 = rf'isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)'
-                    if re.search(pattern2, condition_content):
+                    # Check for operatorApproval[from][sender] == true
+                    exact_pattern2 = rf'operatorApproval\[{from_param}\]\[{re.escape(sender)}\]\s*==\s*true'
+                    
+                    if re.search(pattern2, condition_content) or re.search(exact_pattern2, condition_content, re.IGNORECASE):
                         requirements['approval_check'] = True
                         break
+                    if not requirements['approval_check']:
+                        if (re.search(r'Approval', condition_content, re.IGNORECASE) and
+                            re.search(rf'{from_param}', condition_content) and
+                            re.search(rf'{re.escape(sender)}', condition_content) and
+                            re.search(r'true', condition_content, re.IGNORECASE)):
+                            requirements['approval_check'] = True
+                            break
         
         # Check for zero address condition
         if to_param and not requirements['zero_address_check']:
             if condition_type == "if-revert":
                 zero_addr_pattern1 = [
                 rf'{to_param}\s*==\s*address\(0\)',
-                rf'address\(0\)\s*==\s*{to_param}'
+                rf'address\(0\)\s*==\s*{to_param}',
+                rf'{to_param}\s*==\s*address\(0x0\)',
+                rf'address\(0x0\)\s*==\s*{to_param}'
                 ]
                 for pattern in zero_addr_pattern1:
                     if re.search(pattern, condition_content):
@@ -287,15 +315,15 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             if condition_type == "require":
                 zero_addr_pattern2 = [
                 rf'{to_param}\s*!=\s*address\(0\)',
-                rf'address\(0\)\s*!=\s*{to_param}'
+                rf'address\(0\)\s*!=\s*{to_param}',
+                rf'{to_param}\s*!=\s*address\(0x0\)',
+                rf'address\(0x0\)\s*!=\s*{to_param}'
                 ]
                 for pattern in zero_addr_pattern2:
                     if re.search(pattern, condition_content):
                         requirements['zero_address_check'] = True
                         break
             
-            
-        
         # Check for length matching condition
         if ids_param and amounts_param and not requirements['length_matching_check']:
             assigned_var = None
@@ -312,9 +340,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 ])
             if any(re.search(p, condition_content) for p in direct_patterns + assigned_patterns):
                 requirements['length_matching_check'] = True
-
-
-        
+  
         # Check for balance checks
         if from_param and ids_param and amounts_param and not requirements['balance_checks']:
             balance_pattern = rf'balanceOf\(\s*{from_param}\s*,\s*{ids_param}\[i\]\)\s*>=\s*{amounts_param}\[i\]'
@@ -336,16 +362,25 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 requirements['event_emission_before_transfers'] = False
             else:
                 requirements['event_emission_before_transfers'] = True
+        # Normalize code by removing comments and extra spaces
+        normalized_code = re.sub(r'//.*?\n|/\*.*?\*/', '', code, flags=re.DOTALL)
+        normalized_code = re.sub(r'\s+', ' ', normalized_code)
         
+    
+        # 1. Check for isContract() guard
+        if re.search(rf'if\s*\(\s*{to_param}\s*\.\s*isContract()\s*\(\s*\)\s*\)', normalized_code):
+            requirements['to_isContract_check'] = True
         # Check for onReceived implementation in functions called after the event
         if event_pos and source != event_pos[0]:
-            if check_on_received_implementation(code, params):
+            if requirements['to_isContract_check'] and check_on_received_implementation(code, params, requirements['to_isContract_check']):
+                requirements['on_received_check'] = True
+            elif not requirements['to_isContract_check'] and check_on_received_implementation(code, params, requirements['to_isContract_check']):
                 requirements['on_received_check'] = True
 
     return requirements
 
 
-def check_on_received_implementation(code: str, params) -> bool:
+def check_on_received_implementation(code: str, params, isContract) -> bool:
     # Get parameters by position (assuming standard ERC1155 order)
     from_param = params['from_param']
     to_param = params['to_param']
@@ -365,18 +400,17 @@ def check_on_received_implementation(code: str, params) -> bool:
     
     if operator_assignment:
         operator_var = operator_assignment.group(2)
-        # print(f"Found operator assignment: {operator_var} = _msgSender()")
+        
     
     # Normalize code by removing comments and extra spaces
     normalized_code = re.sub(r'//.*?\n|/\*.*?\*/', '', code, flags=re.DOTALL)
     normalized_code = re.sub(r'\s+', ' ', normalized_code)
     
-    # print(f"normalized_code:{normalized_code}")
-    
-    # 1. Check for isContract() guard
-    if not re.search(rf'if\s*\(\s*{to_param}\s*\.\s*isContract\s*\(\s*\)\s*\)', normalized_code):
-        # print(f"no is isContract() check")
-        return False
+    if not isContract:
+        # 1. Check for isContract() guard
+        if not re.search(rf'if\s*\(\s*{to_param}\s*\.\s*isContract\s*\(\s*\)\s*\)', normalized_code):
+            # print(f"no is isContract() check")
+            return False
     
     # 2. Check for onERC1155BatchReceived call with increasingly flexible parameter matching
     receiver_pattern = None
@@ -445,23 +479,29 @@ def check_on_received_implementation(code: str, params) -> bool:
         param_matched = re.search(receiver_pattern, normalized_code) is not None
         # print(f"param_matched:{param_matched}")
     
-    if not param_matched:
+    if param_matched:
+        print("parameters matched")
+    else:
         print("Failed to match receiver parameters with any method")
-        return False
+        # return False
     
     # 3. Check return value capture
     return_valid = False
     
-    # Approach 1: Check if the entire call is in a require/if condition
-    direct_check_pattern = (
-        r'(?:require|if)\s*\(\s*'
-        r'[^)]*?\.onERC1155BatchReceived'
-        r'(?:\s*\{[^}]*\})?'
-        r'\s*\([^)]+\)'
-        r'[^)]*'
-        r'\s*\)'
-    )
-    if re.search(direct_check_pattern, normalized_code) and param_matched:
+    # Optimized pattern that will definitely work
+    pattern = r'''
+        (?:require|if)\s*\(                          # Start with require or if
+        [^)]*?                                       # Any characters (non-greedy)
+        (?:[a-zA-Z_][\w.]*\s*\(\s*[^)]*\s*\)\s*\.)? # Optional contract prefix with params
+        onERC1155BatchReceived\s*\(                  # The target function
+        [^)]*                                        # Parameters
+        \s*\)                                        # Closing paren of function call
+        [^)]*                                        # Any remaining condition
+        \)                                           # Closing paren of require/if
+    '''
+
+    # Use re.VERBOSE to allow comments and ignore whitespace in pattern
+    if re.search(pattern, normalized_code, re.VERBOSE | re.DOTALL) and param_matched:
         return_valid = True
     
     # Approach 2: Check for bytes4 return value capture and validation
@@ -526,34 +566,32 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
     all_functions = find_all_functions(solidity_code)
     target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     target_funcs = find_functions_by_signature(all_functions, target_sig)
-    # print(f"target_funcs:{target_funcs}")
-    
     
     if not target_funcs:
         return {"error": "safeBatchTransferFrom function not found"}
     
     results = []
-    
     for target_func in target_funcs:
-        print(f"\nAnalyzing function implementation: {target_func['name']}")
-        
-        # Get ALL internal calls recursively
         internal_calls = get_all_internal_calls(target_func['body'], all_functions)
+        
+        # Skip analysis if we got None (self-recursive call detected)
+        if internal_calls is None:
+            continue
+            
+        print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
         
         requirements = verify_erc1155_requirements(target_func, internal_calls)
-  
-        if requirements != None :
-            # print(f"DEBUG: requirements : {requirements}")
-            results.append({
-                "function": target_func['name'],
-                "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
-                "parameters": target_func.get('parameters', {}),
-                "requirements": requirements,
-                "internal_calls": [f['name'] for f in internal_calls],
-                "transfer_batch_event_found": requirements['transfer_batch_event_found'],
-                "on_received_check_found": requirements['on_received_check']
-            })
+        
+        results.append({
+            "function": target_func['name'],
+            "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+            "parameters": target_func.get('parameters', {}),
+            "requirements": requirements,
+            "internal_calls": [f['name'] for f in internal_calls],
+            "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
+            "on_received_check_found": requirements.get('on_received_check', False)
+        })
     
     # Return consolidated results
     if results:
@@ -565,7 +603,7 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
                 "partially_compliant": any(r['requirements'].get('some_requirements_met', False) for r in results)
             }
         }
-
+    return {"error": "No valid implementations found (possibly due to recursive calls)"}
 
 def analyze_directory(directory_path: str) -> List[Dict]:
     """Analyze all Solidity files in a directory for ERC1155 compliance."""
@@ -573,8 +611,8 @@ def analyze_directory(directory_path: str) -> List[Dict]:
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.startswith("ERC1155_0x8ac865b70a2") and file.endswith('.sol'):
-                # file .startswith("ERC1155_0x8ac865") and
+            if file.endswith('.sol'):
+                # file .startswith("ERC1155_0xf98502110") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -606,7 +644,7 @@ def find_all_functions(solidity_code: str) -> List[Dict]:
     func_pattern = re.compile(
         r'function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)'  # Function name and params
         r'([^{;]*)'                                           # Modifiers
-        r'(?:\{|;)',                                          # Body start or declaration end
+        r'(?:\{)',                                          # Body start or declaration end
         re.DOTALL
     )
     
@@ -736,7 +774,7 @@ if __name__ == "__main__":
             for req in ['sender_check', 'approval_check', 'zero_address_check', 
                        'length_matching_check', 'balance_checks', 
                        'event_emission_before_transfers',
-                       'transfer_batch_event_found', 'on_received_check']:
+                       'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
                 count = sum(1 for impl in all_implementations 
                           if impl.get('requirements', {}).get(req, False))
                 print(f"- {req}: {count}/{len(all_implementations)} compliant")
