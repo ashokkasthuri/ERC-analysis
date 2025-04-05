@@ -195,14 +195,14 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         'approval_check': False,
         'zero_address_check': False,
         'length_matching_check': False,
-        'balance_checks': False,
+       
         'event_emission_before_transfers': False,
         'transfer_batch_event_found': False,
         'to_isContract_check':False,
         'on_received_check': False
         
     }
-    
+    #  'balance_checks': False,
     
     params = extract_parameters(target_func)
     from_param = params['from_param']
@@ -341,11 +341,11 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             if any(re.search(p, condition_content) for p in direct_patterns + assigned_patterns):
                 requirements['length_matching_check'] = True
   
-        # Check for balance checks
-        if from_param and ids_param and amounts_param and not requirements['balance_checks']:
-            balance_pattern = rf'balanceOf\(\s*{from_param}\s*,\s*{ids_param}\[i\]\)\s*>=\s*{amounts_param}\[i\]'
-            if re.search(balance_pattern, condition_content):
-                requirements['balance_checks'] = True
+        # # Check for balance checks
+        # if from_param and ids_param and amounts_param and not requirements['balance_checks']:
+        #     balance_pattern = rf'balanceOf\(\s*{from_param}\s*,\s*{ids_param}\[i\]\)\s*>=\s*{amounts_param}\[i\]'
+        #     if re.search(balance_pattern, condition_content):
+        #         requirements['balance_checks'] = True
     
     # Check for event emission and onReceived in the code
     for code, source in all_code:
@@ -612,7 +612,7 @@ def analyze_directory(directory_path: str) -> List[Dict]:
     for root, _, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.sol'):
-                # file .startswith("ERC1155_0xf98502110") and
+                # file .startswith("ERC1155_0xcbb0d2e") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -772,7 +772,7 @@ if __name__ == "__main__":
         if all_implementations:
             print("\nRequirement compliance summary across all implementations:")
             for req in ['sender_check', 'approval_check', 'zero_address_check', 
-                       'length_matching_check', 'balance_checks', 
+                       'length_matching_check', 
                        'event_emission_before_transfers',
                        'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
                 count = sum(1 for impl in all_implementations 
@@ -780,8 +780,14 @@ if __name__ == "__main__":
                 print(f"- {req}: {count}/{len(all_implementations)} compliant")
             
             # Print overall compliance
-            fully_compliant = sum(1 for result in compliant_files 
-                                if result.get('summary', {}).get('fully_compliant', False))
+            fully_compliant = sum(
+                1 for impl in all_implementations
+                if all(impl.get('requirements', {}).get(req, False) 
+                    for req in ['sender_check', 'approval_check', 'zero_address_check',
+                                'length_matching_check', 'event_emission_before_transfers',
+                                'transfer_batch_event_found', 'to_isContract_check', 
+                                'on_received_check'])
+            )
             print(f"\nFully compliant implementations: {fully_compliant}/{len(all_implementations)}")
     
     error_files = [r for r in analysis_results if r.get('error')]

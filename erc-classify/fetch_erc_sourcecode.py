@@ -83,7 +83,7 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
-        required_count = 20  # Adjust as needed
+        required_count = 200  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
