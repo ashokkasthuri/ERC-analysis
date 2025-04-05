@@ -749,7 +749,8 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
+    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
+    erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
     output_file = "erc1155_analysis_results.json"
     
     analysis_results = analyze_directory(erc1155_directory)
