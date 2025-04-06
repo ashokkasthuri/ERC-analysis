@@ -210,7 +210,7 @@ def main():
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155*.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-2612*.csv"))
     
     if not csv_files:
         print(f"No CSV files starting with 'ERC-1155' found in {csv_dir}")

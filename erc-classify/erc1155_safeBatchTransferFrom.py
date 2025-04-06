@@ -620,7 +620,7 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
             }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
-def analyze_directory(directory_path: str) -> List[Dict]:
+def analyze_directory(directory_path: str, output_file) -> List[Dict]:
     """Analyze all Solidity files in a directory for ERC1155 compliance."""
     results = []
     
@@ -637,6 +637,10 @@ def analyze_directory(directory_path: str) -> List[Dict]:
                     result = analyze_safe_batch_transfer(solidity_code)
                     result['file'] = file_path
                     results.append(result)
+                    """Save analysis results to a JSON file."""
+                    with open(output_file, 'w', encoding='utf-8') as f:
+                        json.dump(results, f, indent=2)
+                    print(f"Analysis complete. Results saved to {output_file}")
                     
                 except Exception as e:
                     results.append({
@@ -767,13 +771,13 @@ if __name__ == "__main__":
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
     # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_analysis_results.json"
     erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
-    output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
+    erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
     
     
-    analysis_results = analyze_directory(erc1155_directory)
-    save_results_to_json(analysis_results, output_file)
+    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file)
+    # save_results_to_json(analysis_results, output_file)
     
-    print(f"Analysis complete. Results saved to {output_file}")
+    
     print(f"Total files analyzed: {len(analysis_results)}")
     
     # Print summary statistics
