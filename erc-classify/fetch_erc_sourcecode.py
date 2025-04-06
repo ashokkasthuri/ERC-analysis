@@ -113,9 +113,9 @@ def csv_address_source_fetch(base_dir, csv_file_path):
                     
                     fetched_count += 1
                     processed_addresses.add(contract_address)
-                    print(f"✅ Saved: {file_path}")
-                else:
-                    print(f"❌ No source code found for {contract_address}")
+                #     print(f"✅ Saved: {file_path}")
+                # else:
+                #     print(f"❌ No source code found for {contract_address}")
 
     print("\n🎯 Solidity contract fetching and saving complete!")
 
