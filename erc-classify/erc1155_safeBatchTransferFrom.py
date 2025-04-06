@@ -583,6 +583,20 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
         
         requirements = verify_erc1155_requirements(target_func, internal_calls)
         
+        # Calculate whether all requirements are met for this implementation
+        all_reqs = [
+            'sender_check',
+            'approval_check',
+            'zero_address_check',
+            'length_matching_check',
+            'event_emission_before_transfers',
+            'transfer_batch_event_found',
+            'to_isContract_check',
+            'on_received_check'
+        ]
+        all_met = all(requirements.get(req, False) for req in all_reqs)
+        some_met = any(requirements.get(req, False) for req in all_reqs)
+        
         results.append({
             "function": target_func['name'],
             "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
@@ -590,7 +604,9 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
             "requirements": requirements,
             "internal_calls": [f['name'] for f in internal_calls],
             "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
-            "on_received_check_found": requirements.get('on_received_check', False)
+            "on_received_check_found": requirements.get('on_received_check', False),
+            "all_requirements_met": all_met,
+            "some_requirements_met": some_met
         })
     
     # Return consolidated results
@@ -599,12 +615,11 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
             "all_implementations": results,
             "summary": {
                 "total_implementations": len(results),
-                "fully_compliant": all(r['requirements'].get('all_requirements_met', False) for r in results),
-                "partially_compliant": any(r['requirements'].get('some_requirements_met', False) for r in results)
+                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
             }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
-
 def analyze_directory(directory_path: str) -> List[Dict]:
     """Analyze all Solidity files in a directory for ERC1155 compliance."""
     results = []
@@ -749,9 +764,11 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
-    erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
-    output_file = "erc1155_analysis_results.json"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
+    output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_analysis_results.json"
+    # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
+    # output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
+    
     
     analysis_results = analyze_directory(erc1155_directory)
     save_results_to_json(analysis_results, output_file)
