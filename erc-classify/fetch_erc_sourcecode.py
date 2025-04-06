@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import sys
 import json
+import glob
 
 
 import time
@@ -83,7 +84,7 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
-        required_count = 200  # Adjust as needed
+        required_count = 2000  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
@@ -202,45 +203,28 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    # csv_file_path = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"  
-    csv_file_path = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"  
-
+    # csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"   
+    # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source_test"
+    
     base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
-    # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
+    # Find all CSV files starting with "ERC-1155"
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155*.csv"))
     
-    csv_address_source_fetch(base_dir, csv_file_path)
+    if not csv_files:
+        print(f"No CSV files starting with 'ERC-1155' found in {csv_dir}")
+        return
     
-    # solidity_code = fetch_solidity_source("0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949")
-    # # Create a directory for this ERC type
-    # erc_dir = os.path.join(base_dir, "ERC1155")
-    # os.makedirs(erc_dir, exist_ok=True)
-                
-    # if solidity_code:
-    #     # Define file path and save Solidity code
-    #     file_path = os.path.join(erc_dir, f"ERC1155_0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949.sol")
-    #     with open(file_path, "w", encoding="utf-8") as f:
-    #         f.write(solidity_code)
-        
-        
-    #     print(f"✅ Saved: {file_path}")
-    # else:
-    #     print(f"❌ No source code found for {0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949}")
-
-    # for erc_type in erc_types:
-    #     print(f"\n🔍 Searching for {erc_type} contracts on Etherscan...")
-    #     contract_addresses = scrape_contract_addresses(erc_type)
-
-    #     if not contract_addresses:
-    #         print(f"⚠ No contracts found for {erc_type}")
-    #         continue
-
-    #     for contract_address in contract_addresses:
-    #         print(f"Fetching details for {contract_address}...")
-    #         contract_data = fetch_contract_details(contract_address)
-    #         save_contract_details(erc_type, contract_address, contract_data)
-
-    #     print(f"\n🎯 Completed fetching contracts for {erc_type}.\n")
+    for csv_file_path in csv_files:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    
+    
+         
 
 if __name__ == "__main__":
     main()
