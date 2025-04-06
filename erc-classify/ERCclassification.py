@@ -59,7 +59,7 @@ print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)"
 #     "ERC1155","ERC5005","ERC5169","ERC5606","ERC5615"}
 
 token_ercs = {
-    "ERC6381"
+    "ERC2612"
     }
 
 # Common ERC types to skip
@@ -405,9 +405,6 @@ def verify_source():
 
 
 
-
-
-
 def compare_json_files(basic_file, full_file):
     # Load JSON files
     with open(basic_file, 'r') as f:
@@ -462,10 +459,6 @@ def compare_json_files(basic_file, full_file):
 
 
 
-
-
-
-
 def number_of_rows(folder_path):
     # List all files in the folder
     for file_name in os.listdir(folder_path):
@@ -485,20 +478,14 @@ def number_of_rows(folder_path):
                 print(f"Error processing '{file_name}': {e}")
 
 
-
-
-
-
-
-
 def main():
     
-    with open("final_erc1155_safeBatchTransferFrom.json", "r") as f:
+    with open("final_erc2612_permit.json", "r") as f:
         erc_config = json.load(f)
     
     # Directory containing CSV files
     data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-1155_safeBatchTransferFrom_"
+    output_file = "/home/ashok/output/ERC-2612_permit"
     
     # data_dir = "/Users/ashokk/Downloads/evm_data"
     csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]

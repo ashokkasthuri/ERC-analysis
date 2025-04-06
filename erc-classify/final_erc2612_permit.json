@@ -1,12 +1,27 @@
+
 {
     "ERC2612": {
-        "selectors": [
-            "d505accf"
-        ],
-        "topics": [],
-        "functions": {
-            "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": "d505accf"
-        },
-        "events": {}
-    }
-    }
+    "selectors": [
+        "d505accf",
+        "7ecebe00",
+        "3644e515"
+    ],
+    "topics": [],
+    "functions": {
+        "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": "d505accf",
+        "nonces(address)": "7ecebe00",
+        "DOMAIN_SEPARATOR()": "3644e515"
+    },
+    "events": {}
+}, 
+"ERC2612-B": {
+    "selectors": [
+        "d505accf"
+    ],
+    "topics": [],
+    "functions": {
+        "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": "d505accf"
+    },
+    "events": {}
+}
+}

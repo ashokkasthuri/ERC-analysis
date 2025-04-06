@@ -764,10 +764,10 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
-    output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_analysis_results.json"
-    # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
-    # output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
+    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
+    # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_analysis_results.json"
+    erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
+    output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
     
     
     analysis_results = analyze_directory(erc1155_directory)
