@@ -61,10 +61,10 @@ def fetch_solidity_source(contract_address):
             print(f"Direct Solidity code detected for {contract_address}")
             return source_code.strip()
         
-        # Case 3: Invalid or empty source code
-        else:
-            print(f"❌ No valid source code found for {contract_address}")
-            return None
+        # # Case 3: Invalid or empty source code
+        # else:
+        #     print(f"❌ No valid source code found for {contract_address}")
+        #     return None
     else:
         print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
         return None
@@ -203,7 +203,7 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    # csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/top10_processed_ethereum_deduplicated_results.csv"   
+    # csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/"   
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source_test"
     
     base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
