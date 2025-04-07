@@ -380,6 +380,268 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
     return requirements
 
 
+def verify_erc2612_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+    """Verify if the function and its internal calls meet ERC2612 requirements."""
+    requirements = {
+        'deadline_check': False,
+        'timestamp_check': False,
+        'signature_validation': False,
+        'nonce_usage': False,
+        'domain_separator_usage': False,
+        'permit_function_exists': False,
+        'owner_check': False,
+        'spender_approval': False
+    }
+
+    # Extract parameters
+    params = extract_parameters(target_func)
+    owner_param = params.get('owner_param', 'owner')
+    spender_param = params.get('spender_param', 'spender')
+    value_param = params.get('value_param', 'value')
+    deadline_param = params.get('deadline_param', 'deadline')
+    v_param = params.get('v_param', 'v')
+    r_param = params.get('r_param', 'r')
+    s_param = params.get('s_param', 's')
+
+    # Combine all code to analyze (main function + internal calls)
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        if target_func['body'] != func['body']:
+            all_code.append((func['body'], f"internal function {func['name']}"))
+
+    all_conditions = []
+    
+    for code, source in all_code:
+        condition_matches = []
+        
+        # Pattern for require statements
+        require_pattern = r'require\s*\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)'
+        require_matches = re.finditer(require_pattern, code, re.DOTALL)
+        
+        for match in require_matches:
+            req_content = re.sub(r'\s+', ' ', match.group(1).strip())
+            condition_matches.append((req_content, source, 'require'))
+        
+        # Find if-revert conditions
+        if_revert_conditions = find_if_revert_conditions(code)
+        for condition in if_revert_conditions:
+            condition_matches.append((condition, source, 'if-revert'))
+            
+        all_conditions.extend(condition_matches)
+
+    # Check conditions
+    for condition_content, condition_source, condition_type in all_conditions:
+        # Check for deadline validation
+        if deadline_param and not requirements['deadline_check']:
+            if condition_type == "if-revert":
+                deadline_patterns = [
+                    rf'{deadline_param}\s*<\s*block\.timestamp',
+                    rf'block\.timestamp\s*>\s*{deadline_param}',
+                    rf'isExpired\(\s*{deadline_param}\s*\)',
+                    rf'!isValid\(\s*{deadline_param}\s*\)'
+                ]
+            else:  # require
+                deadline_patterns = [
+                    rf'{deadline_param}\s*>=\s*block\.timestamp',
+                    rf'block\.timestamp\s*<=\s*{deadline_param}',
+                    rf'!isExpired\(\s*{deadline_param}\s*\)',
+                    rf'isValid\(\s*{deadline_param}\s*\)'
+                ]
+            
+            if any(re.search(p, condition_content) for p in deadline_patterns):
+                requirements['deadline_check'] = True
+
+        # Check for timestamp validation (separate from deadline)
+        if not requirements['timestamp_check']:
+            timestamp_patterns = [
+                r'block\.timestamp',
+                r'now\s*[<>=]',
+                r'timestamp\s*[<>=]'
+            ]
+            if any(re.search(p, condition_content) for p in timestamp_patterns):
+                requirements['timestamp_check'] = True
+
+        # Check for signature validation
+        if (v_param and r_param and s_param) and not requirements['signature_validation']:
+            sig_patterns = [
+                r'ecrecover\s*\(',
+                r'ECDSA\.recover\s*\(',
+                r'signature\s*=\s*abi\.encodePacked\s*\(',
+                r'\.verify\s*\('
+            ]
+            if any(re.search(p, condition_content) for p in sig_patterns):
+                requirements['signature_validation'] = True
+
+        # Check for nonce usage
+        if not requirements['nonce_usage']:
+            if re.search(r'nonces\[', condition_content) or re.search(r'incrementNonce\s*\(', condition_content):
+                requirements['nonce_usage'] = True
+
+    # Additional checks that don't depend on conditions
+    for code, source in all_code:
+        # Check for DOMAIN_SEPARATOR usage
+        if not requirements['domain_separator_usage']:
+            if re.search(r'DOMAIN_SEPARATOR', code) or re.search(r'domainSeparator\s*\(', code):
+                requirements['domain_separator_usage'] = True
+
+        # Check for permit function existence
+        if not requirements['permit_function_exists']:
+            if re.search(r'function\s+permit\s*\(', code):
+                requirements['permit_function_exists'] = True
+
+        # Check for owner validation
+        if owner_param and not requirements['owner_check']:
+            owner_patterns = [
+                rf'{owner_param}\s*==\s*msg\.sender',
+                rf'msg\.sender\s*==\s*{owner_param}',
+                rf'isOwner\(\s*{owner_param}\s*\)',
+                rf'ownerOf\(\s*{owner_param}\s*\)'
+            ]
+            if any(re.search(p, code) for p in owner_patterns):
+                requirements['owner_check'] = True
+
+        # Check for spender approval
+        if spender_param and not requirements['spender_approval']:
+            if re.search(rf'approve\(\s*{spender_param}\s*,', code):
+                requirements['spender_approval'] = True
+
+    return requirements
+
+
+def verify_erc5267_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+    
+    """Verify ERC-5267 compliance with detailed return value checks."""
+    requirements = {
+        'eip712Domain_function_exists': False,
+        'returns_correct_fields': False,
+        'name_field_valid': False,
+        'version_field_valid': False,
+        'chainId_field_valid': False,
+        'verifyingContract_field_valid': False,
+        'salt_field_valid': False,
+        'extensions_field_valid': False,
+        'fields_bitmap_correct': False,
+        'domain_separator_usage': False,
+        'typehash_declared': False,
+        'warnings': []
+    }
+
+    # Combine all code to analyze
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        if target_func['body'] != func['body']:
+            all_code.append((func['body'], f"internal function {func['name']}"))
+
+    # Pattern to match the full function declaration
+    eip712_domain_pattern = re.compile(
+        r'function\s+eip712Domain\s*\(\s*\)\s*external\s*view\s*returns\s*\(\s*'
+        r'bytes1\s*fields\s*,\s*'
+        r'string\s*(?:memory\s*)?name\s*,\s*'
+        r'string\s*(?:memory\s*)?version\s*,\s*'
+        r'uint256\s*chainId\s*,\s*'
+        r'address\s*verifyingContract\s*,\s*'
+        r'bytes32\s*salt\s*,\s*'
+        r'uint256\[\]\s*(?:memory\s*)?extensions\s*\)',
+        re.DOTALL
+    )
+
+    # Pattern to match the return statement
+    return_pattern = re.compile(
+        r'return\s*\(\s*'
+        r'(bytes1\(.*?\)|hex"[0-9a-fA-F]+"|[^,]+)\s*,\s*'  # fields
+        r'("[^"]*"|string\(.*?\)|[^,]+)\s*,\s*'             # name
+        r'("[^"]*"|string\(.*?\)|[^,]+)\s*,\s*'             # version
+        r'(block\.chainid|[\w\d]+)\s*,\s*'                  # chainId
+        r'(address\(this\)|[\w\d]+)\s*,\s*'                 # verifyingContract
+        r'(bytes32\(.*?\)|[\w\d]+)\s*,\s*'                  # salt
+        r'(new\s*uint256\[\]\(.*?\)|[\w\d\[\]]+)\s*\)'      # extensions
+        r'\s*;',
+        re.DOTALL
+    )
+
+    for code, source in all_code:
+        # Check function existence
+        if not requirements['eip712Domain_function_exists']:
+            if eip712_domain_pattern.search(code):
+                requirements['eip712Domain_function_exists'] = True
+
+        # Check return values if function exists
+        if requirements['eip712Domain_function_exists']:
+            return_match = return_pattern.search(code)
+            if return_match:
+                fields, name, version, chainId, verifyingContract, salt, extensions = return_match.groups()
+
+                # Check fields bitmap (should be hex with proper bits set)
+                if re.match(r'hex"[0-9a-fA-F]{1,2}"', fields) or re.match(r'bytes1\(hex"[0-9a-fA-F]{1,2}"\)', fields):
+                    requirements['fields_bitmap_correct'] = True
+                else:
+                    requirements['warnings'].append("fields should be hex value representing bitmap")
+
+                # Check name (should be non-empty string)
+                if re.match(r'".+"', name) or 'string(' in name:
+                    requirements['name_field_valid'] = True
+                else:
+                    requirements['warnings'].append("name should be non-empty string")
+
+                # Check version (can be empty but should be string)
+                if re.match(r'""|".+"', version) or 'string(' in version:
+                    requirements['version_field_valid'] = True
+                else:
+                    requirements['warnings'].append("version should be string (can be empty)")
+
+                # Check chainId (should be block.chainid or valid alternative)
+                if 'block.chainid' in chainId.lower():
+                    requirements['chainId_field_valid'] = True
+                else:
+                    requirements['warnings'].append("chainId should preferably use block.chainid")
+
+                # Check verifyingContract (should be address(this))
+                if 'address(this)' in verifyingContract.lower():
+                    requirements['verifyingContract_field_valid'] = True
+                else:
+                    requirements['warnings'].append("verifyingContract should be address(this)")
+
+                # Check salt (can be zero but should be bytes32)
+                if 'bytes32(' in salt or re.match(r'0x[0-9a-fA-F]{64}', salt):
+                    requirements['salt_field_valid'] = True
+                    if '0' in salt or '00' in salt:
+                        requirements['warnings'].append("salt is zero - consider using random value")
+                else:
+                    requirements['warnings'].append("salt should be bytes32 value")
+
+                # Check extensions (should be array, can be empty)
+                if 'new uint256[]' in extensions or '[]' in extensions:
+                    requirements['extensions_field_valid'] = True
+                else:
+                    requirements['warnings'].append("extensions should be uint256 array")
+
+    # Additional checks
+    for code, source in all_code:
+        # Domain separator usage
+        if not requirements['domain_separator_usage']:
+            if re.search(r'DOMAIN_SEPARATOR', code) or re.search(r'domainSeparator\s*\(', code):
+                requirements['domain_separator_usage'] = True
+
+        # Typehash declarations
+        if not requirements['typehash_declared']:
+            if re.search(r'bytes32\s+[A-Z_]+_TYPEHASH\s*=', code):
+                requirements['typehash_declared'] = True
+
+    # Final validation
+    if requirements['eip712Domain_function_exists']:
+        requirements['returns_correct_fields'] = all([
+            requirements['fields_bitmap_correct'],
+            requirements['name_field_valid'],
+            requirements['version_field_valid'],
+            requirements['chainId_field_valid'],
+            requirements['verifyingContract_field_valid'],
+            requirements['salt_field_valid'],
+            requirements['extensions_field_valid']
+        ])
+
+    return requirements
+
+
 def check_on_received_implementation(code: str, params, isContract) -> bool:
     # Get parameters by position (assuming standard ERC1155 order)
     from_param = params['from_param']
