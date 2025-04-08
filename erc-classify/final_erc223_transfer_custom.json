@@ -1,0 +1,12 @@
+{
+    "ERC223": {
+    "selectors": [
+        "f6368f8a"
+    ],
+    "topics": [],
+    "functions": {
+        "transfer(address,uint256,bytes,string)": "f6368f8a"
+    },
+    "events": {}
+}
+}

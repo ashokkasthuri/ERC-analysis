@@ -59,7 +59,7 @@ print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)"
 #     "ERC1155","ERC5005","ERC5169","ERC5606","ERC5615"}
 
 token_ercs = {
-    "ERC2612"
+    "ERC223"
     }
 
 # Common ERC types to skip
@@ -71,7 +71,7 @@ common_erc_types = {}
 def ERC_classification(file_path, erc_config, output_file):
     # Load the dataset
     df_subset = pd.read_csv(file_path)
-    # df_subset = df.head(1000).copy()  # Adjust the number of rows as needed
+    # df_subset = df.head(10000).copy()  # Adjust the number of rows as needed
     
     # Ensure "matched_erc" and "bytecode_short" columns exist (use existing if available)
     if "matched_erc" not in df_subset.columns:
@@ -480,12 +480,16 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_erc2612_permit.json", "r") as f:
+    with open("final_erc223_transfer_custom.json", "r") as f:
         erc_config = json.load(f)
     
-    # Directory containing CSV files
+    # # Directory containing CSV files
     data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-2612_permit"
+    output_file = "/home/ashok/output/ERC-223_transfer_custom_"
+    
+    # Directory containing CSV files
+    # data_dir = "/Users/ashokk/Downloads/evm_data"
+    # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC-223_transfer_custom"
     
     # data_dir = "/Users/ashokk/Downloads/evm_data"
     csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]

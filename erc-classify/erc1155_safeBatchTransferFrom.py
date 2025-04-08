@@ -6,7 +6,9 @@ from eth_utils import keccak
 
 def find_functions_by_signature(functions: List[Dict], target_signature: str) -> List[Dict]:
     """Find all functions matching the normalized signature with parameter types."""
+    print(f"target_signature:{target_signature}")
     target_normalized = normalize_signature(target_signature)
+    print(f"target_normalized:{target_normalized}")
     target_normalized_hash = keccak(text=target_normalized).hex()
     print(f"target_normalized_hash:{target_normalized_hash}")
     matching_functions = []
@@ -14,6 +16,7 @@ def find_functions_by_signature(functions: List[Dict], target_signature: str) ->
     for func in functions:
         current_sig = f"{func['name']}({func['params']})"
         current_normalized = normalize_signature(current_sig)
+        print(f"current_normalized:{current_normalized}")
         current_normalized_hash = keccak(text=current_normalized).hex()
         
         if current_normalized_hash == target_normalized_hash :
@@ -823,10 +826,10 @@ def check_on_received_implementation(code: str, params, isContract) -> bool:
     return True
 
 
-def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
+def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
     """Main analysis function for safeBatchTransferFrom compliance."""
     all_functions = find_all_functions(solidity_code)
-    target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    
     target_funcs = find_functions_by_signature(all_functions, target_sig)
     
     if not target_funcs:
@@ -842,9 +845,10 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
             
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
-        
-        requirements = verify_erc1155_requirements(target_func, internal_calls)
-        
+        if "safeBatchTransferFrom" in target_sig:
+            requirements = verify_erc1155_requirements(target_func, internal_calls)
+        if "permit" in target_sig:
+            requirements = verify_erc2612_requirements(target_func, internal_calls)
         # Calculate whether all requirements are met for this implementation
         all_reqs = [
             'sender_check',
@@ -882,7 +886,8 @@ def analyze_safe_batch_transfer(solidity_code: str) -> Dict:
             }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
-def analyze_directory(directory_path: str, output_file) -> List[Dict]:
+
+def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict]:
     """Analyze all Solidity files in a directory for ERC1155 compliance."""
     results = []
     
@@ -896,7 +901,7 @@ def analyze_directory(directory_path: str, output_file) -> List[Dict]:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         solidity_code = f.read()
                     
-                    result = analyze_safe_batch_transfer(solidity_code)
+                    result = analyze_safe_batch_transfer(solidity_code, target_sig)
                     result['file'] = file_path
                     results.append(result)
                     """Save analysis results to a JSON file."""
@@ -977,7 +982,8 @@ def find_all_functions(solidity_code: str) -> List[Dict]:
     return functions
 
 def normalize_signature(signature: str) -> str:
-    """Normalize function signature for comparison, matching Etherscan's behavior."""
+    """Normalize function signature for comparison, matching Etherscan's behavior.
+    Converts 'uint' to 'uint256' but preserves explicit sizes like 'uint8'."""
     if '(' not in signature:
         return signature
     
@@ -992,6 +998,11 @@ def normalize_signature(signature: str) -> str:
             param = param.rsplit(' ', 1)[0].strip()
         # Remove storage location keywords
         param = re.sub(r'\s+(memory|calldata|storage)\b', '', param)
+        # Convert 'uint' to 'uint256' but keep 'uint8', 'uint16', etc.
+        if param == 'uint':
+            param = 'uint256'
+        elif re.match(r'uint(?!\d)', param):  # catches 'uint' followed by non-digit
+            param = 'uint256'
         param_types.append(param)
     
     normalized = f"{func_name}({','.join(param_types)})"
@@ -1032,15 +1043,21 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 if __name__ == "__main__":
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
     # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_analysis_results.json"
-    erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
-    erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
+    # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
+    # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
+    # erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
-    
-    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file)
+    # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     # save_results_to_json(analysis_results, output_file)
     
+    erc2612_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC2612"
+    erc2612_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc2612_analysis_results.json"
+    erc2612_target_sig = "permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)"
+    analysis_results = analyze_directory(erc2612_directory, erc2612_output_file, erc2612_target_sig)
     
     print(f"Total files analyzed: {len(analysis_results)}")
+    
+    print(f"analysis_results requirements: {analysis_results}")
     
     # Print summary statistics
     compliant_files = [r for r in analysis_results if not r.get('error')]
