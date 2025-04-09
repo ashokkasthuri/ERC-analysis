@@ -1,0 +1,12 @@
+{
+    "ERC5267": {
+    "selectors": [
+        "84b0196e"
+    ],
+    "topics": [],
+    "functions": {
+        "eip712Domain()": "84b0196e"
+    },
+    "events": {}
+}
+}

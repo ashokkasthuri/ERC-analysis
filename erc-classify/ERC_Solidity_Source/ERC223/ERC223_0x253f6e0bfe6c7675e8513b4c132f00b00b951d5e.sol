@@ -243,6 +243,8 @@ contract Arascacoin is ERC223, Ownable {
         }
     }
 
+    
+
     function transfer(address _to, uint _value, bytes _data) public  returns (bool success) {
         require(_value > 0
                 && frozenAccount[msg.sender] == false
