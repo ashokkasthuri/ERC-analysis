@@ -1,0 +1,12 @@
+{
+    "ERC7231": {
+        "selectors": [
+            "6aee318c"
+        ],
+        "topics": [
+        ],
+        "functions": {
+            "verifyIdentitiesBinding(uint256,address,string[],bytes32,bytes)": "6aee318c"
+        }
+}
+}
