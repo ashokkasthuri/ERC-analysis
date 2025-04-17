@@ -59,7 +59,7 @@ print(f"🔑 Using Etherscan API Key: {API_KEY[:5]}****** (Hidden for security)"
 #     "ERC1155","ERC5005","ERC5169","ERC5606","ERC5615"}
 
 token_ercs = {
-    "ERC5267"
+    "ERC721"
     }
 
 # Common ERC types to skip
@@ -480,12 +480,12 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_erc5267_ eip712Domain.json", "r") as f:
+    with open("final_erc721_setApprovedForAll.json", "r") as f:
         erc_config = json.load(f)
     
     # # Directory containing CSV files
     data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-5267_eip712Domain_"
+    output_file = "/home/ashok/output/ERC-721_setApprovedForAll_"
     
     # Directory containing CSV files
     # data_dir = "/Users/ashokk/Downloads/evm_data"
