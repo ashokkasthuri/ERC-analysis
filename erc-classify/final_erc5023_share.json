@@ -1,0 +1,14 @@
+{
+    "ERC5023": {
+        "selectors": [
+            "ded6338b"
+        ],
+        "topics": [
+        ],
+        "functions": {
+            "share(address,uint256)": "ded6338b"
+        },
+        "events": {
+        }
+    }
+}
