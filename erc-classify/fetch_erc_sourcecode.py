@@ -70,7 +70,7 @@ def fetch_solidity_source(contract_address):
         return None
 
 def csv_address_source_fetch(base_dir, csv_file_path):
-    # Load the CSV file
+     # Load the CSV file
     df = pd.read_csv(csv_file_path)
 
     # Ensure required columns exist
@@ -82,43 +82,43 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     
     # Iterate over each unique ERC type
     for erc_type, group in erc_groups:
-        print(f"\nProcessing ERC type: {erc_type}")
+        # Initialize a list to store successfully fetched addresses
+        fetched_count = 0
+        required_count = 10  # Adjust as needed
+        processed_addresses = set()
         
         # Create a directory for this ERC type
         erc_dir = os.path.join(base_dir, erc_type)
         os.makedirs(erc_dir, exist_ok=True)
-        print(f"Output directory: {erc_dir}")
         
-        # Get unique contract addresses
-        unique_addresses = group["address"].dropna().unique()
-        print(f"Found {len(unique_addresses)} unique addresses")
-        
-        fetched_count = 0
-        required_count = min(100, len(unique_addresses))  # Don't try to fetch more than available
-        
-        for contract_address in unique_addresses:
-            if fetched_count >= required_count:
-                break
+        while fetched_count < required_count:
+            # Get more unique contract addresses if needed
+            unique_addresses = group["address"].dropna().unique()
             
-            print(f"\nProcessing contract {fetched_count + 1}/{required_count}: {contract_address}")
-            
-            # Fetch Solidity source code
-            solidity_code = fetch_solidity_source(contract_address)
-            
-            if solidity_code:
-                # Define file path and save Solidity code
-                file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
-                try:
+            for contract_address in unique_addresses:
+                if fetched_count >= required_count:
+                    break  # Stop when 10 contracts are fetched
+                
+                if contract_address in processed_addresses:
+                    continue  # Skip already processed addresses
+                
+                # Fetch Solidity source code
+                solidity_code = fetch_solidity_source(contract_address)
+                
+                if solidity_code:
+                    # Define file path and save Solidity code
+                    file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(solidity_code)
-                    print(f"✅ Saved: {file_path}")
+                    
                     fetched_count += 1
-                except Exception as e:
-                    print(f"❌ Failed to save {file_path}: {str(e)}")
-            else:
-                print(f"⚠️ No source code found for {contract_address}")
+                    processed_addresses.add(contract_address)
+                #     print(f"✅ Saved: {file_path}")
+                # else:
+                #     print(f"❌ No source code found for {contract_address}")
 
     print("\n🎯 Solidity contract fetching and saving complete!")
+
 # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
 ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
 
@@ -209,45 +209,121 @@ def main():
     base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
-    # # Find all CSV files starting with "ERC-1155"
-    # csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
+    # Find all CSV files starting with "ERC-1155"
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
+    csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
+    csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
+    csv_files3 = glob.glob(os.path.join(csv_dir, "ERC-7409*.csv"))
+    csv_files4 = glob.glob(os.path.join(csv_dir, "ERC-6606*.csv"))
+    csv_files5 = glob.glob(os.path.join(csv_dir, "ERC-erc5023*.csv"))
+    csv_files6 = glob.glob(os.path.join(csv_dir, "ERC-erc3643*.csv"))
     
-    # if not csv_files:
-    #     print(f"No CSV files starting with 'ERC-1155' found in {csv_dir}")
-    #     return
+    if not csv_files:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
     
-    # for csv_file_path in csv_files:
-    #     print(f"\nProcessing file: {csv_file_path}")
-    #     try:
-    #         csv_address_source_fetch(base_dir, csv_file_path)
-    #     except Exception as e:
-    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    for csv_file_path in csv_files:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
     
-    # Define the ERC patterns to look for
-    erc_patterns = [
-        "ERC-721*.csv",
-        "ERC-7231*.csv",
-        "ERC-7401*.csv",
-        "ERC-7409*.csv",
-        "ERC-6606*.csv",
-        "ERC-erc5023*.csv",
-        "ERC-erc3643*.csv"
-    ]
+    ############
+    if not csv_files1:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
+    
+    for csv_file_path in csv_files1:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    ############
+    if not csv_files2:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
+    
+    for csv_file_path in csv_files2:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    
+    ############
+    if not csv_files3:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
+    
+    for csv_file_path in csv_files3:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    ############
+    if not csv_files4:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
+    
+    for csv_file_path in csv_files4:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    ############
+    if not csv_files5:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
+    
+    for csv_file_path in csv_files5:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    ############
+    if not csv_files6:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
+    
+    for csv_file_path in csv_files6:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            csv_address_source_fetch(base_dir, csv_file_path)
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
+    
+    
+    
+    # # Define the ERC patterns to look for
+    # erc_patterns = [
+    #     "ERC-721*.csv",
+    #     "ERC-7231*.csv",
+    #     "ERC-7401*.csv",
+    #     "ERC-7409*.csv",
+    #     "ERC-6606*.csv",
+    #     "ERC-erc5023*.csv",
+    #     "ERC-erc3643*.csv"
+    # ]
 
-    # First loop: Process files matching specific ERC patterns
-    for pattern in erc_patterns:
-        csv_files = glob.glob(os.path.join(csv_dir, pattern))
+    # # First loop: Process files matching specific ERC patterns
+    # for pattern in erc_patterns:
+    #     csv_files = glob.glob(os.path.join(csv_dir, pattern))
         
-        if not csv_files:
-            print(f"No CSV files matching pattern '{pattern}' found in {csv_dir}")
-            continue
+    #     if not csv_files:
+    #         print(f"No CSV files matching pattern '{pattern}' found in {csv_dir}")
+    #         continue
         
-        for csv_file_path in csv_files:
-            print(f"\nProcessing file (pattern match): {csv_file_path}")
-            try:
-                csv_address_source_fetch(base_dir, csv_file_path)
-            except Exception as e:
-                print(f"Error processing {csv_file_path}: {str(e)}")
+    #     for csv_file_path in csv_files:
+    #         print(f"\nProcessing file (pattern match): {csv_file_path}")
+    #         try:
+    #             csv_address_source_fetch(base_dir, csv_file_path)
+    #         except Exception as e:
+    #             print(f"Error processing {csv_file_path}: {str(e)}")
 
     
         
