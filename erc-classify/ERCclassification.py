@@ -480,12 +480,12 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_erc7231_verifyIdentitiesBinding.json", "r") as f:
+    with open("final_erc7409_bulk.json", "r") as f:
         erc_config = json.load(f)
     
     # # Directory containing CSV files
     data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-7231_verifyIdentitiesBinding_"
+    output_file = "/home/ashok/output/ERC-7409_bulk_"
     
     # Directory containing CSV files
     # data_dir = "/Users/ashokk/Downloads/evm_data"

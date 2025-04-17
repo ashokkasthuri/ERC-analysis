@@ -1,0 +1,17 @@
+{
+
+    "ERC7409": {
+        "selectors": [
+            "b6b6129f",
+            "a802a32d"
+        ],
+        "topics": [
+        ],
+        "functions": {
+            "presignedEmote(address,address,uint256,string,bool,uint256,uint8,bytes32,bytes32)": "b6b6129f",
+            "bulkPresignedEmote(address[],address[],uint256[],string[],bool[],uint256[],uint8[],bytes32[],bytes32[])": "a802a32d"
+        },
+        "events": {
+        }
+    }
+}
