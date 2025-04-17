@@ -13,8 +13,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 # Load environment variables
-load_env = load_dotenv()
-# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+# load_env = load_dotenv()
+load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
 
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
@@ -203,26 +203,54 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify"   
-    base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
+    # csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify"   
+    # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    # csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
-    # Find all CSV files starting with "ERC-1155"
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-5267*.csv"))
+    # # Find all CSV files starting with "ERC-1155"
+    # csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
     
-    if not csv_files:
-        print(f"No CSV files starting with 'ERC-1155' found in {csv_dir}")
-        return
+    # if not csv_files:
+    #     print(f"No CSV files starting with 'ERC-1155' found in {csv_dir}")
+    #     return
     
-    for csv_file_path in csv_files:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
+    # for csv_file_path in csv_files:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
     
+    # Define the ERC patterns to look for
+    erc_patterns = [
+        "ERC-721*.csv",
+        "ERC-7231*.csv",
+        "ERC-7401*.csv",
+        "ERC-7409*.csv",
+        "ERC-6606*.csv",
+        "ERC-erc5023*.csv",
+        "ERC-erc3643*.csv"
+    ]
+
+    # First loop: Process files matching specific ERC patterns
+    for pattern in erc_patterns:
+        csv_files = glob.glob(os.path.join(csv_dir, pattern))
+        
+        if not csv_files:
+            print(f"No CSV files matching pattern '{pattern}' found in {csv_dir}")
+            continue
+        
+        for csv_file_path in csv_files:
+            print(f"\nProcessing file (pattern match): {csv_file_path}")
+            try:
+                csv_address_source_fetch(base_dir, csv_file_path)
+            except Exception as e:
+                print(f"Error processing {csv_file_path}: {str(e)}")
+
+    
+        
     
          
 
