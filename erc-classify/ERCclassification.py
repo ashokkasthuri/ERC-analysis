@@ -480,12 +480,12 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_erc5023_share.json", "r") as f:
+    with open("final_erc6066_isValidSignature.json", "r") as f:
         erc_config = json.load(f)
     
     # # Directory containing CSV files
     data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-erc5023_share_"
+    output_file = "/home/ashok/output/ERC-6066_isValidSignature_"
     
     # Directory containing CSV files
     # data_dir = "/Users/ashokk/Downloads/evm_data"
