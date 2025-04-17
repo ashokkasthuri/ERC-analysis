@@ -1,0 +1,18 @@
+{
+    "ERC721": {
+        "selectors": [
+            "a22cb465",
+            "e985e9c5"
+        ],
+        "topics": [
+           
+        ],
+        "functions": {
+            "setApprovalForAll(address,bool)": "a22cb465",
+            "isApprovedForAll(address,address)": "e985e9c5"
+        },
+        "events": {
+            
+        }
+    }
+}

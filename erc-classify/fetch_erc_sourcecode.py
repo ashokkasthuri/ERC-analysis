@@ -13,8 +13,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 # Load environment variables
-# load_env = load_dotenv()
-load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+load_env = load_dotenv()
+# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
 
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
@@ -84,7 +84,7 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
-        required_count = 2000  # Adjust as needed
+        required_count = 100  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
@@ -203,14 +203,14 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    # csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/server_output/"   
-    # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source_test"
+    csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify"   
+    base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
+    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    # csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-2612*.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-5267*.csv"))
     
     if not csv_files:
         print(f"No CSV files starting with 'ERC-1155' found in {csv_dir}")

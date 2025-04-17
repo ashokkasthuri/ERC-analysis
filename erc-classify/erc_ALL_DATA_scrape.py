@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 import re
 import os
 
@@ -13,14 +12,15 @@ import plotly.graph_objects as go
 from pyvis.network import Network
 import matplotlib.pyplot as plt
 import pandas as pd
+from typing import Dict
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
-# load_env = load_dotenv()
+# load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+load_env = load_dotenv()
 # Verify if .env is loaded
 print(f"✅ .env Loaded: {load_env}")
 
@@ -437,6 +437,570 @@ def requires_insights(csv_path, output_path, api_key):
     logger.info(f"Saved analyzed data to {output_path}")
     return df
 
+def call_llm_api(prompt: str, api_key: str, temperature: float = 0.2) -> str:
+    """Generic function to call LLM API"""
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "model": "gpt-4-turbo",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": temperature
+            }
+        )
+        response.raise_for_status()
+        return response.json()['choices'][0]['message']['content']
+    except Exception as e:
+        print(f"API call failed: {e}")
+        return ""
+
+def add_section_to_df(df: pd.DataFrame, section_name: str, content: str) -> pd.DataFrame:
+    """Safely add a new section column to dataframe"""
+    if section_name in df.columns:
+        df[section_name] = df[section_name] + " " + content
+    else:
+        df[section_name] = content
+    return df
+
+
+
+def generate_abstract_prompt(row: Dict) -> str:
+    return f"""
+    Generate a 200-word abstract for a research paper on ERC vulnerabilities with:
+    
+    1. Context: Current EVM security landscape regarding {row.get('Project', 'ERC standards')}
+    2. Problem: Key vulnerabilities found in {row.get('Salt', 'critical components')}
+    3. Methodology: Analysis of {row.get('ERC-Classification Results', '4 million contracts')}
+    4. Findings: Impact of {row.get('Impact', 'identified vulnerabilities')}
+    5. Implications: Security consequences for {row.get('Project', 'the ecosystem')}
+    
+    Use academic tone with data from:
+    - Project: {row.get('Project', '')}
+    - Main Vulnerability: {row.get('Salt', '')}
+    - Classification Results: {row.get('ERC-Classification Results', '')}
+    """
+
+def process_abstract(df: pd.DataFrame, api_key: str) -> pd.DataFrame:
+    print("Processing abstract...")
+    df['abstract'] = df.apply(
+        lambda row: call_llm_api(generate_abstract_prompt(row), api_key),
+        axis=1
+    )
+    return df
+
+
+
+def generate_introduction_prompt(row: Dict) -> str:
+    return f"""
+    Write a 600-word introduction covering:
+    
+    1.1 EVM Technical Foundation:
+    - Bytecode execution model relevant to {row.get('Bytecode', 'analyzed contracts')}
+    - Storage vulnerabilities related to {row.get('Salt', 'identified issues')}
+    
+    1.2 Problem Statement:
+    - Systemic issues in {row.get('Project', 'ERC implementations')}
+    - Attack scenarios like {row.get('Example Attack', 'the documented case')}
+    
+    1.3 Research Contributions:
+    - Novel analysis of {row.get('ERC Data and Results', 'large dataset')}
+    - Framework documented in {row.get('Paper Overview', 'methodology section')}
+    
+    Reference these specifics:
+    - Example Attack: {row.get('Example Attack', '')}
+    - Bytecode Patterns: {row.get('Bytecode', '')}
+    """
+
+def process_introduction(df: pd.DataFrame, api_key: str) -> pd.DataFrame:
+    print("Processing introduction...")
+    df['1. Introduction'] = df.apply(
+        lambda row: call_llm_api(generate_introduction_prompt(row), api_key),
+        axis=1
+    )
+    return df
+
+
+
+def generate_large_scale_analysis_prompt(row: Dict) -> str:
+    return f"""
+    Generate 1200-word large-scale analysis with:
+    
+    5.1 Methodology:
+    - Pipeline for analyzing {row.get('ERC Data and Results', '4M contracts')}
+    - Classification using {row.get('ERC Specs Design', 'official standards')}
+    
+    5.2 Implementation Spectrum:
+    - Compliance levels in {row.get('Project', 'studied contracts')}
+    - Deviations shown in {row.get('Potential Malicious Code1', 'pattern 1')}
+    
+    5.3 Vulnerability Patterns:
+    - Detailed analysis of:
+      * {row.get('Potential Malicious Code1', '')} - {row.get('Explanation1', '')}
+      * {row.get('Potential Malicious Code2', '')} - {row.get('Explanation2', '')}
+    
+    Include statistics from {row.get('ERC-Classification Results', '')}
+    """
+
+def process_large_scale_analysis(df: pd.DataFrame, api_key: str) -> pd.DataFrame:
+    print("Processing large-scale analysis...")
+    df['4. Large-Scale ERC Analysis Study'] = df.apply(
+        lambda row: call_llm_api(generate_large_scale_analysis_prompt(row), api_key),
+        axis=1
+    )
+    return df
+
+
+
+def generate_signature_replay_prompt(row: Dict) -> str:
+    """Generate detailed 1500-word technical analysis of signature replay vulnerabilities"""
+    return f"""
+    Generate a comprehensive technical analysis of Signature Replay Attacks in ERC standards with these sections:
+
+    --- TECHNICAL OVERVIEW (300 words) ---
+    1. Cryptographic Signature Fundamentals:
+    - Explain ECDSA signatures in Ethereum context
+    - Components: v, r, s values
+    - Role of message hashing in signing
+
+    2. Domain Separator Criticality:
+    - Purpose of EIP-712 domain separator
+    - Importance of chain_id and salt parameters
+    - How {row.get('Salt', 'missing salt')} enables replay attacks
+
+    --- VULNERABILITY DEEP DIVE (500 words) ---
+    1. Attack Mechanism:
+    - Step-by-step replay attack flow
+    - How missing salt enables cross-chain/dapp replays
+    - Specific vulnerability in {row.get('Project', 'target standard')}
+
+    2. Impact Analysis:
+    - Consequences: {row.get('Impact', 'unauthorized access')}
+    - Financial risks quantified in {row.get('Attack and Results', 'test cases')}
+    - Historical incidents from ecosystem
+
+    --- DEMONSTRATION SETUP (400 words) ---
+    1. Test Environment:
+    - Reproduction setup from {row.get('Attack and Results', 'experimental data')}
+    - Tools and contracts used
+
+    2. Attack Simulation:
+    - Step-by-step replay demonstration
+    - Key observations from {row.get('Attack and Results', 'test results')}
+    - Successful exploit conditions
+
+    --- STANDARD-SPECIFIC ANALYSIS (300 words) ---
+    1. ERC-712 Vulnerabilities:
+    - Domain separator implementation flaws
+    - Sample vulnerable code patterns
+
+    2. ERC-2612/ERC-5267 Issues:
+    - Permit function vulnerabilities
+    - Authorization bypass scenarios
+
+    --- MITIGATION STRATEGIES ---
+    1. Secure Implementation Patterns:
+    - Proper domain separator construction
+    - Chain ID incorporation
+    - Salt generation best practices
+
+    2. Verification Checklist:
+    - Must-validate parameters
+    - Testing methodology
+    - Monitoring recommendations
+
+    Required Content:
+    - Bytecode-level analysis where applicable
+    - Specific test results from {row.get('Attack and Results', '')}
+    - Mathematical explanation of vulnerability
+    - Diagrams showing attack flow
+    - Code snippets demonstrating fixes
+    """
+
+def process_signature_replay_attack(df: pd.DataFrame, api_key: str) -> pd.DataFrame:
+    """Process signature replay attack analysis"""
+    print("Processing signature replay attack analysis...")
+    df['Signature Replay Analysis'] = df.apply(
+        lambda row: call_llm_api(
+            generate_signature_replay_prompt(row),
+            api_key,
+            temperature=0.1  # More technical precision
+        ),
+        axis=1
+    )
+    return df
+
+
+def process_paper_sections(csv_path: str, output_path: str, api_key: str) -> pd.DataFrame:
+    """Process CSV and generate paper sections incrementally"""
+    try:
+        df = pd.read_csv(csv_path)
+        
+        # Process sections sequentially
+        df = process_abstract(df, api_key)
+        df.to_csv(output_path, index=False)
+        
+        df = process_introduction(df, api_key)
+        df.to_csv(output_path, index=False)
+        
+        df = process_large_scale_analysis(df, api_key)
+        df.to_csv(output_path, index=False)
+        
+        df = process_signature_replay_attack(df, api_key)
+        df.to_csv(output_path, index=False)
+        
+        
+        # [Add other section processing calls...]
+        
+        print(f"Successfully generated all sections to {output_path}")
+        return df
+        
+    except Exception as e:
+        print(f"Processing failed: {e}")
+        return None
+
+
+def paper_insights(csv_path, output_path, api_key):
+    """Generate comprehensive research paper sections from ERC vulnerability data"""
+    
+    # df = pd.read_csv(csv_path)
+    # print(df.columns.tolist())  # This will show EXACT column names
+    
+    def generate_paper_sections(row):
+        # Main paper generation prompt
+        # paper_prompt = f"""
+        # Analyze the following ERC vulnerability data to generate security academic paper sections in overleaf(LaTex) format:
+
+        # Project: {row['Project']}
+        # Salt: {row['Salt']}
+        # Impact: {row['Impact']}
+        # Example Attack: {row['Example Attack']}
+        # Potential Malicious Code1: {row['Potential Malicious Code1']}
+        # Explanation1: {row['Explanation1']}
+        # Potential Malicious Code2: {row['Potential Malicious Code2']}
+        # Explanation2: {row['Explanation2']}
+        # Bytecode: {row['Bytecode']}
+        # ERC-Classification Results: {row['ERC-Classification Results']}
+        # Paper Overview: {row['Paper Overview']}
+        # ERC Data and Results: {row['ERC Data and Results']}
+        # ERC Specs Design: {row['ERC Specs Design']}
+        
+        
+
+        # Generate these sections with technical depth:
+
+        # ### ABSTRACT (150-200 words)
+        # 1. Context: EVM smart contract security landscape
+        # 2. Problem: Key vulnerabilities in ERC implementations
+        # 3. Solution: Our analysis approach and tool
+        # 4. Findings: Key statistics from 4M contract analysis
+        # 5. Impact: Security implications for the ecosystem
+
+        # ### 1. INTRODUCTION (550-600 words)
+        # 1.1 EVM Architecture Overview
+        # - Brief technical background of EVM execution
+        # - ERCs and Smart contract standards importance in Ethereum
+        
+        # 1.2 Problem Statement
+        # - Systemic vulnerabilities in ERC implementations
+        # - Consequences of improper salt usage
+        # - Malicious pattern propagation
+        
+        # 1.3 Our Contributions
+        # - Large-scale analysis methodology
+        # - Automated classification tool
+        # - Vulnerability taxonomy
+
+        # ### 2. BACKGROUND OF EVM BASED SMART CONTRACTS (300 words)
+        # - Bytecode execution fundamentals
+        # - Storage layout and collision risks
+        # - ERC standard compliance mechanisms
+
+        # ### 3. MOTIVATING EXAMPLE (from Salt/Project columns) (300 words)
+        # - Show concrete vulnerability scenario using:
+        #   * Project context: {row['Project']}
+        #   * Salt misuse: {row['Salt']}
+        #   * Impact: {row['Impact']}
+        #   * Example Attack: {row['Example Attack']}
+          
+        # - Diagram/flow of attack vector
+        # - Actual bytecode patterns (highlight key opcodes)
+
+        # ### 4. LARGE-SCALE ERC ANALYSIS STUDY (1000 words)
+        # 4.1 Methodology
+        # - 4M contract analysis pipeline
+        # - Classification criteria based on Ethereum docs
+        
+        # 4.2 ERC Implementation Spectrum
+        # - ERC Specification design is at ERC Specs Design with demo ERC1155 specs design
+        #   * ERC Specs Design: {row['ERC Specs Design']}
+        # - Fully compliant vs partially compliant
+        # - Dangerous deviations from standards
+        
+        # 4.3 Vulnerability Distribution
+        # - Statistical breakdown by ERC type
+        # - Most common vulnerability patterns, take the below cases to explain in a robust way.
+        #   * Potential Malicious Code1: {row['Potential Malicious Code1']}
+        #   * Explanation1: {row['Explanation1']}
+        #   * Potential Malicious Code2: {row['Potential Malicious Code2']}
+        #   * Explanation2: {row['Explanation2']}
+        
+        # 4.4 Tool Architecture
+        # - Static analysis components
+        # - Pattern matching engine
+        # - Classification heuristics
+        
+        # 4.5 False Positive Analysis
+        # - Edge cases and challenges
+        # - Verification methodology
+        
+        # 4.6 Precision and Recall results (90% for both)
+
+        # ### 5. PAPER DESIGN (from Bytecode/Paper Overview columns) (600 words)
+        # - Vulnerability detection framework
+        # - Bytecode analysis techniques used
+        #   * Bytecode: {row['Bytecode']}
+        #   * Paper Overview: {row['Paper Overview']}
+        # - Formal verification approaches
+
+        # ### 6. IMPLEMENTATION AND EVALUATION (600 words)
+        # - Tool implementation details
+        # - Performance metrics (throughput, accuracy)
+        # - Case studies of detected vulnerabilities
+        # - Comparison with existing tools
+        # - find the concrete ERC Data, Results below at ERC Data and Results and ERC-Classification Results and explain the most used, famous ones and son on.
+        #   * ERC Data and Results: {row['ERC Data and Results']}
+        #   * ERC-Classification Results: {row['ERC-Classification Results']}
+          
+
+        # ### 7. DISCUSSION & LIMITATIONS (600 words)
+        # - Generalizability of findings
+        # - Analysis scope constraints
+        # - Tool detection boundaries
+        # - Future improvement directions
+
+        # ### 8. RELATED WORK (300 words)
+        # - Academic literature on ERC vulnerabilities
+        # - Commercial analysis tools
+        # - Ethereum Foundation resources
+
+        # ### 9. CONCLUSION (300 words)
+        # - Key takeaways
+        # - Ecosystem recommendations
+        # - Future research directions
+
+        # Format each section with:
+        # - Technical precision
+        # - Data-supported claims
+        # - Clear citations to source columns
+        # - Proper academic tone
+        # """
+        paper_prompt = f"""
+        Generate a complete academic paper on ERC vulnerabilities with rigorous technical analysis, ensuring ALL sections are thoroughly addressed. Structure the content as follows:
+
+        --- DATA INPUT ---
+        Project Context: {row['Project']}
+        Critical Vulnerability: {row['Salt']} 
+        Impact Analysis: {row['Impact']}
+        Attack Scenario: {row['Example Attack']}
+        Malicious Pattern 1: {row['Potential Malicious Code1']} 
+        - Analysis: {row['Explanation1']}
+        Malicious Pattern 2: {row['Potential Malicious Code2']}
+        - Analysis: {row['Explanation2']}
+        Bytecode Evidence: {row['Bytecode']}
+        Classification Framework: {row['ERC-Classification Results']}
+        Research Methodology: {row['Paper Overview']}
+        Dataset Characteristics: {row['ERC Data and Results']}
+        Standard Specifications: {row['ERC Specs Design']}
+
+        --- PAPER STRUCTURE ---
+        1. ABSTRACT (200 words)
+        - Context: Current state of EVM security
+        - Problem: Systemic ERC vulnerabilities
+        - Methodology: Our 4M-contract analysis approach
+        - Key Findings: Highlight {row['Impact']} and classification results
+        - Impact: Implications for smart contract security
+
+        2. INTRODUCTION (600 words)
+        2.1 EVM Technical Foundation
+        - Bytecode execution model
+        - Storage layout vulnerabilities
+        - ERC standardization challenges
+
+        2.2 Problem Space
+        - Specific issues with {row['Salt']} vulnerabilities
+        - Consequences shown in {row['Example Attack']}
+        - Ecosystem-wide risks
+
+        2.3 Research Contributions
+        - Novel classification framework
+        - Vulnerability taxonomy
+        - Empirical results from {len(row['ERC-Classification Results'].split(',')) if pd.notna(row['ERC-Classification Results']) else "4 million"} contracts
+
+        3. BACKGROUND (400 words)
+        - Smart contract security fundamentals
+        - Historical ERC vulnerabilities
+        - Existing analysis tools' limitations
+
+        4. MOTIVATING EXAMPLE (350 words)
+        4.1 Case Study: {row['Project']}
+        - Vulnerability root cause
+        - Attack flow diagram
+        - Bytecode-level analysis of {row['Bytecode']}
+
+        5. LARGE-SCALE ANALYSIS (1200 words)
+        5.1 Methodology
+        - Contract selection criteria
+        - Classification pipeline
+        - Validation approach
+
+        5.2 Implementation Spectrum
+        - Compliance levels analysis
+        - Specification deviations in {row['ERC Specs Design']}
+
+        5.3 Vulnerability Patterns
+        - Detailed analysis of:
+        * Pattern 1: {row['Potential Malicious Code1']}
+            - Impact: {row['Explanation1']}
+        * Pattern 2: {row['Potential Malicious Code2']}
+            - Impact: {row['Explanation2']}
+
+        5.4 Statistical Findings
+        - Prevalence rates
+        - High-risk ERC categories
+        - False positive analysis
+
+        6. DETECTION FRAMEWORK (700 words)
+        - Architecture overview
+        - Bytecode analysis of {row['Bytecode']}
+        - Formal verification components
+
+        7. EVALUATION (600 words)
+        - Performance metrics
+        - Case studies from {row['ERC Data and Results']}
+        - Comparative analysis
+
+        8. DISCUSSION (500 words)
+        - Limitations
+        - Generalizability
+        - Future directions
+
+        9. RELATED WORK (400 words)
+        - Academic literature
+        - Industry tools
+        - Standards development
+
+        10. CONCLUSION (300 words)
+        - Key takeaways
+        - Actionable recommendations
+
+        --- CONTENT REQUIREMENTS ---
+        1. For Large-Scale Analysis:
+        - Include SPECIFIC statistics from {row['ERC Data and Results']}
+        - Map vulnerabilities to {row['ERC Specs Design']}
+        - Show concrete examples from malicious code patterns
+
+        2. For Technical Sections:
+        - Include bytecode snippets with analysis
+        - Reference specific opcodes where relevant
+        - Show vulnerability classification workflow
+
+        3. For Evaluation:
+        - Present precision/recall metrics
+        - Include comparative tables
+        - Reference {row['ERC-Classification Results']} data
+
+        4. Writing Style:
+        - Academic rigor with clear technical explanations
+        - Data-driven claims with evidence
+        - Balanced discussion of limitations
+
+        5. Special Instructions:
+        - Ensure ALL subsections are addressed
+        - Prioritize depth in analysis over length
+        - Maintain logical flow between sections
+        - Use provided data points systematically
+        """
+
+        def call_api(prompt):
+            try:
+                response = requests.post(
+                    "https://api.openai.com/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    json={
+                        "model": "gpt-4-turbo",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "temperature": 0.2  # More factual output
+                    }
+                )
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as e:
+                print(f"API request failed: {e}")
+                return None
+
+        # Get full paper analysis
+        paper_response = call_api(paper_prompt)
+        if paper_response and "choices" in paper_response:
+            full_analysis = paper_response['choices'][0]['message']['content']
+            
+            # Parse into individual sections
+            sections = {
+                "abstract": extract_section("ABSTRACT", full_analysis),
+                "1. Introduction": extract_section("1. INTRODUCTION", full_analysis),
+                "2. Background of EVM based Smart contracts": extract_section("2. BACKGROUND", full_analysis),
+                "3. Motivating example": extract_section("3. MOTIVATING EXAMPLE", full_analysis),
+                "4. Large-Scale ERC Analysis Study": extract_section("4. LARGE-SCALE ERC ANALYSIS STUDY", full_analysis),
+                "5. Paper Design": extract_section("5. PAPER DESIGN", full_analysis),
+                "6. IMPLEMENTATION AND EVALUATION": extract_section("6. IMPLEMENTATION", full_analysis),
+                "7. DISCUSSION & LIMITATIONS": extract_section("7. DISCUSSION", full_analysis),
+                "8. RELATED WORK": extract_section("8. RELATED WORK", full_analysis),
+                "9. CONCLUSION": extract_section("9. CONCLUSION", full_analysis)
+            }
+            return sections
+        else:
+            print(f"Paper analysis failed for row")
+            return {k: "Analysis failed" for k in sections.keys()}
+
+    def extract_section(title, text):
+        """Helper to extract specific section from generated text"""
+        start = text.find(title)
+        if start == -1:
+            return f"Section {title} not found"
+        
+        end = text.find("###", start + 1)
+        return text[start:end].strip() if end != -1 else text[start:].strip()
+
+    try:
+        # Read entire CSV (no sheet_name parameter)
+        df = pd.read_csv(csv_path)
+        
+        # If you need to filter to specific rows that represent the "Code-Vulnerability" data,
+        # add filtering logic here. For example:
+        # df = df[df['Sheet'] == 'Code-Vulnerability']
+        
+        # Generate paper sections for each row
+        paper_data = df.apply(generate_paper_sections, axis=1)
+        
+        # Create new columns from the generated sections
+        section_names = [
+            "abstract", "1. Introduction", "2. Background of EVM based Smart contracts",
+            "3. Motivating example", "4. Large-Scale ERC Analysis Study", "5. Paper Design",
+            "6. IMPLEMENTATION AND EVALUATION", "7. DISCUSSION & LIMITATIONS",
+            "8. RELATED WORK", "9. CONCLUSION"
+        ]
+        
+        for section in section_names:
+            df[section] = paper_data.apply(lambda x: x.get(section, "Section not generated"))
+        
+        # Save to output
+        df.to_csv(output_path, index=False)
+        print(f"Successfully saved paper insights to {output_path}")
+        return df
+        
+    except Exception as e:
+        print(f"Error processing CSV: {str(e)}")
+        return None
 
 
 def extract_section_content(section_title, soup):
@@ -731,17 +1295,23 @@ def main():
     # )
     
     
-    requires_insights(
-        "/home/ashok/ERC-analysis/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
-        "/home/ashok/ERC-analysis/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
-        API_KEY
-    )
+    # requires_insights(
+    #     "/home/ashok/ERC-analysis/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
+    #     "/home/ashok/ERC-analysis/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
+    #     API_KEY
+    # )
     
     # requires_insights(
     #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_ALL_DATA_scrape.csv",  # Input CSV
     #     "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc_REQUIRES_insights.csv",  # Output CSV
     #     API_KEY
     # )
+    
+    process_paper_sections(
+        "/Users/ashokk/Documents/ERC-Code-Vulnerability.csv",
+        "/Users/ashokk/Documents/ERC-Paper-Insights.csv",
+        API_KEY
+        )
 
     
 if __name__ == "__main__":

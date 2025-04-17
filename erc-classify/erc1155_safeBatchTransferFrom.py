@@ -10,13 +10,13 @@ def find_functions_by_signature(functions: List[Dict], target_signature: str) ->
     target_normalized = normalize_signature(target_signature)
     print(f"target_normalized:{target_normalized}")
     target_normalized_hash = keccak(text=target_normalized).hex()
-    print(f"target_normalized_hash:{target_normalized_hash}")
+    # print(f"target_normalized_hash:{target_normalized_hash}")
     matching_functions = []
     
     for func in functions:
         current_sig = f"{func['name']}({func['params']})"
         current_normalized = normalize_signature(current_sig)
-        print(f"current_normalized:{current_normalized}")
+        # print(f"current_normalized:{current_normalized}")
         current_normalized_hash = keccak(text=current_normalized).hex()
         
         if current_normalized_hash == target_normalized_hash :
@@ -512,21 +512,39 @@ def verify_erc2612_requirements(target_func: Dict, internal_functions: List[Dict
 
 
 def verify_erc5267_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+    """Verify ERC-5267 compliance with enhanced security checks.
     
-    """Verify ERC-5267 compliance with detailed return value checks."""
+    Args:
+        target_func: The eip712Domain function to analyze
+        internal_functions: List of related internal functions
+        
+    Returns:
+        Dict containing verification results and warnings
+    """
     requirements = {
+        # Core compliance checks
         'eip712Domain_function_exists': False,
         'returns_correct_fields': False,
-        'name_field_valid': False,
-        'version_field_valid': False,
-        'chainId_field_valid': False,
-        'verifyingContract_field_valid': False,
-        'salt_field_valid': False,
-        'extensions_field_valid': False,
-        'fields_bitmap_correct': False,
-        'domain_separator_usage': False,
         'typehash_declared': False,
-        'warnings': []
+        'domain_separator_usage': False,
+        
+        # Field-specific validations
+        'fields': {
+            'valid': False,
+            'value': None,
+            'required_bits': {'name': True, 'version': True, 'chainId': True, 
+                             'verifyingContract': True, 'salt': False, 'extensions': False}
+        },
+        'name': {'valid': False, 'immutable': False, 'non_empty': False},
+        'version': {'valid': False, 'immutable': False},
+        'chainId': {'valid': False, 'uses_block_chainid': False},
+        'verifyingContract': {'valid': False, 'uses_address_this': False, 'proxy_safe': False},
+        'salt': {'valid': False, 'non_zero': False},
+        'extensions': {'valid': False, 'non_empty': False},
+        
+        # Security flags
+        'warnings': [],
+        'critical_issues': []
     }
 
     # Combine all code to analyze
@@ -535,113 +553,143 @@ def verify_erc5267_requirements(target_func: Dict, internal_functions: List[Dict
         if target_func['body'] != func['body']:
             all_code.append((func['body'], f"internal function {func['name']}"))
 
-    # Pattern to match the full function declaration
+    # Enhanced patterns
     eip712_domain_pattern = re.compile(
-        r'function\s+eip712Domain\s*\(\s*\)\s*external\s*view\s*returns\s*\(\s*'
-        r'bytes1\s*fields\s*,\s*'
-        r'string\s*(?:memory\s*)?name\s*,\s*'
-        r'string\s*(?:memory\s*)?version\s*,\s*'
-        r'uint256\s*chainId\s*,\s*'
-        r'address\s*verifyingContract\s*,\s*'
-        r'bytes32\s*salt\s*,\s*'
-        r'uint256\[\]\s*(?:memory\s*)?extensions\s*\)',
+        r'function\s+eip712Domain\s*\(\s*\)\s*(?:external|public)\s+view\s+returns\s*\(\s*'
+        r'bytes1\s+\w+\s*,\s*'          # fields
+        r'string\s+(?:memory\s+)?\w+\s*,\s*'  # name
+        r'string\s+(?:memory\s+)?\w+\s*,\s*'  # version
+        r'uint256\s+\w+\s*,\s*'         # chainId
+        r'address\s+\w+\s*,\s*'         # verifyingContract
+        r'bytes32\s+\w+\s*,\s*'         # salt
+        r'uint256\[\]\s+(?:memory\s+)?\w+\s*\)',  # extensions
         re.DOTALL
     )
 
-    # Pattern to match the return statement
     return_pattern = re.compile(
         r'return\s*\(\s*'
-        r'(bytes1\(.*?\)|hex"[0-9a-fA-F]+"|[^,]+)\s*,\s*'  # fields
-        r'("[^"]*"|string\(.*?\)|[^,]+)\s*,\s*'             # name
-        r'("[^"]*"|string\(.*?\)|[^,]+)\s*,\s*'             # version
-        r'(block\.chainid|[\w\d]+)\s*,\s*'                  # chainId
-        r'(address\(this\)|[\w\d]+)\s*,\s*'                 # verifyingContract
-        r'(bytes32\(.*?\)|[\w\d]+)\s*,\s*'                  # salt
-        r'(new\s*uint256\[\]\(.*?\)|[\w\d\[\]]+)\s*\)'      # extensions
-        r'\s*;',
+        r'(bytes1\(.*?\)|hex"[0-9a-fA-F]+"|[\w\d]+)\s*,\s*'  # fields
+        r'("[^"]*"|_\w+\.toString\(\)|[\w\d]+)\s*,\s*'       # name
+        r'("[^"]*"|_\w+\.toString\(\)|[\w\d]+)\s*,\s*'       # version
+        r'(block\.chainid|_\w+|\d+)\s*,\s*'                  # chainId
+        r'(address\(this\)|_\w+|\w+)\s*,\s*'                 # verifyingContract
+        r'(bytes32\(.*?\)|_\w+|0x[0-9a-fA-F]+)\s*,\s*'       # salt
+        r'(new\s*uint256\[\]\(.*?\)|_\w+|\[\])\s*\)\s*;',    # extensions
         re.DOTALL
     )
 
+    # Immutability checks
+    immutable_pattern = re.compile(r'(?:immutable|constant)\s+(string|bytes32)\s+(_name|_version|_hashedName|_salt)')
+    
     for code, source in all_code:
-        # Check function existence
-        if not requirements['eip712Domain_function_exists']:
-            if eip712_domain_pattern.search(code):
-                requirements['eip712Domain_function_exists'] = True
-
-        # Check return values if function exists
-        if requirements['eip712Domain_function_exists']:
-            return_match = return_pattern.search(code)
-            if return_match:
+        # Check function existence and signature
+        if eip712_domain_pattern.search(code):
+            requirements['eip712Domain_function_exists'] = True
+            
+            # Check return values
+            if return_match := return_pattern.search(code):
                 fields, name, version, chainId, verifyingContract, salt, extensions = return_match.groups()
-
-                # Check fields bitmap (should be hex with proper bits set)
-                if re.match(r'hex"[0-9a-fA-F]{1,2}"', fields) or re.match(r'bytes1\(hex"[0-9a-fA-F]{1,2}"\)', fields):
-                    requirements['fields_bitmap_correct'] = True
-                else:
-                    requirements['warnings'].append("fields should be hex value representing bitmap")
-
-                # Check name (should be non-empty string)
-                if re.match(r'".+"', name) or 'string(' in name:
-                    requirements['name_field_valid'] = True
-                else:
-                    requirements['warnings'].append("name should be non-empty string")
-
-                # Check version (can be empty but should be string)
-                if re.match(r'""|".+"', version) or 'string(' in version:
-                    requirements['version_field_valid'] = True
-                else:
-                    requirements['warnings'].append("version should be string (can be empty)")
-
-                # Check chainId (should be block.chainid or valid alternative)
+                
+                # Validate fields bitmap
+                if hex_match := re.search(r'hex"([0-9a-fA-F]{1,2})"', fields):
+                    fields_hex = int(hex_match.group(1), 16)
+                    requirements['fields']['value'] = fields_hex
+                    # Verify all required bits are set
+                    required_bits = 0x0f  # 00001111 in binary (name|version|chainId|verifyingContract)
+                    if (fields_hex & required_bits) == required_bits:
+                        requirements['fields']['valid'] = True
+                    else:
+                        requirements['critical_issues'].append(
+                            f"Fields bitmap 0x{fields_hex:x} missing required bits (needs 0x{required_bits:x})"
+                        )
+                
+                # Validate name
+                if re.match(r'".+"', name) or ('toString()' in name and '_name' in name):
+                    requirements['name']['non_empty'] = True
+                    requirements['name']['valid'] = True
+                    if '_name' in name and 'immutable' in code:
+                        requirements['name']['immutable'] = True
+                
+                # Validate version (can be empty)
+                if re.match(r'""|".+"', version) or ('toString()' in version and '_version' in version):
+                    requirements['version']['valid'] = True
+                    if '_version' in version and 'immutable' in code:
+                        requirements['version']['immutable'] = True
+                
+                # Validate chainId
                 if 'block.chainid' in chainId.lower():
-                    requirements['chainId_field_valid'] = True
+                    requirements['chainId']['uses_block_chainid'] = True
+                    requirements['chainId']['valid'] = True
                 else:
-                    requirements['warnings'].append("chainId should preferably use block.chainid")
-
-                # Check verifyingContract (should be address(this))
+                    requirements['warnings'].append("chainId should use block.chainid for fork safety")
+                
+                # Validate verifyingContract
                 if 'address(this)' in verifyingContract.lower():
-                    requirements['verifyingContract_field_valid'] = True
-                else:
-                    requirements['warnings'].append("verifyingContract should be address(this)")
-
-                # Check salt (can be zero but should be bytes32)
+                    requirements['verifyingContract']['uses_address_this'] = True
+                    requirements['verifyingContract']['valid'] = True
+                    # Check for proxy patterns
+                    if re.search(r'\.delegatecall', code) or re.search(r'proxy', code, re.I):
+                        requirements['verifyingContract']['proxy_safe'] = False
+                        requirements['critical_issues'].append(
+                            "Proxy pattern detected but no proxy address handling"
+                        )
+                
+                # Validate salt
                 if 'bytes32(' in salt or re.match(r'0x[0-9a-fA-F]{64}', salt):
-                    requirements['salt_field_valid'] = True
-                    if '0' in salt or '00' in salt:
-                        requirements['warnings'].append("salt is zero - consider using random value")
-                else:
-                    requirements['warnings'].append("salt should be bytes32 value")
-
-                # Check extensions (should be array, can be empty)
+                    requirements['salt']['valid'] = True
+                    if not ('0' in salt or '00' in salt):
+                        requirements['salt']['non_zero'] = True
+                    if '_salt' in salt and 'immutable' in code:
+                        requirements['salt']['immutable'] = True
+                
+                # Validate extensions
                 if 'new uint256[]' in extensions or '[]' in extensions:
-                    requirements['extensions_field_valid'] = True
-                else:
-                    requirements['warnings'].append("extensions should be uint256 array")
-
-    # Additional checks
+                    requirements['extensions']['valid'] = True
+                    if not ('[]' in extensions or '0' in extensions):
+                        requirements['extensions']['non_empty'] = True
+            
+            # Check for immutability of critical parameters
+            if immutable_pattern.search(code):
+                for match in immutable_pattern.finditer(code):
+                    var_type, var_name = match.groups()
+                    if var_name == '_name':
+                        requirements['name']['immutable'] = True
+                    elif var_name == '_version':
+                        requirements['version']['immutable'] = True
+                    elif var_name == '_salt':
+                        requirements['salt']['immutable'] = True
+    
+    # Additional security checks
     for code, source in all_code:
-        # Domain separator usage
-        if not requirements['domain_separator_usage']:
-            if re.search(r'DOMAIN_SEPARATOR', code) or re.search(r'domainSeparator\s*\(', code):
-                requirements['domain_separator_usage'] = True
-
-        # Typehash declarations
-        if not requirements['typehash_declared']:
-            if re.search(r'bytes32\s+[A-Z_]+_TYPEHASH\s*=', code):
-                requirements['typehash_declared'] = True
-
-    # Final validation
+        # Domain separator usage check
+        if re.search(r'_domainSeparatorV4\(\)|DOMAIN_SEPARATOR', code):
+            requirements['domain_separator_usage'] = True
+        
+        # Typehash declaration check
+        if re.search(
+            r'bytes32\s+[A-Z_]+\s*=\s*keccak256\s*\(\s*"EIP712Domain\s*\(.*?\)\s*"\)',
+            code
+        ):
+            requirements['typehash_declared'] = True
+    
+    # Final validation logic
     if requirements['eip712Domain_function_exists']:
         requirements['returns_correct_fields'] = all([
-            requirements['fields_bitmap_correct'],
-            requirements['name_field_valid'],
-            requirements['version_field_valid'],
-            requirements['chainId_field_valid'],
-            requirements['verifyingContract_field_valid'],
-            requirements['salt_field_valid'],
-            requirements['extensions_field_valid']
+            requirements['fields']['valid'],
+            requirements['name']['valid'],
+            requirements['version']['valid'],
+            requirements['chainId']['valid'],
+            requirements['verifyingContract']['valid'],
+            requirements['salt']['valid'],
+            requirements['extensions']['valid']
         ])
-
+        
+        # Add critical issues if immutable params aren't enforced
+        if not requirements['name']['immutable']:
+            requirements['critical_issues'].append("name parameter should be immutable")
+        if not requirements['version']['immutable']:
+            requirements['warnings'].append("version parameter should be immutable for security")
+    
     return requirements
 
 
@@ -849,6 +897,8 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
             requirements = verify_erc1155_requirements(target_func, internal_calls)
         if "permit" in target_sig:
             requirements = verify_erc2612_requirements(target_func, internal_calls)
+        if "eip712Domain" in target_sig:
+            requirements = verify_erc5267_requirements(target_func, internal_calls)
         # Calculate whether all requirements are met for this implementation
         all_reqs = [
             'sender_check',
@@ -1050,14 +1100,19 @@ if __name__ == "__main__":
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     # save_results_to_json(analysis_results, output_file)
     
-    erc2612_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC2612"
-    erc2612_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc2612_analysis_results.json"
-    erc2612_target_sig = "permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)"
-    analysis_results = analyze_directory(erc2612_directory, erc2612_output_file, erc2612_target_sig)
+    # erc2612_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC2612"
+    # erc2612_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc2612_analysis_results.json"
+    # erc2612_target_sig = "permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)"
+    # analysis_results = analyze_directory(erc2612_directory, erc2612_output_file, erc2612_target_sig)
+    
+    erc5267_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC5267"
+    erc5267_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc5267_analysis_results.json"
+    erc5267_target_sig = "eip712Domain()"
+    analysis_results = analyze_directory(erc5267_directory, erc5267_output_file, erc5267_target_sig)
     
     print(f"Total files analyzed: {len(analysis_results)}")
     
-    print(f"analysis_results requirements: {analysis_results}")
+    # print(f"analysis_results requirements: {analysis_results}")
     
     # Print summary statistics
     compliant_files = [r for r in analysis_results if not r.get('error')]
