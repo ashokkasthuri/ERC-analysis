@@ -480,12 +480,12 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("final_erc721_setApprovedForAll.json", "r") as f:
+    with open("final_erc3643_ batchTransfer.json", "r") as f:
         erc_config = json.load(f)
     
     # # Directory containing CSV files
     data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-721_setApprovedForAll_"
+    output_file = "/home/ashok/output/ERC-erc3643_batchTransfer_"
     
     # Directory containing CSV files
     # data_dir = "/Users/ashokk/Downloads/evm_data"
