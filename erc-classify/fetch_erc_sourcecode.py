@@ -70,7 +70,7 @@ def fetch_solidity_source(contract_address):
         return None
 
 def csv_address_source_fetch(base_dir, csv_file_path):
-     # Load the CSV file
+    # Load the CSV file
     df = pd.read_csv(csv_file_path)
 
     # Ensure required columns exist
@@ -82,43 +82,43 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     
     # Iterate over each unique ERC type
     for erc_type, group in erc_groups:
-        # Initialize a list to store successfully fetched addresses
-        fetched_count = 0
-        required_count = 10  # Adjust as needed
-        processed_addresses = set()
+        print(f"\nProcessing ERC type: {erc_type}")
         
         # Create a directory for this ERC type
         erc_dir = os.path.join(base_dir, erc_type)
         os.makedirs(erc_dir, exist_ok=True)
+        print(f"Output directory: {erc_dir}")
         
-        while fetched_count < required_count:
-            # Get more unique contract addresses if needed
-            unique_addresses = group["address"].dropna().unique()
+        # Get unique contract addresses
+        unique_addresses = group["address"].dropna().unique()
+        print(f"Found {len(unique_addresses)} unique addresses")
+        
+        fetched_count = 0
+        required_count = min(100, len(unique_addresses))  # Don't try to fetch more than available
+        
+        for contract_address in unique_addresses:
+            if fetched_count >= required_count:
+                break
             
-            for contract_address in unique_addresses:
-                if fetched_count >= required_count:
-                    break  # Stop when 10 contracts are fetched
-                
-                if contract_address in processed_addresses:
-                    continue  # Skip already processed addresses
-                
-                # Fetch Solidity source code
-                solidity_code = fetch_solidity_source(contract_address)
-                
-                if solidity_code:
-                    # Define file path and save Solidity code
-                    file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
+            print(f"\nProcessing contract {fetched_count + 1}/{required_count}: {contract_address}")
+            
+            # Fetch Solidity source code
+            solidity_code = fetch_solidity_source(contract_address)
+            
+            if solidity_code:
+                # Define file path and save Solidity code
+                file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
+                try:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(solidity_code)
-                    
+                    print(f"✅ Saved: {file_path}")
                     fetched_count += 1
-                    processed_addresses.add(contract_address)
-                #     print(f"✅ Saved: {file_path}")
-                # else:
-                #     print(f"❌ No source code found for {contract_address}")
+                except Exception as e:
+                    print(f"❌ Failed to save {file_path}: {str(e)}")
+            else:
+                print(f"⚠️ No source code found for {contract_address}")
 
     print("\n🎯 Solidity contract fetching and saving complete!")
-
 # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
 ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
 
