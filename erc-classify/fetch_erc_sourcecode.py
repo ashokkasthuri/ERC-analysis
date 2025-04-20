@@ -203,89 +203,21 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    # csv_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify"   
-    # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
+    csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
+    base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
+    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    # csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
-    csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
-    csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
-    csv_files3 = glob.glob(os.path.join(csv_dir, "ERC-7409*.csv"))
-    csv_files4 = glob.glob(os.path.join(csv_dir, "ERC-6606*.csv"))
-    csv_files5 = glob.glob(os.path.join(csv_dir, "ERC-erc5023*.csv"))
+    # csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
+    # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
+    # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
+    # csv_files3 = glob.glob(os.path.join(csv_dir, "ERC-7409*.csv"))
+    # csv_files4 = glob.glob(os.path.join(csv_dir, "ERC-6606*.csv"))
+    # csv_files5 = glob.glob(os.path.join(csv_dir, "ERC-erc5023*.csv"))
     csv_files6 = glob.glob(os.path.join(csv_dir, "ERC-erc3643*.csv"))
     
-    if not csv_files:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
-    
-    for csv_file_path in csv_files:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
-    
-    ############
-    if not csv_files1:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
-    
-    for csv_file_path in csv_files1:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
-    ############
-    if not csv_files2:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
-    
-    for csv_file_path in csv_files2:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
-    
-    ############
-    if not csv_files3:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
-    
-    for csv_file_path in csv_files3:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
-    ############
-    if not csv_files4:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
-    
-    for csv_file_path in csv_files4:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
-    ############
-    if not csv_files5:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
-    
-    for csv_file_path in csv_files5:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path)
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
-    ############
     if not csv_files6:
         print(f"No CSV files starting with  found in {csv_dir}")
         return
@@ -296,6 +228,74 @@ def main():
             csv_address_source_fetch(base_dir, csv_file_path)
         except Exception as e:
             print(f"Error processing {csv_file_path}: {str(e)}")
+    
+    # ############
+    # if not csv_files1:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
+    
+    # for csv_file_path in csv_files1:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    # ############
+    # if not csv_files2:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
+    
+    # for csv_file_path in csv_files2:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    
+    # ############
+    # if not csv_files3:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
+    
+    # for csv_file_path in csv_files3:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    # ############
+    # if not csv_files4:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
+    
+    # for csv_file_path in csv_files4:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    # ############
+    # if not csv_files5:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
+    
+    # for csv_file_path in csv_files5:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    # ############
+    # if not csv_files6:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
+    
+    # for csv_file_path in csv_files6:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path)
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
     
     
     
