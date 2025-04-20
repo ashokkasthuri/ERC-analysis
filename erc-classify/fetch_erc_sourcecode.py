@@ -203,11 +203,11 @@ def save_contract_details(erc_type, contract_address, contract_data):
 def main():
     erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
     
-    csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
-    base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
+    # csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
+    # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    # csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
