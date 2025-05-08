@@ -84,7 +84,7 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
-        required_count = 10  # Adjust as needed
+        required_count = 10000  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
@@ -206,23 +206,24 @@ def main():
     # csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
+    base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
-    # csv_files = glob.glob(os.path.join(csv_dir, "ERC-721*.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155*.csv"))
     # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
     # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
     # csv_files3 = glob.glob(os.path.join(csv_dir, "ERC-7409*.csv"))
     # csv_files4 = glob.glob(os.path.join(csv_dir, "ERC-6606*.csv"))
     # csv_files5 = glob.glob(os.path.join(csv_dir, "ERC-erc5023*.csv"))
-    csv_files6 = glob.glob(os.path.join(csv_dir, "ERC-erc3643*.csv"))
+    # csv_files6 = glob.glob(os.path.join(csv_dir, "ERC-erc3643*.csv"))
     
-    if not csv_files6:
+    if not csv_files:
         print(f"No CSV files starting with  found in {csv_dir}")
         return
     
-    for csv_file_path in csv_files6:
+    for csv_file_path in csv_files:
         print(f"\nProcessing file: {csv_file_path}")
         try:
             csv_address_source_fetch(base_dir, csv_file_path)

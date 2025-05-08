@@ -248,24 +248,39 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         all_conditions.extend(condition_matches)
     
     # Possible sender representations
-    sender_reprs = ['msg.sender', '_msgSender()']
+    sender_reprs = ['msg.sender', '_msgSender()', 'sender']
     
     # Check conditions
     for condition_content, condition_source, condition_type in all_conditions:
         # Check for sender condition
+        # Check for sender condition
         if from_param and not requirements['sender_check']:
             for sender in sender_reprs:
-                if condition_type == "if-revert" :
+                if condition_type == "if-revert":
+                    print(f"condition_type :{condition_type}")
+                    # Basic inequality checks (complete conditions)
                     pattern1 = rf'{re.escape(sender)}\s*!=\s*{from_param}'
-                    pattern2 = rf'{from_param}\s!=\s*{re.escape(sender)}'
-                    if re.search(pattern1, condition_content) or re.search(pattern2, condition_content):
+                    pattern2 = rf'{from_param}\s*!=\s*{re.escape(sender)}'
+                    
+                    # Combined sender and approval check
+                    pattern3 = rf'if\s*\(\s*{re.escape(sender)}\s*!=\s*{from_param}\s*&&\s*!isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)\s*\)'
+                    
+                    # New patterns for partial conditions
+                    pattern4 = rf'if\s*\(\s*{from_param}\s*!=\s*{re.escape(sender)}'  # matches "if (from != sender"
+                    pattern5 = rf'if\s*\(\s*{re.escape(sender)}\s*!=\s*{from_param}'  # matches "if (sender != from"
+                    
+                    if (re.search(pattern1, condition_content) or 
+                        re.search(pattern2, condition_content) or
+                        re.search(pattern3, condition_content) or 
+                        re.search(pattern4, condition_content) or
+                        re.search(pattern5, condition_content)):
                         requirements['sender_check'] = True
                         break
                     
                 if condition_type == "require":
-                    pattern3 = rf'{re.escape(sender)}\s*==\s*{from_param}'
-                    pattern4 = rf'{from_param}\s*==\s*{re.escape(sender)}'
-                    if re.search(pattern3, condition_content) or re.search(pattern4, condition_content):
+                    pattern6 = rf'{re.escape(sender)}\s*==\s*{from_param}'
+                    pattern7 = rf'{from_param}\s*==\s*{re.escape(sender)}'
+                    if re.search(pattern6, condition_content) or re.search(pattern7, condition_content):
                         requirements['sender_check'] = True
                         break
 
@@ -273,9 +288,17 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         if from_param and not requirements['approval_check']:
             for sender in sender_reprs:
                 if condition_type == "if-revert":
+                    print(f"condition_type :{condition_type}")
                     pattern1 = rf'!isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)'
                     exact_pattern1 = rf'operatorApproval\[{from_param}\]\[{re.escape(sender)}\]\s*==\s*false'
-                    if re.search(pattern1, condition_content) or re.search(exact_pattern1, condition_content, re.IGNORECASE):
+                    # New pattern for mapping-style access
+                    mapping_pattern1 = rf'!isApprovedForAll\[{from_param}\]\[{re.escape(sender)}\]'
+                    # New pattern for combined check with revert
+                    pattern2 = rf'if\s*\(\s*{re.escape(sender)}\s*!=\s*{from_param}\s*&&\s*!isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)\s*\)\s*{{\s*revert\s*ERC1155MissingApprovalForAll\(\s*{re.escape(sender)}\s*,\s*{from_param}\s*\)'
+                    if (re.search(pattern1, condition_content) or 
+                        re.search(exact_pattern1, condition_content, re.IGNORECASE) or
+                        re.search(mapping_pattern1, condition_content) or
+                        re.search(pattern2, condition_content)):
                         requirements['approval_check'] = True
                         break
                     if not requirements['approval_check']:
@@ -285,12 +308,18 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                             re.search(r'false', condition_content, re.IGNORECASE)):
                             requirements['approval_check'] = True
                             break
-                if condition_type == "require" :
-                    pattern2 = rf'isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)'
-                    # Check for operatorApproval[from][sender] == true
+                if condition_type == "require":
+                    pattern3 = rf'isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)'
                     exact_pattern2 = rf'operatorApproval\[{from_param}\]\[{re.escape(sender)}\]\s*==\s*true'
+                    # New pattern for mapping-style access in require
+                    mapping_pattern2 = rf'isApprovedForAll\[{from_param}\]\[{re.escape(sender)}\]'
+                    # New pattern for specific case you mentioned
+                    specific_case_pattern = rf'require\(\s*isApprovedForAll\[{from_param}\]\[{re.escape(sender)}\]\s*,\s*[\'"]NOT_AUTHORIZED[\'"]\s*\)'
                     
-                    if re.search(pattern2, condition_content) or re.search(exact_pattern2, condition_content, re.IGNORECASE):
+                    if (re.search(pattern3, condition_content) or 
+                        re.search(exact_pattern2, condition_content, re.IGNORECASE) or
+                        re.search(mapping_pattern2, condition_content) or
+                        re.search(specific_case_pattern, condition_content)):
                         requirements['approval_check'] = True
                         break
                     if not requirements['approval_check']:
@@ -305,22 +334,27 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         if to_param and not requirements['zero_address_check']:
             if condition_type == "if-revert":
                 zero_addr_pattern1 = [
-                rf'{to_param}\s*==\s*address\(0\)',
-                rf'address\(0\)\s*==\s*{to_param}',
-                rf'{to_param}\s*==\s*address\(0x0\)',
-                rf'address\(0x0\)\s*==\s*{to_param}'
+                    rf'{to_param}\s*==\s*address\(0\)',
+                    rf'address\(0\)\s*==\s*{to_param}',
+                    rf'{to_param}\s*==\s*address\(0x0\)',
+                    rf'address\(0x0\)\s*==\s*{to_param}',
+                    rf'recipient\s*==\s*address\(0\)',  # Added recipient check
+                    rf'recipient\s*==\s*address\(0x0\)'  # Added recipient check
                 ]
                 for pattern in zero_addr_pattern1:
                     if re.search(pattern, condition_content):
                         requirements['zero_address_check'] = True
                         break
-                
+                    
             if condition_type == "require":
                 zero_addr_pattern2 = [
-                rf'{to_param}\s*!=\s*address\(0\)',
-                rf'address\(0\)\s*!=\s*{to_param}',
-                rf'{to_param}\s*!=\s*address\(0x0\)',
-                rf'address\(0x0\)\s*!=\s*{to_param}'
+                    rf'{to_param}\s*!=\s*address\(0\)',
+                    rf'address\(0\)\s*!=\s*{to_param}',
+                    rf'{to_param}\s*!=\s*address\(0x0\)',
+                    rf'address\(0x0\)\s*!=\s*{to_param}',
+                    rf'recipient\s*!=\s*address\(0\)',  # Added recipient check
+                    rf'recipient\s*!=\s*address\(0x0\)',  # Added recipient check
+                    rf'require\s*\(\s*recipient\s*!=\s*address\(0\)\s*,\s*[\'"]ERC1155:\s*transfer\s*to\s*the\s*zero\s*address[\'"]\s*\)'  # Specific ERC1155 case
                 ]
                 for pattern in zero_addr_pattern2:
                     if re.search(pattern, condition_content):
@@ -371,7 +405,21 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         
     
         # 1. Check for isContract() guard
-        if re.search(rf'if\s*\(\s*{to_param}\s*\.\s*isContract()\s*\(\s*\)\s*\)', normalized_code):
+        contract_check_patterns = [
+        # Standard if(isContract()) checks
+        rf'if\s*\(\s*{to_param}\s*\.\s*isContract\s*\(\s*\)\s*\)',
+        
+        # Various code.length comparisons
+        rf'if\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*[!=]=\s*0\s*\)',
+        rf'if\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*>\s*0\s*\)',
+        
+        # Ternary require checks
+        rf'require\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*==\s*0\s*\?\s*{to_param}\s*!=\s*address\s*\(\s*0\s*\)',
+        rf'require\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*==\s*0\s*\?\s*{to_param}\s*!=\s*0x0\b',
+        rf'require\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*==\s*0\s*\?\s*{to_param}\s*!=\s*address\s*\(\s*0\s*\)\s*:'
+        ]
+
+        if any(re.search(pattern, normalized_code) for pattern in contract_check_patterns):
             requirements['to_isContract_check'] = True
         # Check for onReceived implementation in functions called after the event
         if event_pos and source != event_pos[0]:
@@ -895,10 +943,10 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
         print("Found internal calls:", [f['name'] for f in internal_calls])
         if "safeBatchTransferFrom" in target_sig:
             requirements = verify_erc1155_requirements(target_func, internal_calls)
-        if "permit" in target_sig:
-            requirements = verify_erc2612_requirements(target_func, internal_calls)
-        if "eip712Domain" in target_sig:
-            requirements = verify_erc5267_requirements(target_func, internal_calls)
+        # if "permit" in target_sig:
+        #     requirements = verify_erc2612_requirements(target_func, internal_calls)
+        # if "eip712Domain" in target_sig:
+        #     requirements = verify_erc5267_requirements(target_func, internal_calls)
         # Calculate whether all requirements are met for this implementation
         all_reqs = [
             'sender_check',
@@ -944,7 +992,7 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     for root, _, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.sol'):
-                # file .startswith("ERC1155_0xcbb0d2e") and
+                # file.startswith("ERC1155_0x063c8286c0f23d53c2c92b05447f884a3d2d0a23.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1091,11 +1139,11 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
-    # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_analysis_results.json"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_analysis_results.json"
     # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
     # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
-    # erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     # save_results_to_json(analysis_results, output_file)
@@ -1108,7 +1156,7 @@ if __name__ == "__main__":
     erc5267_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC5267"
     erc5267_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc5267_analysis_results.json"
     erc5267_target_sig = "eip712Domain()"
-    analysis_results = analyze_directory(erc5267_directory, erc5267_output_file, erc5267_target_sig)
+    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     
     print(f"Total files analyzed: {len(analysis_results)}")
     
