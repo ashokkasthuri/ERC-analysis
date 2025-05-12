@@ -217,6 +217,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
     # Combine all code to analyze (main function + internal calls)
     all_code = [(target_func['body'], "main function")]
     for func in internal_functions:
+        
         if target_func['body'] != func['body'] and len(internal_functions) != 1:
             all_code.append((func['body'], f"internal function {func['name']}"))
             
@@ -936,8 +937,8 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
         internal_calls = get_all_internal_calls(target_func['body'], all_functions)
         
         # Skip analysis if we got None (self-recursive call detected)
-        if internal_calls is None:
-            continue
+        # if internal_calls is None:
+        #     continue
             
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
@@ -967,21 +968,21 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
             "parameters": target_func.get('parameters', {}),
             "requirements": requirements,
             "internal_calls": [f['name'] for f in internal_calls],
-            "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
-            "on_received_check_found": requirements.get('on_received_check', False),
-            "all_requirements_met": all_met,
-            "some_requirements_met": some_met
+            # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
+            # "on_received_check_found": requirements.get('on_received_check', False),
+            # "all_requirements_met": all_met,
+            # "some_requirements_met": some_met
         })
     
     # Return consolidated results
     if results:
         return {
             "all_implementations": results,
-            "summary": {
-                "total_implementations": len(results),
-                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
-                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
-            }
+            # "summary": {
+            #     "total_implementations": len(results),
+            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            # }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
 
@@ -992,7 +993,7 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     for root, _, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.sol'):
-                # file.startswith("ERC1155_0x063c8286c0f23d53c2c92b05447f884a3d2d0a23.sol") and
+                # file.startswith("ERC1155_0x7325b92b09e38f586168257ca77fe4e8d381ca69.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1140,10 +1141,12 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 if __name__ == "__main__":
     
-    erc1155_directory = "/home/ashok/output/ERC1155_Solidity_SourceCode/ERC1155"
-    erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_analysis_results.json"
+    # erc1155_directory = "/home/ashok/output/ERC1155_Solidity_SourceCode/ERC1155"
+    # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_analysis_results.json"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
-    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_analysis_results.json"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155"
+    
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_analysis_results.json"
     # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
     # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
