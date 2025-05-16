@@ -84,7 +84,7 @@ def csv_address_source_fetch(base_dir, csv_file_path):
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
-        required_count = 500  # Adjust as needed
+        required_count = 200  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
@@ -212,7 +212,9 @@ def main():
     
     # Find all CSV files starting with "ERC-1155"
     # 1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
+    # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_polygon.csv"))
+    
     # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
     # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
     # csv_files3 = glob.glob(os.path.join(csv_dir, "ERC-7409*.csv"))

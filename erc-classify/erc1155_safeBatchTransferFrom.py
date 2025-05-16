@@ -49,6 +49,7 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
             token not in visited):
             
             call_name = token
+            # print(f"call_name:{call_name}")
             
             # Skip keywords and built-ins
             if (call_name.lower() in {
@@ -56,8 +57,7 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
                 'returns', 'if', 'try', 'iscontract', 'continue', 'break',
                 'for', 'while', 'do', 'else', 'catch', 'delete', 'length'
             } or call_name in {
-                'gasleft', 'msg', 'block', 'tx', 'abi', 'type', 'this',
-                'super', 'selfdestruct', 'sha3', 'keccak256', 'ripemd160',
+                'gasleft', 'msg', 'block', 'tx', 'abi', 'type', 'this', 'selfdestruct', 'sha3', 'keccak256', 'ripemd160',
                 'ecrecover', 'addmod', 'mulmod', 'balance', 'sub', 'add'
             }):
                 i += 1
@@ -71,12 +71,16 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
             # Find matching function definition
             for func in all_functions:
                 if func['name'] == call_name:
-                    # Skip self-references
-                    if func['body'] == function_body:
-                        continue
+                    # # Skip self-references
+                    # if func['body'] == function_body:
+                    #     continue
                     
                     # Only process if we haven't visited this function before
-                    if call_name not in visited:
+                    # if call_name not in visited:
+                    #     visited.add(call_name)
+                    
+                    if func['body'] != function_body:
+                        
                         visited.add(call_name)
                         internal_calls.append(func)
                         # Recursively get calls from this function
@@ -217,9 +221,10 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
     # Combine all code to analyze (main function + internal calls)
     all_code = [(target_func['body'], "main function")]
     for func in internal_functions:
+        # print(f"func['body']:{func['body']}")
         
-        if target_func['body'] != func['body'] and len(internal_functions) != 1:
-            all_code.append((func['body'], f"internal function {func['name']}"))
+        # if target_func['body'] != func['body'] and len(internal_functions) != 1:
+        all_code.append((func['body'], f"internal function {func['name']}"))
             
         
     # Find all length assignments first
@@ -368,8 +373,19 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             # Check direct length comparisons
             direct_patterns = [
                 rf'{ids_param}\.length\s*[!=]=\s*{amounts_param}\.length',
-                rf'{amounts_param}\.length\s*[!=]=\s*{ids_param}\.length'
+                rf'{amounts_param}\.length\s*[!=]=\s*{ids_param}\.length',
+                rf'{ids_param}\.length\s*[==]=\s*{amounts_param}\.length',
+                rf'{amounts_param}\.length\s*[==]=\s*{ids_param}\.length',
+               
                 ]
+            # direct_patterns = [
+            #     rf'{ids_param}\.length\s*[!=]=\s*{amounts_param}\.length',
+            #     rf'{amounts_param}\.length\s*[!=]=\s*{ids_param}\.length',
+            #     r'(?!(?:ids|values?|amounts?)\.length\s*!=\s*(?:ids|values?|amounts?)\.length)'
+            #     r'([A-Za-z_][A-Za-z0-9_]*)\.length\s*!=\s*([A-Za-z_][A-Za-z0-9_]*)\.length'
+            # ]
+
+
             assigned_patterns = []
             for var_name in length_assignments:
                 assigned_patterns.extend([
@@ -928,6 +944,7 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
     all_functions = find_all_functions(solidity_code)
     
     target_funcs = find_functions_by_signature(all_functions, target_sig)
+    # print(f"target_funcs:{target_funcs}")
     
     if not target_funcs:
         return {"error": "safeBatchTransferFrom function not found"}
@@ -942,8 +959,8 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
             
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
-        if "safeBatchTransferFrom" in target_sig:
-            requirements = verify_erc1155_requirements(target_func, internal_calls)
+        # if "safeBatchTransferFrom" in target_sig:
+        requirements = verify_erc1155_requirements(target_func, internal_calls)
         # if "permit" in target_sig:
         #     requirements = verify_erc2612_requirements(target_func, internal_calls)
         # if "eip712Domain" in target_sig:
@@ -993,7 +1010,7 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     for root, _, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.sol'):
-                # file.startswith("ERC1155_0x7325b92b09e38f586168257ca77fe4e8d381ca69.sol") and
+                # file.startswith("ERC1155_0xedbaee53b410d2c59f1b73144e8d500e94b496a0.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1141,12 +1158,13 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 if __name__ == "__main__":
     
-    erc1155_directory = "/home/ashok/output/ERC1155_Solidity_SourceCode/ERC1155"
-    erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_TEST_analysis_results.json"
+    # erc1155_directory = "/home/ashok/output/ERC1155_Solidity_SourceCode/ERC1155"
+    # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
-    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155"
     
-    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_analysis_results.json"
+    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ONE_analysis_results.json"
     # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
     # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"

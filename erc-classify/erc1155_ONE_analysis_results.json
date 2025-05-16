@@ -1,0 +1,45 @@
+[
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 49589-50016",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_disabledTransfer",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_transferVotingUnits",
+          "push",
+          "latest",
+          "toUint224",
+          "push",
+          "_moveDelegateVotes",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ]
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155/ERC1155_0xcc00616277f3ef54528b26db0786e3c6d0a79b99.sol"
+  }
+]
