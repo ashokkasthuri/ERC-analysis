@@ -208,6 +208,8 @@ def main():
     
     # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-polygon"
+    
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
