@@ -207,15 +207,19 @@ def main():
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
     # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-polygon"
+    # base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-binance"
+        # ERC-721_setApprovedForAll_binance_deduplicated_results.csv
+        # ERC-721_setApprovedForAll_deduplicated_avalanche.csv
+        # ERC-721_setApprovedForAll_deduplicated_polygon.csv
+        # ERC-721_setApprovedForAll_ethereum_deduplicated_results.csv
     
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     
     # Find all CSV files starting with "ERC-1155"
     # 1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_polygon.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_binance_deduplicated_results.csv"))
     
     # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
     # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
