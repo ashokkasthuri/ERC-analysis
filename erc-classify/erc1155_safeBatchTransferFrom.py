@@ -1158,16 +1158,16 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
 
 if __name__ == "__main__":
     
-    # erc1155_directory = "/home/ashok/output/ERC1155_Solidity_SourceCode/ERC1155"
+    erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum/ERC1155"
     # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155"
-    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche"
+    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche"
     
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
-    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_avalanche_analysis_results.json"
+    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
     # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
-    # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_analysis_results.json"
+    erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_ethereum1_analysis_results.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
