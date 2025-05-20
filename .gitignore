@@ -203,3 +203,6 @@ output/
 .env
 
 .DS_Store
+
+
+erc-classify/ERC1155-ethereum/
