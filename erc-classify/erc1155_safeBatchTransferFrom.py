@@ -227,6 +227,7 @@ def extract_parameters(target_func: Dict) -> Dict:
         'amounts_param': params[3][0] if len(params) > 3 else None,
         'data_param': params[4][0] if len(params) > 4 else None
     }
+
 def extract_setApprovalForAll_parameters(target_func: Dict) -> Dict:
     """Extract and return all relevant parameters from the target function."""
     params = list(target_func.get('parameters', {}).items())
@@ -1529,10 +1530,13 @@ if __name__ == "__main__":
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
     erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155"
     erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_setApprovalForAll_ONE_analysis_results.json"
-    # erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
-    erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
+    # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
+    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
+    
+    print(f"Total files analyzed: {len(analysis_results)}")
     
     # total_files = sum(1 for file in os.listdir(erc1155_directory) if file.endswith('.sol'))
     # print(f"Total .sol files: {total_files}")
@@ -1549,9 +1553,7 @@ if __name__ == "__main__":
     # erc5267_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc5267_analysis_results.json"
     # erc5267_target_sig = "eip712Domain()"
     
-    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig_setApprovalForAll)
-    
-    print(f"Total files analyzed: {len(analysis_results)}")
+   
     
     
 #    # File paths
