@@ -1,0 +1,29 @@
+[
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "self_approval_check": true,
+          "status_change_check": true,
+          "event_emission": true
+        },
+        "internal_calls": [
+          "setApprovalForAll",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "whenNotPaused",
+          "_whenNotPaused",
+          "_whenNotPaused",
+          "_paused"
+        ]
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155/ERC1155_0x4efd5d94d9e88b74be29e738b16e15c05e2c8f9d.sol"
+  }
+]

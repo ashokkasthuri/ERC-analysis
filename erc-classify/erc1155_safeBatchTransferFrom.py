@@ -102,6 +102,59 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
     
     return internal_calls if internal_calls else None
 
+# def get_all_internal_calls(function_body: str, all_functions: List[Dict], visited: Set[str] = None) -> List[Dict]:
+#     """Recursively get all internal function calls with parameters (including nested calls)."""
+#     if visited is None:
+#         visited = set()
+    
+#     internal_calls = []
+    
+#     # Improved pattern to match function calls with full parameters
+#     call_pattern = re.compile(
+#         r'([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)\s*(?:;|{)',  # Matches func_name(params)
+#         re.DOTALL
+#     )
+    
+#     # Find all function call matches in the body
+#     for match in call_pattern.finditer(function_body):
+#         call_name = match.group(1)
+#         params = match.group(2).strip()
+#         # print(f"params:{params}")
+        
+#         # Skip keywords and built-ins
+#         if (call_name.lower() in {
+#             'require', 'assert', 'revert', 'emit', 'new', 'return',
+#             'returns', 'if', 'try', 'iscontract', 'continue', 'break',
+#             'for', 'while', 'do', 'else', 'catch', 'delete', 'length'
+#         } or call_name in {
+#             'gasleft', 'msg', 'block', 'tx', 'abi', 'type', 'this', 
+#             'selfdestruct', 'sha3', 'keccak256', 'ripemd160',
+#             'ecrecover', 'addmod', 'mulmod', 'balance', 'sub', 'add'
+#         }):
+#             continue
+        
+#         # Skip library calls (those with dots)
+#         if '.' in call_name:
+#             continue
+        
+#         # Find matching function definition
+#         for func in all_functions:
+#             if func['name'] == call_name:
+#                 # Create enhanced function info with parameters
+#                 enhanced_func = func.copy()
+#                 enhanced_func['call_signature'] = f"{call_name}({params})"
+                
+                
+#                 if func['body'] != function_body and call_name not in visited:
+#                     visited.add(call_name)
+#                     internal_calls.append(enhanced_func)
+                    
+#                     # Recursively get calls from this function
+#                     nested_calls = get_all_internal_calls(func['body'], all_functions, visited)
+#                     if nested_calls:
+#                         internal_calls.extend(nested_calls)
+    
+#     return internal_calls if internal_calls else None
 
 def find_if_revert_conditions(code: str):
     """Find all if conditions containing revert statements"""
@@ -174,6 +227,16 @@ def extract_parameters(target_func: Dict) -> Dict:
         'amounts_param': params[3][0] if len(params) > 3 else None,
         'data_param': params[4][0] if len(params) > 4 else None
     }
+def extract_setApprovalForAll_parameters(target_func: Dict) -> Dict:
+    """Extract and return all relevant parameters from the target function."""
+    params = list(target_func.get('parameters', {}).items())
+    return {
+        'owner_param': params[0][0] if len(params) > 0 else None,
+        'operator_param': params[0][0] if len(params) > 1 else None,
+        'approved_param': params[1][0] if len(params) > 2 else None
+        
+    }
+    
 
 def find_length_assignments(all_code: List[Tuple[str, str]], ids_param: str) -> Dict:
     """Find all length assignments in the provided code."""
@@ -378,6 +441,11 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 rf'{amounts_param}\.length\s*[==]=\s*{ids_param}\.length',
                
                 ]
+            
+            direct_patterns1 = [
+                r'\.length\s*!=\s*\.length',
+                r'\.length\s*==\s*\.length'
+                ]
             # direct_patterns = [
             #     rf'{ids_param}\.length\s*[!=]=\s*{amounts_param}\.length',
             #     rf'{amounts_param}\.length\s*[!=]=\s*{ids_param}\.length',
@@ -392,7 +460,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                     rf'{var_name}\s*[!=]=\s*{amounts_param}\.length',
                     rf'{amounts_param}\.length\s*[!=]=\s*{var_name}'
                 ])
-            if any(re.search(p, condition_content) for p in direct_patterns + assigned_patterns):
+            if any(re.search(p, condition_content) for p in direct_patterns + assigned_patterns+direct_patterns1):
                 requirements['length_matching_check'] = True
   
         # # Check for balance checks
@@ -446,6 +514,141 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 requirements['on_received_check'] = True
 
     return requirements
+
+def verify_setApprovalForAll_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+    """Verify if the function meets setApprovalForAll requirements."""
+    requirements = {
+        'self_approval_check': False,
+        'status_change_check': False,
+        'event_emission': False
+    }
+    
+    params = extract_setApprovalForAll_parameters(target_func)
+    operator_param = params.get('operator_param', 'operator')
+    
+    # operator_param = ''
+    # owner_param = ''
+    
+    
+    # Combine all code to analyze (main function + internal calls)
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        all_code.append((func['body'], f"internal function {func['name']}"))
+        # if func['body'] and "setApprovalForAll" in func['name']:
+        #     # Split parameters into a list and clean them
+        #     param_list = [p.strip() for p in func['params'].split(',')]
+
+        #     # Extract individual parameters (just the variable names)
+        #     owner_param = param_list[0].split()[-1]  # Gets '_account' from 'address _account'
+        #     operator_param = param_list[1].split()[-1]  # Gets '_operator' from 'address _operator'
+        #     approved_param = param_list[2].split()[-1]  # Gets '_approved' from 'bool _approved'
+
+        #     print(f"Owner parameter: {owner_param}")
+        #     print(f"Operator parameter: {operator_param}")
+        #     print(f"Approved parameter: {approved_param}")
+            
+    
+    all_conditions = []
+    event_pos = None
+    
+    for code, source in all_code:
+        condition_matches = []
+        # Pattern for require statements
+        require_pattern = r'require\s*\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)'
+        # Find all require matches
+        require_matches = re.finditer(require_pattern, code, re.DOTALL)
+        
+        for match in require_matches:
+            req_content = re.sub(r'\s+', ' ', match.group(1).strip())
+            condition_matches.append((req_content, source, 'require'))
+        
+        # Find if-revert conditions
+        if_revert_conditions = find_if_revert_conditions(code)
+        for condition in if_revert_conditions:
+            condition_matches.append((condition, source, 'if-revert'))
+            
+        all_conditions.extend(condition_matches)
+    
+    # Possible sender representations
+    sender_reprs = ['msg.sender', '_msgSender()', 'sender', 'owner', "owner_", '_account', 'account']
+    
+    # Check conditions
+    for condition_content, condition_source, condition_type in all_conditions:
+        # Check for self-approval prevention
+        if not requirements['self_approval_check']:
+            for sender in sender_reprs:
+                escaped_operator = re.escape(operator_param)
+                # print(f"sender :{sender}")
+                # print(f"operator_param :{operator_param}")
+                
+                # patterns = [
+                #     rf'{owner_param}\s*==\s*{operator_param}',
+                #     rf'{operator_param}\s*==\s*{owner_param}',
+                #     rf'{owner_param}\s*!=\s*{operator_param}',
+                #     rf'{operator_param}\s*!=\s*{owner_param}'
+                # ]
+                patterns1 = [
+                    rf'{sender}\s*==\s*{operator_param}',
+                    rf'{operator_param}\s*==\s*{sender}',
+                    rf'{sender}\s*!=\s*{operator_param}',
+                    rf'{operator_param}\s*!=\s*{sender}'
+                ]
+                
+                patterns2 = [
+                    rf'{re.escape(sender)}\s*\(\s*\)\s*!=\s*{escaped_operator}',  # _msgSender() != operator
+                    rf'{escaped_operator}\s*!=\s*{re.escape(sender)}\s*\(\s*\)',  # operator != _msgSender()
+                    rf'{re.escape(sender)}\s*!=\s*{escaped_operator}',            # msg.sender != operator (fallback)
+                    rf'{escaped_operator}\s*!=\s*{re.escape(sender)}'             # operator != msg.sender (fallback)
+                ]
+                if any(re.search(p, condition_content) for p in patterns1) or \
+                    (any(re.search(p, condition_content) for p in patterns2)):
+                    requirements['self_approval_check'] = True
+                    break
+        
+        # # Check for zero address operator
+        # if not requirements['zero_address_check']:
+        #     zero_addr_patterns = [
+        #         rf'{operator_param}\s*==\s*address\(0\)',
+        #         rf'address\(0\)\s*==\s*{operator_param}',
+        #         rf'{operator_param}\s*!=\s*address\(0\)',
+        #         rf'address\(0\)\s*!=\s*{operator_param}'
+        #     ]
+        #     if any(re.search(p, condition_content) for p in zero_addr_patterns):
+        #         requirements['zero_address_check'] = True
+        
+        # Check for status change validation (front-running protection)
+        # if not requirements['frontrunning_protection']:
+        #     status_patterns = [
+        #         rf'_operatorApprovals\[{sender}\]\[{operator_param}\]\s*==\s*approved',
+        #         rf'operatorApprovals\[{sender}\]\[{operator_param}\]\s*==\s*approved',
+        #         rf'_approvals\[{sender}\]\[{operator_param}\]\s*==\s*approved',
+        #         rf'approvals\[{sender}\]\[{operator_param}\]\s*==\s*approved'
+        #     ]
+        #     if any(re.search(p, condition_content) for p in status_patterns):
+        #         requirements['frontrunning_protection'] = True
+    
+    # Check for event emission in the code
+    for code, source in all_code:
+        # Event emission check
+        if 'emit ApprovalForAll(' in code:
+            requirements['event_emission'] = True
+            event_pos = (source, code.find('emit ApprovalForAll('))
+            
+            # Verify event is emitted after all checks
+            if event_pos:
+                pre_event_code = code[:event_pos[1]]
+                check_patterns = [
+                    r'require\s*\(',
+                    r'if\s*\(',
+                    r'revert\s*\('
+                ]
+                if any(re.search(p, pre_event_code) for p in check_patterns):
+                    requirements['status_change_check'] = True
+    
+    return requirements
+
+
+
 
 
 def verify_erc2612_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
@@ -960,7 +1163,11 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
         # if "safeBatchTransferFrom" in target_sig:
-        requirements = verify_erc1155_requirements(target_func, internal_calls)
+        #     requirements = verify_erc1155_requirements(target_func, internal_calls)
+        if "setApprovalForAll" in target_sig:
+            requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
+        
+        
         # if "permit" in target_sig:
         #     requirements = verify_erc2612_requirements(target_func, internal_calls)
         # if "eip712Domain" in target_sig:
@@ -979,10 +1186,52 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
         all_met = all(requirements.get(req, False) for req in all_reqs)
         some_met = any(requirements.get(req, False) for req in all_reqs)
         
+        
+        for f in internal_calls:
+            if "onERC1155BatchReceived" in f.get('name', ''):
+                requirements["on_received_check"] = True
+                
+            if "isContract" in f.get('name', ''):
+                requirements["to_isContract_check"] = True
+            
+            if "isApprovedForAll" in f.get('name', ''):
+                requirements["approval_check"] = True
+                
+            if "msgSender" in f.get('name', ''):
+                requirements["sender_check"] = True
+            
+            if "isOperatable" in f.get('name', ''):
+                requirements["sender_check"] = True
+                requirements["approval_check"] = True
+            
+            if "isApprovedOrOwner" in f.get('name', ''):
+                requirements["sender_check"] = True
+                requirements["approval_check"] = True
+                
+            if "isSameLength" in f.get('name', ''):
+                requirements["length_matching_check"] = True
+        # for f in internal_calls:
+        #     if "isContract" in f.get('name', ''):
+        #         requirements["to_isContract_check"] = True
+        #         break
+        # for f in internal_calls:
+        #     if "isApprovedForAll" in f.get('name', ''):
+        #         requirements["approval_check"] = True
+        #         break
+        # for f in internal_calls:
+        #     if "msgSender" in f.get('name', ''):
+        #         requirements["sender_check"] = True
+        #         break
+
+            # if "totalSupply" or "exists" in f.get('name', ''):
+            #     requirements["length_matching_check"] = True
+        
+       
+        
         results.append({
-            "function": target_func['name'],
-            "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
-            "parameters": target_func.get('parameters', {}),
+            # "function": target_func['name'],
+            # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+            # "parameters": target_func.get('parameters', {}),
             "requirements": requirements,
             "internal_calls": [f['name'] for f in internal_calls],
             # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
@@ -1009,8 +1258,8 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.endswith('.sol'):
-                # file.startswith("ERC1155_0xedbaee53b410d2c59f1b73144e8d500e94b496a0.sol") and
+            if file.startswith("ERC1155_0x4efd5d94d9e88b74be29e738b16e15c05e2c8f9d.sol") and file.endswith('.sol'):
+                # file.startswith("ERC1155_0x4efd5d94d9e88b74be29e738b16e15c05e2c8f9d.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1156,9 +1405,121 @@ def get_function_parameters(function_body: str) -> Dict[str, str]:
     return params
 
 
+
+
+
+def create_automated_ground_truth(input_file: str, output_file: str, sample_size: int = 1000) -> dict:
+    """
+    Create a fully automated ground truth that marks files as non-compliant if:
+    1. Any implementation fails any requirement, OR
+    2. The sender_check requirement is specifically false
+    """
+    # Load analysis results
+    with open(input_file, 'r', encoding='utf-8') as f:
+        analysis_results = json.load(f)
+    
+    # Create automated ground truth
+    ground_truth = {}
+    
+    for result in analysis_results[:sample_size]:
+        if 'error' in result:
+            # Mark files with errors as non-compliant
+            filename = os.path.basename(result['file'])
+            ground_truth[filename] = {
+                'is_compliant': False,
+                'reason': 'function_not_found_or_error'
+            }
+            continue
+            
+        filename = os.path.basename(result['file'])
+        file_compliant = True
+        reasons = []
+        
+        for impl in result.get('all_implementations', []):
+            # Check if sender_check is specifically false
+            if not impl['requirements'].get('sender_check', True):
+                file_compliant = False
+                reasons.append('sender_check_failed')
+                break
+            
+            # Check interface pattern: to_isContract true but on_received false
+            if (impl['requirements'].get('to_isContract_check', False) and 
+                not impl['requirements'].get('on_received_check', True)):
+                file_compliant = False
+                reasons.append('interface_check_failed')
+                break
+            
+            # Check if any requirement is false
+            if not all(impl['requirements'].values()):
+                file_compliant = False
+                failed_reqs = [k for k, v in impl['requirements'].items() if not v]
+                reasons.append(f'failed_requirements: {", ".join(failed_reqs)}')
+        
+        ground_truth[filename] = {
+            'is_compliant': file_compliant,
+            'requirements': impl['requirements'] if result.get('all_implementations') else {},
+            'reason': 'compliant' if file_compliant else "; ".join(reasons)
+        }
+    
+    # Save automated ground truth
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(ground_truth, f, indent=2)
+    
+    # Print summary statistics
+    compliant_count = sum(1 for v in ground_truth.values() if v['is_compliant'])
+    print(f"Created automated ground truth with {len(ground_truth)} contracts")
+    print(f"Compliant contracts: {compliant_count} ({compliant_count/len(ground_truth):.1%})")
+    print(f"Non-compliant contracts: {len(ground_truth)-compliant_count}")
+    print(f"Saved to {output_file}")
+    
+    return ground_truth
+
+def calculate_metrics(analysis_results: list, ground_truth: dict) -> dict:
+    """
+    Calculate precision, recall, and F1 score for overall compliance.
+    """
+    tp = fp = fn = 0
+    
+    for filename, truth in ground_truth.items():
+        # Find matching result in analysis results
+        result = next((r for r in analysis_results if os.path.basename(r.get('file', '')) == filename), None)
+        if not result:
+            continue
+        
+        # Determine detected compliance
+        detected_compliant = True
+        if 'error' in result:
+            detected_compliant = False
+        else:
+            for impl in result.get('all_implementations', []):
+                if not all(impl['requirements'].values()):
+                    detected_compliant = False
+                    break
+        
+        # Compare with ground truth
+        if detected_compliant and truth['is_compliant']:
+            tp += 1
+        elif detected_compliant and not truth['is_compliant']:
+            fp += 1
+        elif not detected_compliant and truth['is_compliant']:
+            fn += 1
+    
+    # Calculate metrics
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    
+    return {
+        'overall': (precision, recall, f1),
+        'counts': {'tp': tp, 'fp': fp, 'fn': fn},
+        'compliance_rate': tp / len(ground_truth) if ground_truth else 0
+    }
+
+
+
 if __name__ == "__main__":
     
-    erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum/ERC1155"
+    # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum/ERC1155"
     # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC1155"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155"
@@ -1166,9 +1527,15 @@ if __name__ == "__main__":
     
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
-    # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source/ERC1155"
-    erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_ethereum1_analysis_results.json"
-    erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_setApprovalForAll_ONE_analysis_results.json"
+    # erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    
+    erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
+    
+    
+    # total_files = sum(1 for file in os.listdir(erc1155_directory) if file.endswith('.sol'))
+    # print(f"Total .sol files: {total_files}")
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     # save_results_to_json(analysis_results, output_file)
@@ -1178,16 +1545,46 @@ if __name__ == "__main__":
     # erc2612_target_sig = "permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)"
     # analysis_results = analyze_directory(erc2612_directory, erc2612_output_file, erc2612_target_sig)
     
-    erc5267_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC5267"
-    erc5267_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc5267_analysis_results.json"
-    erc5267_target_sig = "eip712Domain()"
-    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
+    # erc5267_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC5267"
+    # erc5267_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc5267_analysis_results.json"
+    # erc5267_target_sig = "eip712Domain()"
+    
+    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig_setApprovalForAll)
     
     print(f"Total files analyzed: {len(analysis_results)}")
     
-    # print(f"analysis_results requirements: {analysis_results}")
     
-    # Print summary statistics
+#    # File paths
+    # input_json = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_Local_analysis_results.json"
+    # output_json = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_automated_ground_truth.json"
+    
+    # # Create automated ground truth (first 1000 files)
+    # # ground_truth = create_automated_ground_truth(input_json, output_json, sample_size=1000)
+    
+    # # Load analysis results for metrics calculation
+    # with open(input_json, 'r', encoding='utf-8') as f:
+    #     analysis_results = json.load(f)
+        
+    # with open(output_json, 'r', encoding='utf-8') as f:
+    #     ground_truth = json.load(f)
+    
+    # # Calculate metrics
+    # metrics = calculate_metrics(analysis_results, ground_truth)
+    
+    # # Print results
+    # print("\nCompliance Metrics:")
+    # print(f"True Positives (Correctly identified compliant): {metrics['counts']['tp']}")
+    # print(f"False Positives (Incorrectly marked as compliant): {metrics['counts']['fp']}")
+    # print(f"False Negatives (Incorrectly marked as non-compliant): {metrics['counts']['fn']}")
+    # print(f"\nEstimated Compliance Rate: {metrics['compliance_rate']:.1%}")
+    # print("\nPerformance Metrics:")
+    # print(f"Precision: {metrics['overall'][0]:.2f}")
+    # print(f"Recall: {metrics['overall'][1]:.2f}")
+    # print(f"F1 Score: {metrics['overall'][2]:.2f}")
+    
+    
+    
+    # # Print summary statistics
     compliant_files = [r for r in analysis_results if not r.get('error')]
     print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
     

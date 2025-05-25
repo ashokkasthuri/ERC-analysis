@@ -1,0 +1,1211 @@
+{
+  "ERC1155_0x6275d695ccbe13573ebbf1541fda4203d40aa858.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x6596e5bba514eeaadf79a3e7ab0dc2cd4a3d1741.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x7670000a7751639f26a0c0ff04635f55638303ae.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xfb31f25f8ac8818e6d6824a199b32df78f57b281.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x2f2c0261f204f3c26c83063d9526503500f96b2d.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa238501716aeba5249d0f973abbca350552380dd.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x4d51ecac8d585d30a882f7015211619fce3f7ded.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xbe534b96918251fafe76ef8e3e43dfd2dfd89bf6.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xb8d1d2695fd8f9f4e1315303541ddc152b45b64e.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x5bdd96aaf2383245e21f6120c43dd8b5f9a9a8ee.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x245d389516bc6fe6e396b10935e05415b3ac59bc.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xb161da15b132be33305b4808ba5de4d2e2c49d9a.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xd42df66453989b61ced12dd6c957ee01a74ba78c.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x9bf39c5114acf683cfc3c32155a9b853edd149ab.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xcfb1c95fd4360790429aceeac655d00a65ecb04c.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa6c5b46839e026b4d252d1b2fee1e61d0a56250a.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x399bd363426dfdd7f84fe8b917e1a3525b039309.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x4e8c044da87cd13702b5fdceaa805bb83479c1a7.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xfae57936702a445a91efb5fa1274e7b5f43ec641.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xb0f25ba633070ded17c3d0a6a840222b6c00bb78.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x75f3535d1f9234e3c865f02e354b7d386b1c30dd.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x40c5941ac707a834906e290c183f78b6de790d74.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x69156568f9a49dd3ba584e493184ef2ecd6816f0.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xe5b3c6ac046198e368a7d8bbcca8dcf9a9417009.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xac9d722e8d19fc620eaa99dd942f4e79fb528f67.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": false,
+      "length_matching_check": false,
+      "event_emission_before_transfers": false,
+      "transfer_batch_event_found": false,
+      "to_isContract_check": false,
+      "on_received_check": false
+    }
+  },
+  "ERC1155_0x1f3efa6bc3841c0fed98c46fe84166bacb2561e9.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x090f688f0c11a8671c47d833af3cf965c30d3c35.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xb9f7de883e11db888cbecd9292d5942695d1ae70.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x80915b847e591384e0bfea3026faddb9acd5bc05.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x4efd5d94d9e88b74be29e738b16e15c05e2c8f9d.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": false,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xbe77df2ec4bcb84e8f4ae3ca8c76c47ae471b42d.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x64d2bed713e8ed556a4117853ca5d18481a3dd97.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x0a665cc3025af1047da2bc45221aae7f4738e13e.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa476b077b163d86ccaab30942310a0ecdd8f8cd6.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x5858be271118618f585ffd4022f9883646255492.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    }
+  },
+  "ERC1155_0x6355d1800534cbebcdef3a9fb0fbad357ec90917.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x95a0616999c8df97e6555d0a26674cc4ae295581.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xfe38e45afe0fd1ddd09690a67e249c06c925e794.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x2b98606e8a5d2ffa33905c512f161f9d84854a6a.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xb5308ff11b86337835b6243da952097d8b4cad04.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x879e0376c87b5c722e8595e450c1ca726afcc42d.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x9311ac6b45e22e48c6f7acc9beefdde3fe994ec0.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x2dd77f102f2e4ce9e466efef0a491d4c7a79c26f.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x401b3474a0a2fbcb00d516c1ffc01854b9d9dafe.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x2c980fd05898924cf2dec5fab7f721ba1fae8a0d.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xc5cbaf779e077cea15f41fd9c7ee8ecc564f42eb.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xe532faa6188c4b15dc12244d9ffe118a97f0c3b6.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x54428e4712c32bf47054df3c2e616b0b4c5c45dd.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xdcca89a9d010dd05a641fc85904dc1517c0fa9d2.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xd0561aef1d5cd30a1779f01b41b3436027177d9a.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x32a00b9e6d3973fe763dfeb980bc7e7276715b5f.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa6075b01de961a0022caaa179a78660ac1505120.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xc6c243d4196939c8d45cdbb7dedeb8e296286f96.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xd11dd1a772b1a7b36c6b261dee7b9f5f323e6751.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xc118d78a29b37ab395cdc54ec8b3d36d80604a86.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xee50d5a8cf42b6b7b8a5466a5b1dffcad22e1fc1.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa785bcdeb2e2e413e25b7378961cde57dd3e353b.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x039f97d976b70a79293c5e0f695e842e782be117.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x1e063b5e53405630c0b2c25268d42d36c2819afe.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x65b80b4c1f54d0ca437af4de1f85cc9a40eb9d10.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x5f658e80bd7ee938fa1dcccfde76a2f47adf30d1.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xe799ec2abd844cd4a3a54200127bd02285147975.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x7fa86681a7c19416950bae6c04a5116f3b07116d.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": false
+    }
+  },
+  "ERC1155_0x3afbf52d43ad284e90e89dc3f85feb526bdb735c.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa65a4a32de5d220800ef35a70eacec64e15ae817.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xe97bb5dc965609a8d74b7f2523797f92b9cfbca0.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x8d453ba8c6b16413f888a30699458001ee8dd7ae.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xe51c36aaf91a40e8eef69e2b3dba26edfa4c0016.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xdf469fada07ee09f272bf1f768fe7deca5200531.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x63a01783e8f100890faa32ce3850486a5410e193.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xdff2eb6ee30612086e733dd3e501095d46f9d333.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xd9e86b0e6185f457cf3274fdaa16be59c58bc9b4.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x513b75190bb0873792a6a678b65a4e6679f52e97.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xbe58c32d419b373af7872b3e70b775e71f3ac90f.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x9ec1da288f8728492c9d95d14bee8454c058e619.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x901717dfb7b0bef6cf5bbe962322bd49f029981c.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x64feedfa14ca8fe8a366ac83e5c5788febd76eb9.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x268083aa8b1d1a3cf78dd131b462ecf14508b253.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xc8f46c1545abac895d3ca18f75eadd452643cffb.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xba270d27a974e13489c9758518770c74d9308590.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": false,
+      "transfer_batch_event_found": false,
+      "to_isContract_check": false,
+      "on_received_check": false
+    }
+  },
+  "ERC1155_0x8a06828ea18df82ae3809825feec18e2bf948a2f.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x3ffd61f67f481a86ceccf076c1ec05aeb8c3c5e4.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xa6efb3497d82c552a49f2344d826e04c1cde576e.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x31b73666ca5874950e94babc0c5f93419facc82b.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x680e302c90ea345b415a1560eee649805250be54.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x4b055344d3f9ea23f0f0e6f3ca5a2bf7f92c07f1.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x563cb938f8945d01c1795bb7e457123e65983c06.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x26f49363a0228aff98e3390a99746ad48854ad2c.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xcc91a9aacf23ad9fe961d5c0d46aca887a9b18ed.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x9aac0a07aad7ed91b45a4459f4f9834dc5a31a37.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x5c5e40407c357eefdbe0a8bc16aedb08983f9087.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0x1ad9659bf22ee6b55287fcc7116c31ca2f5b6697.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  },
+  "ERC1155_0xc25fc8a0d066a60322b189cc05cf0b0233f562d9.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    }
+  }
+}

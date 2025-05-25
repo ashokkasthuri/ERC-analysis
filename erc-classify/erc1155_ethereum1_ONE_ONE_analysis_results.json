@@ -1,0 +1,67 @@
+[
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23197-23623",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": false,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ]
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 100171-100476",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "tokenIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": false,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ]
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155/ERC1155_0x6ff08da29cdd04c96d22a377b5293bed6810bc1b.sol"
+  }
+]
