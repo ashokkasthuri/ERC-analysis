@@ -71,68 +71,9 @@ def fetch_solidity_source(contract_address):
         print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
         return None
 
-# def csv_address_source_fetch(base_dir, csv_file_path):
-#     random.seed(42)
-#      # Load the CSV file
-#     df = pd.read_csv(csv_file_path)
-
-#     # Ensure required columns exist
-#     if "matched_erc" not in df.columns or "address" not in df.columns:
-#         raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
-
-#     # Remove empty ERC matches and get unique ERC types
-#     erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
-    
-#     # Iterate over each unique ERC type
-#     for erc_type, group in erc_groups:
-#         # Initialize a list to store successfully fetched addresses
-#         fetched_count = 0
-#         required_count = 5000  # Adjust as needed
-#         processed_addresses = set()
-        
-#         # Create a directory for this ERC type
-#         erc_dir = os.path.join(base_dir, erc_type)
-#         os.makedirs(erc_dir, exist_ok=True)
-        
-#         while fetched_count < required_count:
-#             # Get more unique contract addresses if needed
-#             unique_addresses = group["address"].dropna().unique()
-#             # Randomly shuffle the addresses
-#             random.shuffle(unique_addresses)
-            
-#             for contract_address in unique_addresses:
-#                 if fetched_count >= required_count:
-#                     break  # Stop when 10 contracts are fetched
-                
-#                 if contract_address in processed_addresses:
-#                     continue  # Skip already processed addresses
-                
-#                 # Fetch Solidity source code
-#                 solidity_code = fetch_solidity_source(contract_address)
-                
-#                 if solidity_code:
-#                     # Define file path and save Solidity code
-#                     file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
-#                     with open(file_path, "w", encoding="utf-8") as f:
-#                         f.write(solidity_code)
-                    
-#                     fetched_count += 1
-#                     processed_addresses.add(contract_address)
-#                 #     print(f"✅ Saved: {file_path}")
-#                 # else:
-#                 #     print(f"❌ No source code found for {contract_address}")
-
-#     print("\n🎯 Solidity contract fetching and saving complete!")
-
-
-
-
-def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_seed=42):
-    """Fetch Solidity source code for randomly selected contracts from CSV"""
-    # Set random seed for reproducibility
-    random.seed(random_seed)
-    
-    # Load the CSV file
+def csv_address_source_fetch(base_dir, csv_file_path):
+    random.seed(42)
+     # Load the CSV file
     df = pd.read_csv(csv_file_path)
 
     # Ensure required columns exist
@@ -146,41 +87,100 @@ def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_s
     for erc_type, group in erc_groups:
         # Initialize a list to store successfully fetched addresses
         fetched_count = 0
+        required_count = 3000  # Adjust as needed
         processed_addresses = set()
         
         # Create a directory for this ERC type
         erc_dir = os.path.join(base_dir, erc_type)
         os.makedirs(erc_dir, exist_ok=True)
         
-        # Get all unique addresses for this ERC type
-        unique_addresses = group["address"].dropna().unique().tolist()
-        
-        # Randomly shuffle the addresses
-        random.shuffle(unique_addresses)
-        
-        # Take the first sample_size addresses (or all if less than sample_size)
-        selected_addresses = unique_addresses[:min(sample_size, len(unique_addresses))]
-        
-        for contract_address in selected_addresses:
-            if fetched_count >= sample_size:
-                break
-                
-            # Fetch Solidity source code
-            solidity_code = fetch_solidity_source(contract_address)
+        while fetched_count < required_count:
+            # Get more unique contract addresses if needed
+            unique_addresses = group["address"].dropna().unique()
+            # Randomly shuffle the addresses
+            random.shuffle(unique_addresses)
             
-            if solidity_code:
-                # Define file path and save Solidity code
-                file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(solidity_code)
+            for contract_address in unique_addresses:
+                if fetched_count >= required_count:
+                    break  # Stop when 10 contracts are fetched
                 
-                fetched_count += 1
-                processed_addresses.add(contract_address)
-                print(f"✅ Saved ({fetched_count}/{sample_size}): {file_path}")
-            else:
-                print(f"❌ No source code found for {contract_address}")
+                if contract_address in processed_addresses:
+                    continue  # Skip already processed addresses
+                
+                # Fetch Solidity source code
+                solidity_code = fetch_solidity_source(contract_address)
+                
+                if solidity_code:
+                    # Define file path and save Solidity code
+                    file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        f.write(solidity_code)
+                    
+                    fetched_count += 1
+                    processed_addresses.add(contract_address)
+                #     print(f"✅ Saved: {file_path}")
+                # else:
+                #     print(f"❌ No source code found for {contract_address}")
 
-    print(f"\n🎯 Completed fetching {sample_size} randomly selected contracts per ERC type!")
+    print("\n🎯 Solidity contract fetching and saving complete!")
+
+
+
+
+# def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_seed=42):
+#     """Fetch Solidity source code for randomly selected contracts from CSV"""
+#     # Set random seed for reproducibility
+#     random.seed(random_seed)
+    
+#     # Load the CSV file
+#     df = pd.read_csv(csv_file_path)
+
+#     # Ensure required columns exist
+#     if "matched_erc" not in df.columns or "address" not in df.columns:
+#         raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
+
+#     # Remove empty ERC matches and get unique ERC types
+#     erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
+    
+#     # Iterate over each unique ERC type
+#     for erc_type, group in erc_groups:
+#         # Initialize a list to store successfully fetched addresses
+#         fetched_count = 0
+#         processed_addresses = set()
+        
+#         # Create a directory for this ERC type
+#         erc_dir = os.path.join(base_dir, erc_type)
+#         os.makedirs(erc_dir, exist_ok=True)
+        
+#         # Get all unique addresses for this ERC type
+#         unique_addresses = group["address"].dropna().unique().tolist()
+        
+#         # Randomly shuffle the addresses
+#         random.shuffle(unique_addresses)
+        
+#         # Take the first sample_size addresses (or all if less than sample_size)
+#         selected_addresses = unique_addresses[:min(sample_size, len(unique_addresses))]
+        
+#         for contract_address in selected_addresses:
+#             if fetched_count >= sample_size:
+#                 break
+                
+#             # Fetch Solidity source code
+#             solidity_code = fetch_solidity_source(contract_address)
+            
+#             if solidity_code:
+#                 # Define file path and save Solidity code
+#                 file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
+#                 with open(file_path, "w", encoding="utf-8") as f:
+#                     f.write(solidity_code)
+                
+#                 fetched_count += 1
+#                 processed_addresses.add(contract_address)
+#                 print(f"✅ Saved ({fetched_count}/{sample_size}): {file_path}")
+#             else:
+#                 print(f"❌ No source code found for {contract_address}")
+
+#     print(f"\n🎯 Completed fetching {sample_size} randomly selected contracts per ERC type!")
 
 
 # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)

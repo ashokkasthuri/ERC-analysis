@@ -156,7 +156,7 @@ def get_all_internal_calls(function_body: str, all_functions: List[Dict], visite
     
 #     return internal_calls if internal_calls else None
 
-def find_if_revert_conditions(code: str):
+def find_if_revert_control_flow(code: str):
     """Find all if conditions containing revert statements"""
     conditions = []
     pos = 0
@@ -217,7 +217,7 @@ def find_if_revert_conditions(code: str):
         
     return conditions
 
-def extract_parameters(target_func: Dict) -> Dict:
+def extract_parameters_data_flow_analysis(target_func: Dict) -> Dict:
     """Extract and return all relevant parameters from the target function."""
     params = list(target_func.get('parameters', {}).items())
     return {
@@ -239,7 +239,7 @@ def extract_setApprovalForAll_parameters(target_func: Dict) -> Dict:
     }
     
 
-def find_length_assignments(all_code: List[Tuple[str, str]], ids_param: str) -> Dict:
+def perform_data_flow_analysis(all_code: List[Tuple[str, str]], ids_param: str) -> Dict:
     """Find all length assignments in the provided code."""
     length_assignments = {}
     for code, source in all_code:
@@ -275,7 +275,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
     }
     #  'balance_checks': False,
     
-    params = extract_parameters(target_func)
+    params = extract_parameters_data_flow_analysis(target_func)
     from_param = params['from_param']
     to_param = params['to_param']
     ids_param = params['ids_param']
@@ -283,6 +283,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
     data_param = params['data_param']
     
     # Combine all code to analyze (main function + internal calls)
+    # Interprocedural Analysis
     all_code = [(target_func['body'], "main function")]
     for func in internal_functions:
         # print(f"func['body']:{func['body']}")
@@ -292,11 +293,11 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             
         
     # Find all length assignments first
-    length_assignments = find_length_assignments(all_code, ids_param) if ids_param else {}
+    length_assignments = perform_data_flow_analysis(all_code, ids_param) if ids_param else {}
     all_conditions = []
     event_pos = None
     
-    
+    # Forward Flow Analysis - main analysis loop
     for code, source in all_code:
         
         condition_matches = []
@@ -310,7 +311,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             condition_matches.append((req_content, source, 'require'))
         
         # Usage in your code:
-        if_revert_conditions = find_if_revert_conditions(code)
+        if_revert_conditions = find_if_revert_control_flow(code)
         
         for condition in if_revert_conditions:
             condition_matches.append((condition, source, 'if-revert'))
@@ -471,6 +472,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         #         requirements['balance_checks'] = True
     
     # Check for event emission and onReceived in the code
+    # Backward Flow Analysis - event position tracking
     for code, source in all_code:
         # Event emission check
         if 'emit TransferBatch(' in code and not requirements['transfer_batch_event_found']:
@@ -1143,7 +1145,7 @@ def check_on_received_implementation(code: str, params, isContract) -> bool:
     return True
 
 
-def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
+def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, target_sig) -> Dict:
     """Main analysis function for safeBatchTransferFrom compliance."""
     all_functions = find_all_functions(solidity_code)
     
@@ -1163,8 +1165,8 @@ def analyze_safe_batch_transfer(solidity_code: str, target_sig) -> Dict:
             
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
-        # if "safeBatchTransferFrom" in target_sig:
-        #     requirements = verify_erc1155_requirements(target_func, internal_calls)
+        if "safeBatchTransferFrom" in target_sig:
+            requirements = verify_erc1155_requirements(target_func, internal_calls)
         if "setApprovalForAll" in target_sig:
             requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
         
@@ -1259,15 +1261,15 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.startswith("ERC1155_0x4efd5d94d9e88b74be29e738b16e15c05e2c8f9d.sol") and file.endswith('.sol'):
-                # file.startswith("ERC1155_0x4efd5d94d9e88b74be29e738b16e15c05e2c8f9d.sol") and
+            if file.startswith("ERC1155_0xfb29834f2d8dbb7b8cf06cb115b75b2a36b1640d.sol") and file.endswith('.sol'):
+                # file.startswith("ERC1155_0xfb29834f2d8dbb7b8cf06cb115b75b2a36b1640d.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         solidity_code = f.read()
                     
-                    result = analyze_safe_batch_transfer(solidity_code, target_sig)
+                    result = analyze_safeBatchTransfer_interprocedural_analysis(solidity_code, target_sig)
                     result['file'] = file_path
                     results.append(result)
                     """Save analysis results to a JSON file."""
@@ -1529,7 +1531,7 @@ if __name__ == "__main__":
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
     erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155"
-    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_setApprovalForAll_ONE_analysis_results.json"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ProgramAnalysis_ONE.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
@@ -1538,7 +1540,7 @@ if __name__ == "__main__":
     
     print(f"Total files analyzed: {len(analysis_results)}")
     
-    # total_files = sum(1 for file in os.listdir(erc1155_directory) if file.endswith('.sol'))
+    # total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-random/ERC1155") if file.endswith('.sol'))
     # print(f"Total .sol files: {total_files}")
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
@@ -1586,7 +1588,7 @@ if __name__ == "__main__":
     
     
     
-    # # Print summary statistics
+    # # # Print summary statistics
     compliant_files = [r for r in analysis_results if not r.get('error')]
     print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
     
