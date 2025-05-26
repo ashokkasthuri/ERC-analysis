@@ -8,6 +8,10 @@ import glob
 import random
 
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
+
+
 
 import time
 
@@ -71,58 +75,58 @@ def fetch_solidity_source(contract_address):
         print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
         return None
 
-def csv_address_source_fetch(base_dir, csv_file_path):
-    random.seed(42)
-     # Load the CSV file
-    df = pd.read_csv(csv_file_path)
+# def csv_address_source_fetch(base_dir, csv_file_path):
+#     random.seed(42)
+#      # Load the CSV file
+#     df = pd.read_csv(csv_file_path)
 
-    # Ensure required columns exist
-    if "matched_erc" not in df.columns or "address" not in df.columns:
-        raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
+#     # Ensure required columns exist
+#     if "matched_erc" not in df.columns or "address" not in df.columns:
+#         raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
 
-    # Remove empty ERC matches and get unique ERC types
-    erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
+#     # Remove empty ERC matches and get unique ERC types
+#     erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
     
-    # Iterate over each unique ERC type
-    for erc_type, group in erc_groups:
-        # Initialize a list to store successfully fetched addresses
-        fetched_count = 0
-        required_count = 3000  # Adjust as needed
-        processed_addresses = set()
+#     # Iterate over each unique ERC type
+#     for erc_type, group in erc_groups:
+#         # Initialize a list to store successfully fetched addresses
+#         fetched_count = 0
+#         required_count = 3000  # Adjust as needed
+#         processed_addresses = set()
         
-        # Create a directory for this ERC type
-        erc_dir = os.path.join(base_dir, erc_type)
-        os.makedirs(erc_dir, exist_ok=True)
+#         # Create a directory for this ERC type
+#         erc_dir = os.path.join(base_dir, erc_type)
+#         os.makedirs(erc_dir, exist_ok=True)
         
-        while fetched_count < required_count:
-            # Get more unique contract addresses if needed
-            unique_addresses = group["address"].dropna().unique()
-            # Randomly shuffle the addresses
-            random.shuffle(unique_addresses)
+#         while fetched_count < required_count:
+#             # Get more unique contract addresses if needed
+#             unique_addresses = group["address"].dropna().unique()
+#             # Randomly shuffle the addresses
+#             random.shuffle(unique_addresses)
             
-            for contract_address in unique_addresses:
-                if fetched_count >= required_count:
-                    break  # Stop when 10 contracts are fetched
+#             for contract_address in unique_addresses:
+#                 if fetched_count >= required_count:
+#                     break  # Stop when 10 contracts are fetched
                 
-                if contract_address in processed_addresses:
-                    continue  # Skip already processed addresses
+#                 if contract_address in processed_addresses:
+#                     continue  # Skip already processed addresses
                 
-                # Fetch Solidity source code
-                solidity_code = fetch_solidity_source(contract_address)
+#                 # Fetch Solidity source code
+#                 solidity_code = fetch_solidity_source(contract_address)
                 
-                if solidity_code:
-                    # Define file path and save Solidity code
-                    file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
-                    with open(file_path, "w", encoding="utf-8") as f:
-                        f.write(solidity_code)
+#                 if solidity_code:
+#                     # Define file path and save Solidity code
+#                     file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
+#                     with open(file_path, "w", encoding="utf-8") as f:
+#                         f.write(solidity_code)
                     
-                    fetched_count += 1
-                    processed_addresses.add(contract_address)
-                #     print(f"✅ Saved: {file_path}")
-                # else:
-                #     print(f"❌ No source code found for {contract_address}")
+#                     fetched_count += 1
+#                     processed_addresses.add(contract_address)
+#                 #     print(f"✅ Saved: {file_path}")
+#                 # else:
+#                 #     print(f"❌ No source code found for {contract_address}")
 
-    print("\n🎯 Solidity contract fetching and saving complete!")
+#     print("\n🎯 Solidity contract fetching and saving complete!")
 
 
 
@@ -183,85 +187,181 @@ def csv_address_source_fetch(base_dir, csv_file_path):
 #     print(f"\n🎯 Completed fetching {sample_size} randomly selected contracts per ERC type!")
 
 
-# Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
-ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
 
-# Number of contracts to fetch per ERC type
-NUM_CONTRACTS = 10
 
-# Output folder for saving contract details
-OUTPUT_DIR = "ERC_Contracts"
+def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_seed=42, max_workers=10):
+    """Fetch Solidity source code for contracts from CSV with parallel processing"""
+    # Set random seed for reproducibility
+    random.seed(random_seed)
+    
+    try:
+        # Load the CSV file with error handling
+        df = pd.read_csv(csv_file_path)
+        
+        # Validate required columns
+        if "matched_erc" not in df.columns or "address" not in df.columns:
+            raise ValueError("CSV must contain 'matched_erc' and 'address' columns")
 
-# Function to scrape contract addresses from Etherscan
-def scrape_contract_addresses(erc_type):
-    """Scrapes verified contract addresses for a given ERC type from Etherscan"""
-    response = requests.get(ETHERSCAN_VERIFIED_CONTRACTS_URL)
-    soup = BeautifulSoup(response.text, "html.parser")
+        # Clean and prepare data
+        erc_groups = (df.dropna(subset=["matched_erc"])
+                     .groupby("matched_erc"))
+        
+        # Process each ERC type
+        for erc_type, group in erc_groups:
+            erc_dir = os.path.join(base_dir, erc_type)
+            os.makedirs(erc_dir, exist_ok=True)
+            
+            # Get all unique addresses (remove duplicates and nulls)
+            unique_addresses = (group["address"]
+                              .dropna()
+                              .drop_duplicates()
+                              .tolist())
+            
+            # Random sampling with minimum of sample_size or available contracts
+            random.shuffle(unique_addresses)
+            selected_addresses = unique_addresses[:min(sample_size, len(unique_addresses))]
+            
+            # Parallel processing with progress tracking
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = []
+                for address in selected_addresses:
+                    futures.append(
+                        executor.submit(
+                            process_contract,
+                            address=address,
+                            erc_type=erc_type,
+                            erc_dir=erc_dir
+                        )
+                    )
+                
+                # Track progress and handle results
+                success_count = 0
+                for future in tqdm(as_completed(futures), 
+                                 total=len(selected_addresses),
+                                 desc=f"Fetching {erc_type}"):
+                    result = future.result()
+                    if result["success"]:
+                        success_count += 1
+                    else:
+                        print(f"❌ Failed {result['address']}: {result['error']}")
+            
+            print(f"\n✅ Completed {erc_type}: {success_count}/{len(selected_addresses)} contracts saved")
+    
+    except Exception as e:
+        print(f"🚨 Critical error: {str(e)}")
+        return False
+    
+    return True
 
-    # Find all contract address links
-    contract_links = soup.find_all("a", href=True)
-
-    # Extract contract addresses
-    contract_addresses = []
-    for link in contract_links:
-        href = link["href"]
-        if href.startswith("/address/"):
-            contract_address = href.split("/")[-1]
-            contract_addresses.append(contract_address)
-
-        if len(contract_addresses) >= NUM_CONTRACTS:
-            break  # Stop after fetching required contracts
-
-    return contract_addresses
-
-# Function to fetch contract details from Etherscan API
-def fetch_contract_details(contract_address):
-    """Fetches ABI, Bytecode, and Source Code from Etherscan API"""
-    api_endpoints = {
-        "abi": f"https://api.etherscan.io/api?module=contract&action=getabi&address={contract_address}&apikey={ETHERSCAN_API_KEY}",
-        "bytecode": f"https://api.etherscan.io/api?module=proxy&action=eth_getCode&address={contract_address}&apikey={ETHERSCAN_API_KEY}",
-        "source_code": f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={ETHERSCAN_API_KEY}"
-    }
-
-    contract_data = {}
-    for key, url in api_endpoints.items():
-        response = requests.get(url)
-        data = response.json()
-        if data["status"] == "1":
-            contract_data[key] = data["result"]
-        else:
-            contract_data[key] = None
-
-        time.sleep(1)  # To avoid rate limits
-
-    return contract_data
-
-# Function to save contract details
-def save_contract_details(erc_type, contract_address, contract_data):
-    """Saves ABI, Bytecode, and Source Code to respective files"""
-    erc_dir = os.path.join(OUTPUT_DIR, erc_type)
-    os.makedirs(erc_dir, exist_ok=True)
-
-    # Save ABI
-    abi_path = os.path.join(erc_dir, f"{contract_address}_abi.json")
-    with open(abi_path, "w", encoding="utf-8") as f:
-        json.dump(contract_data["abi"], f, indent=4)
-
-    # Save Bytecode
-    bytecode_path = os.path.join(erc_dir, f"{contract_address}_bytecode.txt")
-    with open(bytecode_path, "w", encoding="utf-8") as f:
-        f.write(contract_data["bytecode"])
-
-    # Save Solidity Source Code
-    if contract_data["source_code"]:
-        source_code = json.loads(contract_data["source_code"][0]["SourceCode"])
-        solidity_code = "\n".join(file_data.get("content", "") for file_data in source_code["sources"].values())
-
-        solidity_path = os.path.join(erc_dir, f"{contract_address}.sol")
-        with open(solidity_path, "w", encoding="utf-8") as f:
+def process_contract(address, erc_type, erc_dir):
+    """Worker function to process individual contracts"""
+    try:
+        solidity_code = fetch_solidity_source(address)
+        if not solidity_code:
+            return {
+                "success": False,
+                "address": address,
+                "error": "No source code found"
+            }
+        
+        file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(solidity_code)
+        
+        return {
+            "success": True,
+            "address": address,
+            "path": file_path
+        }
+    
+    except Exception as e:
+        return {
+            "success": False,
+            "address": address,
+            "error": str(e)
+        }
 
-    print(f"✅ Saved contract data for {contract_address} in {erc_dir}")
+
+
+# # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
+# ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
+
+# # Number of contracts to fetch per ERC type
+# NUM_CONTRACTS = 10
+
+# # Output folder for saving contract details
+# OUTPUT_DIR = "ERC_Contracts"
+
+# # Function to scrape contract addresses from Etherscan
+# def scrape_contract_addresses(erc_type):
+#     """Scrapes verified contract addresses for a given ERC type from Etherscan"""
+#     response = requests.get(ETHERSCAN_VERIFIED_CONTRACTS_URL)
+#     soup = BeautifulSoup(response.text, "html.parser")
+
+#     # Find all contract address links
+#     contract_links = soup.find_all("a", href=True)
+
+#     # Extract contract addresses
+#     contract_addresses = []
+#     for link in contract_links:
+#         href = link["href"]
+#         if href.startswith("/address/"):
+#             contract_address = href.split("/")[-1]
+#             contract_addresses.append(contract_address)
+
+#         if len(contract_addresses) >= NUM_CONTRACTS:
+#             break  # Stop after fetching required contracts
+
+#     return contract_addresses
+
+# # Function to fetch contract details from Etherscan API
+# def fetch_contract_details(contract_address):
+#     """Fetches ABI, Bytecode, and Source Code from Etherscan API"""
+#     api_endpoints = {
+#         "abi": f"https://api.etherscan.io/api?module=contract&action=getabi&address={contract_address}&apikey={ETHERSCAN_API_KEY}",
+#         "bytecode": f"https://api.etherscan.io/api?module=proxy&action=eth_getCode&address={contract_address}&apikey={ETHERSCAN_API_KEY}",
+#         "source_code": f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={ETHERSCAN_API_KEY}"
+#     }
+
+#     contract_data = {}
+#     for key, url in api_endpoints.items():
+#         response = requests.get(url)
+#         data = response.json()
+#         if data["status"] == "1":
+#             contract_data[key] = data["result"]
+#         else:
+#             contract_data[key] = None
+
+#         time.sleep(1)  # To avoid rate limits
+
+#     return contract_data
+
+# # Function to save contract details
+# def save_contract_details(erc_type, contract_address, contract_data):
+#     """Saves ABI, Bytecode, and Source Code to respective files"""
+#     erc_dir = os.path.join(OUTPUT_DIR, erc_type)
+#     os.makedirs(erc_dir, exist_ok=True)
+
+#     # Save ABI
+#     abi_path = os.path.join(erc_dir, f"{contract_address}_abi.json")
+#     with open(abi_path, "w", encoding="utf-8") as f:
+#         json.dump(contract_data["abi"], f, indent=4)
+
+#     # Save Bytecode
+#     bytecode_path = os.path.join(erc_dir, f"{contract_address}_bytecode.txt")
+#     with open(bytecode_path, "w", encoding="utf-8") as f:
+#         f.write(contract_data["bytecode"])
+
+#     # Save Solidity Source Code
+#     if contract_data["source_code"]:
+#         source_code = json.loads(contract_data["source_code"][0]["SourceCode"])
+#         solidity_code = "\n".join(file_data.get("content", "") for file_data in source_code["sources"].values())
+
+#         solidity_path = os.path.join(erc_dir, f"{contract_address}.sol")
+#         with open(solidity_path, "w", encoding="utf-8") as f:
+#             f.write(solidity_code)
+
+#     print(f"✅ Saved contract data for {contract_address} in {erc_dir}")
 
 # Main execution function
 def main():
@@ -272,7 +372,7 @@ def main():
     
     # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     # base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-random"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-random1"
         # ERC-721_setApprovedForAll_binance_deduplicated_results.csv
         # ERC-721_setApprovedForAll_deduplicated_avalanche.csv
         # ERC-721_setApprovedForAll_deduplicated_polygon.csv
@@ -299,7 +399,7 @@ def main():
     for csv_file_path in csv_files:
         print(f"\nProcessing file: {csv_file_path}")
         try:
-            csv_address_source_fetch(base_dir, csv_file_path)
+            csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000,max_workers=15)
             
         except Exception as e:
             print(f"Error processing {csv_file_path}: {str(e)}")
