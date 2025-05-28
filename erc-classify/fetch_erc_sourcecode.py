@@ -75,58 +75,58 @@ def fetch_solidity_source(contract_address):
         print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
         return None
 
-# def csv_address_source_fetch(base_dir, csv_file_path):
-#     random.seed(42)
-#      # Load the CSV file
-#     df = pd.read_csv(csv_file_path)
+def csv_address_source_fetch(base_dir, csv_file_path):
+    random.seed(42)
+     # Load the CSV file
+    df = pd.read_csv(csv_file_path)
 
-#     # Ensure required columns exist
-#     if "matched_erc" not in df.columns or "address" not in df.columns:
-#         raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
+    # Ensure required columns exist
+    if "matched_erc" not in df.columns or "address" not in df.columns:
+        raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
 
-#     # Remove empty ERC matches and get unique ERC types
-#     erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
+    # Remove empty ERC matches and get unique ERC types
+    erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
     
-#     # Iterate over each unique ERC type
-#     for erc_type, group in erc_groups:
-#         # Initialize a list to store successfully fetched addresses
-#         fetched_count = 0
-#         required_count = 3000  # Adjust as needed
-#         processed_addresses = set()
+    # Iterate over each unique ERC type
+    for erc_type, group in erc_groups:
+        # Initialize a list to store successfully fetched addresses
+        fetched_count = 0
+        required_count = 10000  # Adjust as needed
+        processed_addresses = set()
         
-#         # Create a directory for this ERC type
-#         erc_dir = os.path.join(base_dir, erc_type)
-#         os.makedirs(erc_dir, exist_ok=True)
+        # Create a directory for this ERC type
+        erc_dir = os.path.join(base_dir, erc_type)
+        os.makedirs(erc_dir, exist_ok=True)
         
-#         while fetched_count < required_count:
-#             # Get more unique contract addresses if needed
-#             unique_addresses = group["address"].dropna().unique()
-#             # Randomly shuffle the addresses
-#             random.shuffle(unique_addresses)
+        while fetched_count < required_count:
+            # Get more unique contract addresses if needed
+            unique_addresses = group["address"].dropna().unique()
+            # Randomly shuffle the addresses
+            random.shuffle(unique_addresses)
             
-#             for contract_address in unique_addresses:
-#                 if fetched_count >= required_count:
-#                     break  # Stop when 10 contracts are fetched
+            for contract_address in unique_addresses:
+                if fetched_count >= required_count:
+                    break  # Stop when 10 contracts are fetched
                 
-#                 if contract_address in processed_addresses:
-#                     continue  # Skip already processed addresses
+                if contract_address in processed_addresses:
+                    continue  # Skip already processed addresses
                 
-#                 # Fetch Solidity source code
-#                 solidity_code = fetch_solidity_source(contract_address)
+                # Fetch Solidity source code
+                solidity_code = fetch_solidity_source(contract_address)
                 
-#                 if solidity_code:
-#                     # Define file path and save Solidity code
-#                     file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
-#                     with open(file_path, "w", encoding="utf-8") as f:
-#                         f.write(solidity_code)
+                if solidity_code:
+                    # Define file path and save Solidity code
+                    file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        f.write(solidity_code)
                     
-#                     fetched_count += 1
-#                     processed_addresses.add(contract_address)
-#                 #     print(f"✅ Saved: {file_path}")
-#                 # else:
-#                 #     print(f"❌ No source code found for {contract_address}")
+                    fetched_count += 1
+                    processed_addresses.add(contract_address)
+                #     print(f"✅ Saved: {file_path}")
+                # else:
+                #     print(f"❌ No source code found for {contract_address}")
 
-#     print("\n🎯 Solidity contract fetching and saving complete!")
+    print("\n🎯 Solidity contract fetching and saving complete!")
 
 
 # def csv_address_source_fetch(base_dir, csv_file_path, sample_size=5000, max_workers=10):
@@ -221,118 +221,115 @@ def fetch_solidity_source(contract_address):
 #             "error": str(e)
 #         }
 
-import os
-import pandas as pd
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
 
-def csv_address_source_fetch(base_dir, csv_file_path, download_limit=5000, max_workers=10):
-    """
-    Fetch Solidity source code for contracts from CSV with parallel processing
-    Downloads first N files (without randomness), skipping existing files
-    """
-    try:
-        # Load the CSV file with error handling
-        df = pd.read_csv(csv_file_path)
-        
-        # Validate required columns
-        if "matched_erc" not in df.columns or "address" not in df.columns:
-            raise ValueError("CSV must contain 'matched_erc' and 'address' columns")
 
-        # Clean and prepare data
-        erc_groups = (df.dropna(subset=["matched_erc"])
-                     .groupby("matched_erc"))
+# def csv_address_source_fetch(base_dir, csv_file_path, download_limit=5000, max_workers=10):
+#     """
+#     Fetch Solidity source code for contracts from CSV with parallel processing
+#     Downloads first N files (without randomness), skipping existing files
+#     """
+#     try:
+#         # Load the CSV file with error handling
+#         df = pd.read_csv(csv_file_path)
         
-        # Process each ERC type
-        for erc_type, group in erc_groups:
-            erc_dir = os.path.join(base_dir, erc_type)
-            os.makedirs(erc_dir, exist_ok=True)
+#         # Validate required columns
+#         if "matched_erc" not in df.columns or "address" not in df.columns:
+#             raise ValueError("CSV must contain 'matched_erc' and 'address' columns")
+
+#         # Clean and prepare data
+#         erc_groups = (df.dropna(subset=["matched_erc"])
+#                      .groupby("matched_erc"))
+        
+#         # Process each ERC type
+#         for erc_type, group in erc_groups:
+#             erc_dir = os.path.join(base_dir, erc_type)
+#             os.makedirs(erc_dir, exist_ok=True)
             
-            # Get all unique addresses (remove duplicates and nulls)
-            unique_addresses = (group["address"]
-                              .dropna()
-                              .drop_duplicates()
-                              .tolist())
+#             # Get all unique addresses (remove duplicates and nulls)
+#             unique_addresses = (group["address"]
+#                               .dropna()
+#                               .drop_duplicates()
+#                               .tolist())
             
-            # Prepare download list with existence check
-            download_list = []
-            for address in unique_addresses[:download_limit]:
-                file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
-                if not os.path.exists(file_path):
-                    download_list.append(address)
-                else:
-                    # Skip already downloaded files
-                    continue
+#             # Prepare download list with existence check
+#             download_list = []
+#             for address in unique_addresses[:download_limit]:
+#                 file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+#                 if not os.path.exists(file_path):
+#                     download_list.append(address)
+#                 else:
+#                     # Skip already downloaded files
+#                     continue
             
-            print(f"⏳ {erc_type}: {len(download_list)} files to download (skipping {download_limit - len(download_list)} existing files)")
+#             print(f"⏳ {erc_type}: {len(download_list)} files to download (skipping {download_limit - len(download_list)} existing files)")
             
-            # Parallel processing with progress tracking
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                futures = []
-                for address in download_list:
-                    futures.append(
-                        executor.submit(
-                            process_contract,
-                            address=address,
-                            erc_type=erc_type,
-                            erc_dir=erc_dir
-                        )
-                    )
+#             # Parallel processing with progress tracking
+#             with ThreadPoolExecutor(max_workers=max_workers) as executor:
+#                 futures = []
+#                 for address in download_list:
+#                     futures.append(
+#                         executor.submit(
+#                             process_contract,
+#                             address=address,
+#                             erc_type=erc_type,
+#                             erc_dir=erc_dir
+#                         )
+#                     )
                 
-                # Track progress and handle results
-                success_count = 0
-                for future in tqdm(as_completed(futures), 
-                                 total=len(download_list),
-                                 desc=f"Downloading {erc_type}"):
-                    result = future.result()
-                    if result["success"]:
-                        success_count += 1
-                    else:
-                        print(f"❌ Failed {result['address']}: {result['error']}")
+#                 # Track progress and handle results
+#                 success_count = 0
+#                 for future in tqdm(as_completed(futures), 
+#                                  total=len(download_list),
+#                                  desc=f"Downloading {erc_type}"):
+#                     result = future.result()
+#                     if result["success"]:
+#                         success_count += 1
+#                     else:
+#                         print(f"❌ Failed {result['address']}: {result['error']}")
             
-            print(f"\n✅ Completed {erc_type}: {success_count}/{len(download_list)} new contracts saved")
+#             print(f"\n✅ Completed {erc_type}: {success_count}/{len(download_list)} new contracts saved")
     
-    except Exception as e:
-        print(f"🚨 Critical error: {str(e)}")
-        return False
+#     except Exception as e:
+#         print(f"🚨 Critical error: {str(e)}")
+#         return False
     
-    return True
+#     return True
 
-def process_contract(address, erc_type, erc_dir):
-    """Worker function to process individual contracts"""
-    try:
-        # Double-check file doesn't exist (race condition protection)
-        file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
-        if os.path.exists(file_path):
-            return {
-                "success": False,
-                "address": address,
-                "error": "File already exists (race condition)"
-            }
+# def process_contract(address, erc_type, erc_dir):
+#     """Worker function to process individual contracts"""
+#     try:
+#         # Double-check file doesn't exist (race condition protection)
+#         file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+#         if os.path.exists(file_path):
+#             return {
+#                 "success": False,
+#                 "address": address,
+#                 "error": "File already exists (race condition)"
+#             }
         
-        solidity_code = fetch_solidity_source(address)
-        if not solidity_code:
-            return {
-                "success": False,
-                "address": address,
-                "error": "No source code found"
-            }
+#         solidity_code = fetch_solidity_source(address)
+#         if not solidity_code:
+#             return {
+#                 "success": False,
+#                 "address": address,
+#                 "error": "No source code found"
+#             }
         
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(solidity_code)
+#         with open(file_path, "w", encoding="utf-8") as f:
+#             f.write(solidity_code)
         
-        return {
-            "success": True,
-            "address": address,
-            "path": file_path
-        }
+#         return {
+#             "success": True,
+#             "address": address,
+#             "path": file_path
+#         }
     
-    except Exception as e:
-        return {
-            "success": False,
-            "address": address,
-            "error": str(e)
-        }
+#     except Exception as e:
+#         return {
+#             "success": False,
+#             "address": address,
+#             "error": str(e)
+#         }
 
 
 # # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
@@ -451,7 +448,7 @@ def main():
     for csv_file_path in csv_files:
         print(f"\nProcessing file: {csv_file_path}")
         try:
-            csv_address_source_fetch(base_dir, csv_file_path, download_limit=3000,max_workers=15)
+            csv_address_source_fetch(base_dir, csv_file_path)
             
         except Exception as e:
             print(f"Error processing {csv_file_path}: {str(e)}")
