@@ -1649,17 +1649,6 @@ if __name__ == "__main__":
     # total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-random/ERC1155") if file.endswith('.sol'))
     # print(f"Total .sol files: {total_files}")
     
-    # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
-    # save_results_to_json(analysis_results, output_file)
-    
-    # erc2612_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC2612"
-    # erc2612_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc2612_analysis_results.json"
-    # erc2612_target_sig = "permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)"
-    # analysis_results = analyze_directory(erc2612_directory, erc2612_output_file, erc2612_target_sig)
-    
-    # erc5267_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC5267"
-    # erc5267_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc5267_analysis_results.json"
-    # erc5267_target_sig = "eip712Domain()"
     
    
     
@@ -1731,3 +1720,9 @@ if __name__ == "__main__":
         print("\nFiles with processing errors:")
         for file in error_files:
             print(f"- {file['file']}: {file['error']}")
+            
+            
+# Processed 'ERC-1155_safeBatchTransferFrom_deduplicated_avalanche.csv' - Number of rows: 1023
+# Processed 'ERC-1155_safeBatchTransferFrom_deduplicated_polygon.csv' - Number of rows: 17666
+# Processed 'ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv' - Number of rows: 9914
+# Processed 'ERC-1155_safeBatchTransferFrom_binance_deduplicated_results.csv' - Number of rows: 6803

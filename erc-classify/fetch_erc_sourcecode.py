@@ -129,71 +129,108 @@ def fetch_solidity_source(contract_address):
 #     print("\n🎯 Solidity contract fetching and saving complete!")
 
 
-
-
-# def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_seed=42):
-#     """Fetch Solidity source code for randomly selected contracts from CSV"""
+# def csv_address_source_fetch(base_dir, csv_file_path, sample_size=5000, max_workers=10):
+#     """Fetch Solidity source code for contracts from CSV with parallel processing"""
 #     # Set random seed for reproducibility
-#     random.seed(random_seed)
+#     # random.seed(random_seed)
     
-#     # Load the CSV file
-#     df = pd.read_csv(csv_file_path)
+#     try:
+#         # Load the CSV file with error handling
+#         df = pd.read_csv(csv_file_path)
+        
+#         # Validate required columns
+#         if "matched_erc" not in df.columns or "address" not in df.columns:
+#             raise ValueError("CSV must contain 'matched_erc' and 'address' columns")
 
-#     # Ensure required columns exist
-#     if "matched_erc" not in df.columns or "address" not in df.columns:
-#         raise ValueError("CSV file must contain 'matched_erc' and 'address' columns.")
-
-#     # Remove empty ERC matches and get unique ERC types
-#     erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
-    
-#     # Iterate over each unique ERC type
-#     for erc_type, group in erc_groups:
-#         # Initialize a list to store successfully fetched addresses
-#         fetched_count = 0
-#         processed_addresses = set()
+#         # Clean and prepare data
+#         erc_groups = (df.dropna(subset=["matched_erc"])
+#                      .groupby("matched_erc"))
         
-#         # Create a directory for this ERC type
-#         erc_dir = os.path.join(base_dir, erc_type)
-#         os.makedirs(erc_dir, exist_ok=True)
-        
-#         # Get all unique addresses for this ERC type
-#         unique_addresses = group["address"].dropna().unique().tolist()
-        
-#         # Randomly shuffle the addresses
-#         random.shuffle(unique_addresses)
-        
-#         # Take the first sample_size addresses (or all if less than sample_size)
-#         selected_addresses = unique_addresses[:min(sample_size, len(unique_addresses))]
-        
-#         for contract_address in selected_addresses:
-#             if fetched_count >= sample_size:
-#                 break
-                
-#             # Fetch Solidity source code
-#             solidity_code = fetch_solidity_source(contract_address)
+#         # Process each ERC type
+#         for erc_type, group in erc_groups:
+#             erc_dir = os.path.join(base_dir, erc_type)
+#             os.makedirs(erc_dir, exist_ok=True)
             
-#             if solidity_code:
-#                 # Define file path and save Solidity code
-#                 file_path = os.path.join(erc_dir, f"{erc_type}_{contract_address}.sol")
-#                 with open(file_path, "w", encoding="utf-8") as f:
-#                     f.write(solidity_code)
+#             # Get all unique addresses (remove duplicates and nulls)
+#             unique_addresses = (group["address"]
+#                               .dropna()
+#                               .drop_duplicates()
+#                               .tolist())
+            
+#             # Random sampling with minimum of sample_size or available contracts
+#             # random.shuffle(unique_addresses)
+#             selected_addresses = unique_addresses[:min(sample_size, len(unique_addresses))]
+            
+#             # Parallel processing with progress tracking
+#             with ThreadPoolExecutor(max_workers=max_workers) as executor:
+#                 futures = []
+#                 for address in selected_addresses:
+#                     futures.append(
+#                         executor.submit(
+#                             process_contract,
+#                             address=address,
+#                             erc_type=erc_type,
+#                             erc_dir=erc_dir
+#                         )
+#                     )
                 
-#                 fetched_count += 1
-#                 processed_addresses.add(contract_address)
-#                 print(f"✅ Saved ({fetched_count}/{sample_size}): {file_path}")
-#             else:
-#                 print(f"❌ No source code found for {contract_address}")
-
-#     print(f"\n🎯 Completed fetching {sample_size} randomly selected contracts per ERC type!")
-
-
-
-
-def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_seed=42, max_workers=10):
-    """Fetch Solidity source code for contracts from CSV with parallel processing"""
-    # Set random seed for reproducibility
-    random.seed(random_seed)
+#                 # Track progress and handle results
+#                 success_count = 0
+#                 for future in tqdm(as_completed(futures), 
+#                                  total=len(selected_addresses),
+#                                  desc=f"Fetching {erc_type}"):
+#                     result = future.result()
+#                     if result["success"]:
+#                         success_count += 1
+#                     else:
+#                         print(f"❌ Failed {result['address']}: {result['error']}")
+            
+#             print(f"\n✅ Completed {erc_type}: {success_count}/{len(selected_addresses)} contracts saved")
     
+#     except Exception as e:
+#         print(f"🚨 Critical error: {str(e)}")
+#         return False
+    
+#     return True
+
+# def process_contract(address, erc_type, erc_dir):
+#     """Worker function to process individual contracts"""
+#     try:
+#         solidity_code = fetch_solidity_source(address)
+#         if not solidity_code:
+#             return {
+#                 "success": False,
+#                 "address": address,
+#                 "error": "No source code found"
+#             }
+        
+#         file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+#         with open(file_path, "w", encoding="utf-8") as f:
+#             f.write(solidity_code)
+        
+#         return {
+#             "success": True,
+#             "address": address,
+#             "path": file_path
+#         }
+    
+#     except Exception as e:
+#         return {
+#             "success": False,
+#             "address": address,
+#             "error": str(e)
+#         }
+
+import os
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
+
+def csv_address_source_fetch(base_dir, csv_file_path, download_limit=5000, max_workers=10):
+    """
+    Fetch Solidity source code for contracts from CSV with parallel processing
+    Downloads first N files (without randomness), skipping existing files
+    """
     try:
         # Load the CSV file with error handling
         df = pd.read_csv(csv_file_path)
@@ -217,14 +254,22 @@ def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_s
                               .drop_duplicates()
                               .tolist())
             
-            # Random sampling with minimum of sample_size or available contracts
-            random.shuffle(unique_addresses)
-            selected_addresses = unique_addresses[:min(sample_size, len(unique_addresses))]
+            # Prepare download list with existence check
+            download_list = []
+            for address in unique_addresses[:download_limit]:
+                file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+                if not os.path.exists(file_path):
+                    download_list.append(address)
+                else:
+                    # Skip already downloaded files
+                    continue
+            
+            print(f"⏳ {erc_type}: {len(download_list)} files to download (skipping {download_limit - len(download_list)} existing files)")
             
             # Parallel processing with progress tracking
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = []
-                for address in selected_addresses:
+                for address in download_list:
                     futures.append(
                         executor.submit(
                             process_contract,
@@ -237,15 +282,15 @@ def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_s
                 # Track progress and handle results
                 success_count = 0
                 for future in tqdm(as_completed(futures), 
-                                 total=len(selected_addresses),
-                                 desc=f"Fetching {erc_type}"):
+                                 total=len(download_list),
+                                 desc=f"Downloading {erc_type}"):
                     result = future.result()
                     if result["success"]:
                         success_count += 1
                     else:
                         print(f"❌ Failed {result['address']}: {result['error']}")
             
-            print(f"\n✅ Completed {erc_type}: {success_count}/{len(selected_addresses)} contracts saved")
+            print(f"\n✅ Completed {erc_type}: {success_count}/{len(download_list)} new contracts saved")
     
     except Exception as e:
         print(f"🚨 Critical error: {str(e)}")
@@ -256,6 +301,15 @@ def csv_address_source_fetch(base_dir, csv_file_path, sample_size=3000, random_s
 def process_contract(address, erc_type, erc_dir):
     """Worker function to process individual contracts"""
     try:
+        # Double-check file doesn't exist (race condition protection)
+        file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+        if os.path.exists(file_path):
+            return {
+                "success": False,
+                "address": address,
+                "error": "File already exists (race condition)"
+            }
+        
         solidity_code = fetch_solidity_source(address)
         if not solidity_code:
             return {
@@ -264,7 +318,6 @@ def process_contract(address, erc_type, erc_dir):
                 "error": "No source code found"
             }
         
-        file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(solidity_code)
         
@@ -280,7 +333,6 @@ def process_contract(address, erc_type, erc_dir):
             "address": address,
             "error": str(e)
         }
-
 
 
 # # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
@@ -372,7 +424,7 @@ def main():
     
     # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     # base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-random1"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155_polygon"
         # ERC-721_setApprovedForAll_binance_deduplicated_results.csv
         # ERC-721_setApprovedForAll_deduplicated_avalanche.csv
         # ERC-721_setApprovedForAll_deduplicated_polygon.csv
@@ -383,7 +435,7 @@ def main():
     # Find all CSV files starting with "ERC-1155"
     # 1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_binance_deduplicated_results.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_polygon.csv"))
     
     # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
     # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
