@@ -3,6 +3,8 @@ import re
 import json
 from typing import List, Dict, Optional, Set, Tuple
 from eth_utils import keccak
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def find_functions_by_signature(functions: List[Dict], target_signature: str) -> List[Dict]:
     """Find all functions matching the normalized signature with parameter types."""
@@ -1165,10 +1167,10 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
             
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
-        if "safeBatchTransferFrom" in target_sig:
-            requirements = verify_erc1155_requirements(target_func, internal_calls)
-        if "setApprovalForAll" in target_sig:
-            requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
+        # if "safeBatchTransferFrom" in target_sig:
+        requirements = verify_erc1155_requirements(target_func, internal_calls)
+        # if "setApprovalForAll" in target_sig:
+        #     requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
         
         
         # if "permit" in target_sig:
@@ -1261,7 +1263,7 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.startswith("ERC1155_0xfb29834f2d8dbb7b8cf06cb115b75b2a36b1640d.sol") and file.endswith('.sol'):
+            if file.endswith('.sol'):
                 # file.startswith("ERC1155_0xfb29834f2d8dbb7b8cf06cb115b75b2a36b1640d.sol") and
                 
                 file_path = os.path.join(root, file)
@@ -1520,6 +1522,105 @@ def calculate_metrics(analysis_results: list, ground_truth: dict) -> dict:
 
 
 
+
+
+
+CATEGORY_MAPPING = {
+    "Missing Access Control": "MAC",
+    "Missing Address Validation": "MAV",
+    "Missing Array Length Check": "MAL",
+    "Missing Event Emission": "MEM",
+    "Reentrancy on Receiver (Redundant/misordered receiver callbacks)": "RoR",
+    "Missing interface compliance checks": "MIC",
+    "Gas Griefing (Unexpected large Batch Loop Size)": "GG",
+    "Inefficient transfers (Using safetransferfrom inside of batch structure)": "IET",
+    "Incorrect Transfers (Mint operation inside transfer function)": "ICT",
+    "Intentional Revert inside of Logic:\n(_enforceNonTransferable)": "IR",
+    "Violation of Atomicity": "VA",
+    "Zero Length Transfer": "ZLT"
+}
+
+def plot_vulnerability_distribution(file_path, sheet_name):
+    """
+    Plots the distribution of vulnerabilities across categories from an Excel file.
+    Uses exact column names: 'Security & Vulnerability category' and '# of founded vulnerabilites'
+    """
+    try:
+        # Read the first 11 rows of data
+        df = pd.read_excel(file_path, sheet_name=sheet_name, nrows=11)
+        
+        # Verify the exact column names exist
+        required_columns = {
+            'category': 'Security & Vulnerability category',
+            'addresses': '# of founded vulnerabilites'
+        }
+        
+        missing_cols = [col for col in required_columns.values() if col not in df.columns]
+        if missing_cols:
+            print(f"Error: Required columns not found. Missing: {missing_cols}")
+            print(f"Available columns: {list(df.columns)}")
+            return
+        
+        # Select and rename columns
+        df = df[list(required_columns.values())].copy()
+        df.columns = ['category', 'addresses']
+        
+        # Clean and process the data
+        df = df.dropna()
+        
+        # Clean category names and apply mapping
+        df['category'] = df['category'].str.strip()
+        df['short_category'] = df['category'].map(CATEGORY_MAPPING)
+        
+        # Handle any categories not in our mapping
+        df['short_category'] = df['short_category'].fillna(df['category'])
+        
+        # Split addresses if they're in a single string separated by newlines
+        df['addresses'] = df['addresses'].apply(lambda x: x.split('\n') if isinstance(x, str) else [])
+        
+        # Explode the list of addresses into separate rows
+        exploded_df = df.explode('addresses')
+        
+        # Count unique addresses per category (remove empty strings)
+        vuln_counts = exploded_df[exploded_df['addresses'].str.strip() != ''].groupby('short_category').size()
+        vuln_counts = vuln_counts.sort_values(ascending=False)
+        
+        if vuln_counts.empty:
+            print("Error: No valid contract addresses found after processing.")
+            return
+        
+        # Create plot
+        plt.figure(figsize=(10, 6))
+        ax = vuln_counts.plot(kind='bar', color='#1f77b4')
+        
+        # Customize plot
+        plt.title("Smart Contract Vulnerabilities Distribution", fontsize=14, pad=20)
+        plt.xlabel("Vulnerability Category", fontsize=12)
+        plt.ylabel("Number of Affected Contracts", fontsize=12)
+        plt.xticks(rotation=45, ha='right', fontsize=10)
+        plt.yticks(fontsize=10)
+        
+        # Remove top and right spines
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        # Add value labels on top of each bar
+        for i, v in enumerate(vuln_counts):
+            ax.text(i, v + 0.1, str(v), ha='center', va='bottom', fontsize=9)
+        
+        plt.tight_layout()
+        plt.show()
+        
+        # Return the counts for reference
+        return vuln_counts
+        
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+
+
 if __name__ == "__main__":
     
     # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum/ERC1155"
@@ -1531,14 +1632,19 @@ if __name__ == "__main__":
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
     erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155"
-    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ProgramAnalysis_ONE.json"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_safeBatch_RANDOM_SET.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
     analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     
-    print(f"Total files analyzed: {len(analysis_results)}")
+    # print(f"Total files analyzed: {len(analysis_results)}")
+    
+    # Example usage:
+    # plot_vulnerability_distribution(
+    #     file_path="/Users/ashokk/Downloads/Ethereum_ERC.xlsx",
+    #     sheet_name="Multi-Token Operation")
     
     # total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-random/ERC1155") if file.endswith('.sol'))
     # print(f"Total .sol files: {total_files}")

@@ -377,31 +377,31 @@ def fetch_tx_activity_copy(address: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
    
-def verify_source():
-     # Load CSV file containing contract addresses (with a "address" column).
-    df = pd.read_csv("test1_erc_classification_results_erc_top10.csv")  # adjust path as needed
+# def verify_source():
+#      # Load CSV file containing contract addresses (with a "address" column).
+#     df = pd.read_csv("test1_erc_classification_results_erc_top10.csv")  # adjust path as needed
     
-    # Extract unique addresses.
-    addresses = df["address"].dropna().unique()
+#     # Extract unique addresses.
+#     addresses = df["address"].dropna().unique()
     
-    for address in addresses:
-        # print(f"\nProcessing contract: {address}")
-        tx_info = fetch_tx_activity(address)
-        if tx_info.get("status") != "1":
-            print(f"Error fetching transaction activity for {address}: {tx_info.get('message', tx_info)}")
-            continue
+#     for address in addresses:
+#         # print(f"\nProcessing contract: {address}")
+#         tx_info = fetch_tx_activity(address)
+#         if tx_info.get("status") != "1":
+#             print(f"Error fetching transaction activity for {address}: {tx_info.get('message', tx_info)}")
+#             continue
         
-        tx_list = tx_info.get("result", [])
-        if not should_fetch_contract(tx_list):
-            # print(f"Skipping {address}: does not meet criteria (tx count, recency, or total value)")
-            continue
+#         tx_list = tx_info.get("result", [])
+#         if not should_fetch_contract(tx_list):
+#             # print(f"Skipping {address}: does not meet criteria (tx count, recency, or total value)")
+#             continue
 
-        source_info = fetch_source_code(address)
-        if source_info.get("status") == "1":
-            # save_source_code(address, source_info)
-            print(f"address : {address}")
-        else:
-            print(f"Error fetching source code for {address}: {source_info.get('message', source_info)}")
+#         source_info = fetch_source_code(address)
+#         if source_info.get("status") == "1":
+#             # save_source_code(address, source_info)
+#             print(f"address : {address}")
+#         else:
+#             print(f"Error fetching source code for {address}: {source_info.get('message', source_info)}")
 
 
 
@@ -462,7 +462,7 @@ def compare_json_files(basic_file, full_file):
 def number_of_rows(folder_path):
     # List all files in the folder
     for file_name in os.listdir(folder_path):
-        if folder_path.__contains__("output") and file_name.__contains__("config") and file_name.endswith(".csv"):
+        if folder_path.__contains__("output") and file_name.__contains__("safeBatchTransferFro") and file_name.endswith(".csv"):
             file_path = os.path.join(folder_path, file_name)
             try:
                 df = pd.read_csv(file_path)
@@ -480,32 +480,32 @@ def number_of_rows(folder_path):
 
 def main():
     
-    with open("erc712_DOMAIN_SEPARATOR.json", "r") as f:
-        erc_config = json.load(f)
+    # with open("erc712_DOMAIN_SEPARATOR.json", "r") as f:
+    #     erc_config = json.load(f)
+    
+    # # # Directory containing CSV files
+    # data_dir = "/home/ashok/data"
+    # output_file = "/home/ashok/output/ERC-712_DOMAIN_SEPARATOR.json_"
     
     # # Directory containing CSV files
-    data_dir = "/home/ashok/data"
-    output_file = "/home/ashok/output/ERC-712_DOMAIN_SEPARATOR.json_"
+    # # data_dir = "/Users/ashokk/Downloads/evm_data"
+    # # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC-223_transfer_custom"
     
-    # Directory containing CSV files
-    # data_dir = "/Users/ashokk/Downloads/evm_data"
-    # output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC-223_transfer_custom"
+    # # data_dir = "/Users/ashokk/Downloads/evm_data"
+    # csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
     
-    # data_dir = "/Users/ashokk/Downloads/evm_data"
-    csv_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".csv")]
-    
-    if not csv_files:
-        print(f"No CSV files found in {data_dir}.")
-        return
-    for csv_file in csv_files:
-        print(f"Processing file: {csv_file}")
-        ERC_classification(csv_file, erc_config, output_file)
+    # if not csv_files:
+    #     print(f"No CSV files found in {data_dir}.")
+    #     return
+    # for csv_file in csv_files:
+    #     print(f"Processing file: {csv_file}")
+    #     ERC_classification(csv_file, erc_config, output_file)
         
     
     # verify_source()
     
     # compare_json_files("final_basic_erc_specifications.json", "final_full_erc_specifications.json")
-    # number_of_rows("/home/ashok/output")
+    number_of_rows("/home/ashok/output")
     # number_of_rows("/home/ashok/data")
     
     
