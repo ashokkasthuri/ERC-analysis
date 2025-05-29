@@ -421,7 +421,7 @@ def main():
     
     # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     # base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum_9914"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
         # ERC-721_setApprovedForAll_binance_deduplicated_results.csv
         # ERC-721_setApprovedForAll_deduplicated_avalanche.csv
         # ERC-721_setApprovedForAll_deduplicated_polygon.csv
