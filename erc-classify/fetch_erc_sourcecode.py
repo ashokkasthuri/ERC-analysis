@@ -223,7 +223,7 @@ def fetch_solidity_source(contract_address):
 
 
 
-def csv_address_source_fetch(base_dir, csv_file_path, download_limit=6803, max_workers=10):
+def csv_address_source_fetch(base_dir, csv_file_path, download_limit=9914, max_workers=10):
     """
     Fetch Solidity source code for contracts from CSV with parallel processing
     Downloads first N files (without randomness), skipping existing files
@@ -421,7 +421,7 @@ def main():
     
     # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
     # base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-binance1"
+    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum_9914"
         # ERC-721_setApprovedForAll_binance_deduplicated_results.csv
         # ERC-721_setApprovedForAll_deduplicated_avalanche.csv
         # ERC-721_setApprovedForAll_deduplicated_polygon.csv
@@ -432,7 +432,7 @@ def main():
     # Find all CSV files starting with "ERC-1155"
     # 1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_binance_deduplicated_results.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
     
     # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
     # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
@@ -448,7 +448,7 @@ def main():
     for csv_file_path in csv_files:
         print(f"\nProcessing file: {csv_file_path}")
         try:
-            csv_address_source_fetch(base_dir, csv_file_path, download_limit=6803, max_workers=10)
+            csv_address_source_fetch(base_dir, csv_file_path, download_limit=9914, max_workers=10)
             
         except Exception as e:
             print(f"Error processing {csv_file_path}: {str(e)}")
