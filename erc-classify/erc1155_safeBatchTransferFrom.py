@@ -1215,22 +1215,7 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
                 
             if "isSameLength" in f.get('name', ''):
                 requirements["length_matching_check"] = True
-        # for f in internal_calls:
-        #     if "isContract" in f.get('name', ''):
-        #         requirements["to_isContract_check"] = True
-        #         break
-        # for f in internal_calls:
-        #     if "isApprovedForAll" in f.get('name', ''):
-        #         requirements["approval_check"] = True
-        #         break
-        # for f in internal_calls:
-        #     if "msgSender" in f.get('name', ''):
-        #         requirements["sender_check"] = True
-        #         break
-
-            # if "totalSupply" or "exists" in f.get('name', ''):
-            #     requirements["length_matching_check"] = True
-        
+       
        
         
         results.append({
@@ -1241,19 +1226,19 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
             "internal_calls": [f['name'] for f in internal_calls],
             # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
             # "on_received_check_found": requirements.get('on_received_check', False),
-            # "all_requirements_met": all_met,
-            # "some_requirements_met": some_met
+            "all_requirements_met": all_met,
+            "some_requirements_met": some_met
         })
     
     # Return consolidated results
     if results:
         return {
             "all_implementations": results,
-            # "summary": {
-            #     "total_implementations": len(results),
-            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
-            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
-            # }
+            "summary": {
+                "total_implementations": len(results),
+                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
 
@@ -1684,7 +1669,7 @@ if __name__ == "__main__":
     #     file_path="/Users/ashokk/Downloads/Ethereum_ERC.xlsx",
     #     sheet_name="Multi-Token Operation")
     
-    total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155") if file.endswith('.sol'))
+    total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_polygon/ERC1155") if file.endswith('.sol'))
     print(f"Total .sol files: {total_files}")
     
     
@@ -1692,13 +1677,13 @@ if __name__ == "__main__":
     
     
 #    # File paths
-    # input_json = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_Local_analysis_results.json"
-    # output_json = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_automated_ground_truth.json"
+    input_json = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_Local_analysis_results.json"
+    output_json = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_automated_ground_truth.json"
     
-    # # Create automated ground truth (first 1000 files)
-    # # ground_truth = create_automated_ground_truth(input_json, output_json, sample_size=1000)
+    # Create automated ground truth (first 1000 files)
+    # ground_truth = create_automated_ground_truth(input_json, output_json, sample_size=1000)
     
-    # # Load analysis results for metrics calculation
+    # Load analysis results for metrics calculation
     # with open(input_json, 'r', encoding='utf-8') as f:
     #     analysis_results = json.load(f)
         
