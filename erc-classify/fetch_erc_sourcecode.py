@@ -332,104 +332,237 @@ def process_contract(address, erc_type, erc_dir):
         }
 
 
-def fetch_contract_tvl(contract_address):
-    """Fetch TVL for a single contract address using Etherscan API"""
-    try:
-        url = f"https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress={contract_address}&address=0x000000000000000000000000000000000000dead&tag=latest&apikey={ETHERSCAN_API_KEY}"
-        response = requests.get(url)
-        data = response.json()
+# def fetch_contract_tvl(contract_address):
+#     """Fetch TVL for a single contract address using Etherscan API"""
+#     try:
+#         url = f"https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress={contract_address}&address=0x000000000000000000000000000000000000dead&tag=latest&apikey={ETHERSCAN_API_KEY}"
+#         response = requests.get(url)
+#         data = response.json()
         
-        if data["status"] == "1":
-            # Convert balance from wei to ETH
-            balance_wei = int(data["result"])
-            balance_eth = balance_wei / 10**18
-            return {
-                "success": True,
-                "address": contract_address,
-                "tvl": balance_eth
-            }
-        else:
-            return {
-                "success": False,
-                "address": contract_address,
-                "error": data.get("message", "Unknown API error")
-            }
+#         if data["status"] == "1":
+#             # Convert balance from wei to ETH
+#             balance_wei = int(data["result"])
+#             balance_eth = balance_wei / 10**18
+#             return {
+#                 "success": True,
+#                 "address": contract_address,
+#                 "tvl": balance_eth
+#             }
+#         else:
+#             return {
+#                 "success": False,
+#                 "address": contract_address,
+#                 "error": data.get("message", "Unknown API error")
+#             }
             
+#     except Exception as e:
+#         return {
+#             "success": False,
+#             "address": contract_address,
+#             "error": str(e)
+#         }
+
+# def fetch_all_tvl(csv_file_path, output_csv_path=None, max_workers=10):
+#     """
+#     Fetch TVL for all contracts in CSV file
+#     Args:
+#         csv_file_path: Path to input CSV with contract addresses
+#         output_csv_path: Optional path to save results (default: appends to input CSV)
+#         max_workers: Number of parallel threads
+#     Returns:
+#         DataFrame with TVL results
+#     """
+#     try:
+#         # Load CSV
+#         df = pd.read_csv(csv_file_path)
+        
+#         # Validate columns
+#         if "address" not in df.columns:
+#             raise ValueError("CSV must contain 'address' column")
+            
+#         # Get unique addresses
+#         addresses = df["address"].dropna().drop_duplicates().tolist()
+        
+#         print(f"⏳ Fetching TVL for {len(addresses)} contracts...")
+        
+#         # Parallel processing
+#         results = []
+#         with ThreadPoolExecutor(max_workers=max_workers) as executor:
+#             futures = [executor.submit(fetch_contract_tvl, addr) for addr in addresses]
+            
+#             for future in tqdm(as_completed(futures), total=len(addresses), desc="Fetching TVL"):
+#                 results.append(future.result())
+        
+#         # Process results
+#         success_results = [r for r in results if r["success"]]
+#         success_count = len(success_results)
+#         print(f"\n✅ Completed: {success_count}/{len(addresses)} successful TVL fetches")
+        
+#         # Calculate total TVL
+#         total_tvl = sum(r["tvl"] for r in success_results)
+#         print(f"💰 Total TVL across all contracts: {total_tvl:,.2f} ETH")
+        
+#         # Create enhanced results DataFrame
+#         tvl_df = pd.DataFrame(results)
+#         tvl_df["tvl_usd"] = tvl_df["tvl"] * get_eth_price()  # Add USD conversion
+        
+#         # Merge with original data
+#         output_df = df.merge(
+#             tvl_df[["address", "tvl", "tvl_usd"]],
+#             on="address",
+#             how="left"
+#         )
+        
+#         # Save results
+#         if output_csv_path:
+#             output_df.to_csv(output_csv_path, index=False)
+#             print(f"💾 Saved results to {output_csv_path}")
+            
+#         return output_df, total_tvl
+        
+#     except Exception as e:
+#         print(f"🚨 Error: {str(e)}")
+#         return None, 0
+
+# def get_eth_price():
+#     """Fetch current ETH price in USD"""
+#     url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+#     response = requests.get(url)
+#     return response.json()["ethereum"]["usd"]
+
+
+
+
+def fetch_contract_data(contract_address):
+    """Fetch both TVL and transaction count for a single contract"""
+    try:
+        # Initialize result dict
+        result = {
+            "address": contract_address,
+            "success": False,
+            "tvl": 0,
+            "tx_count": 0,
+            "error": None
+        }
+        
+        # Fetch TVL
+        tvl_url = f"https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress={contract_address}&address=0x000000000000000000000000000000000000dead&tag=latest&apikey={ETHERSCAN_API_KEY}"
+        tvl_response = requests.get(tvl_url)
+        tvl_data = tvl_response.json()
+        
+        if tvl_data["status"] == "1":
+            result["tvl"] = int(tvl_data["result"]) / 10**18
+            result["success"] = True
+        else:
+            result["error"] = f"TVL error: {tvl_data.get('message', 'Unknown error')}"
+            return result
+        
+        # Fetch transaction count
+        tx_url = f"https://api.etherscan.io/api?module=account&action=txlist&address={contract_address}&startblock=0&endblock=99999999&sort=asc&apikey={ETHERSCAN_API_KEY}"
+        tx_response = requests.get(tx_url)
+        tx_data = tx_response.json()
+        
+        if tx_data["status"] == "1":
+            result["tx_count"] = len(tx_data["result"])
+        else:
+            result["error"] = f"Tx count error: {tx_data.get('message', 'Unknown error')}"
+        
+        return result
+        
     except Exception as e:
         return {
-            "success": False,
             "address": contract_address,
-            "error": str(e)
+            "success": False,
+            "error": str(e),
+            "tvl": 0,
+            "tx_count": 0
         }
 
-def fetch_all_tvl(csv_file_path, output_csv_path=None, max_workers=10):
+def fetch_all_contract_data(csv_file_path, output_csv_path="contracts_analysis.csv", max_workers=10):
     """
-    Fetch TVL for all contracts in CSV file
-    Args:
-        csv_file_path: Path to input CSV with contract addresses
-        output_csv_path: Optional path to save results (default: appends to input CSV)
-        max_workers: Number of parallel threads
-    Returns:
-        DataFrame with TVL results
+    Fetch comprehensive data for all contracts including:
+    - Individual TVL and transaction counts
+    - Combined totals
+    - USD conversions
     """
     try:
         # Load CSV
         df = pd.read_csv(csv_file_path)
         
-        # Validate columns
         if "address" not in df.columns:
             raise ValueError("CSV must contain 'address' column")
             
-        # Get unique addresses
         addresses = df["address"].dropna().drop_duplicates().tolist()
         
-        print(f"⏳ Fetching TVL for {len(addresses)} contracts...")
+        print(f"⏳ Analyzing {len(addresses)} contracts (TVL + Transactions)...")
         
         # Parallel processing
         results = []
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = [executor.submit(fetch_contract_tvl, addr) for addr in addresses]
+            futures = [executor.submit(fetch_contract_data, addr) for addr in addresses]
             
-            for future in tqdm(as_completed(futures), total=len(addresses), desc="Fetching TVL"):
+            for future in tqdm(as_completed(futures), total=len(addresses), desc="Processing"):
                 results.append(future.result())
         
         # Process results
         success_results = [r for r in results if r["success"]]
         success_count = len(success_results)
-        print(f"\n✅ Completed: {success_count}/{len(addresses)} successful TVL fetches")
         
-        # Calculate total TVL
+        # Calculate totals
         total_tvl = sum(r["tvl"] for r in success_results)
-        print(f"💰 Total TVL across all contracts: {total_tvl:,.2f} ETH")
+        total_txs = sum(r["tx_count"] for r in results)  # Include all attempts
         
-        # Create enhanced results DataFrame
-        tvl_df = pd.DataFrame(results)
-        tvl_df["tvl_usd"] = tvl_df["tvl"] * get_eth_price()  # Add USD conversion
+        # Get ETH price
+        try:
+            eth_price = get_eth_price()
+        except:
+            eth_price = 1800  # Fallback value
+            print("⚠️ Using fallback ETH price")
+        
+        # Create DataFrame
+        analysis_df = pd.DataFrame(results)
+        analysis_df["tvl_usd"] = analysis_df["tvl"] * eth_price
         
         # Merge with original data
         output_df = df.merge(
-            tvl_df[["address", "tvl", "tvl_usd"]],
+            analysis_df[["address", "tvl", "tvl_usd", "tx_count", "error"]],
             on="address",
             how="left"
         )
         
+        # Add summary row
+        summary_row = pd.DataFrame([{
+            "address": "TOTAL",
+            "tvl": total_tvl,
+            "tvl_usd": total_tvl * eth_price,
+            "tx_count": total_txs,
+            "error": None
+        }])
+        output_df = pd.concat([output_df, summary_row], ignore_index=True)
+        
         # Save results
-        if output_csv_path:
-            output_df.to_csv(output_csv_path, index=False)
-            print(f"💾 Saved results to {output_csv_path}")
-            
-        return output_df, total_tvl
+        output_df.to_csv(output_csv_path, index=False)
+        print(f"\n📊 Analysis Complete:")
+        print(f"- Contracts processed: {len(addresses)}")
+        print(f"- Successful analyses: {success_count}")
+        print(f"- Total TVL: {total_tvl:,.2f} ETH (${total_tvl * eth_price:,.2f})")
+        print(f"- Total Transactions: {total_txs:,}")
+        print(f"💾 Saved full analysis to {output_csv_path}")
+        
+        return output_df
         
     except Exception as e:
-        print(f"🚨 Error: {str(e)}")
-        return None, 0
+        print(f"🚨 Critical error: {str(e)}")
+        return None
 
-# Helper function for ETH price (add to your code)
+# Helper function remains the same
 def get_eth_price():
     """Fetch current ETH price in USD"""
     url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
     response = requests.get(url)
     return response.json()["ethereum"]["usd"]
+
+
 # # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
 # ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
 
@@ -513,11 +646,16 @@ def get_eth_price():
 # Main execution function
 def main():
     
-    df, total_tvl = fetch_all_tvl(csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv")
-    print(f"\n📊 Final Report:")
-    print(f"- Contracts analyzed: {len(df)}")
-    print(f"- Total Value Locked: {total_tvl:,.2f} ETH")
-    print(f"- Average TVL/contract: {total_tvl/len(df):.2f} ETH")
+    # df, total_tvl = fetch_all_tvl(csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv")
+    # print(f"\n📊 Final Report:")
+    # print(f"- Contracts analyzed: {len(df)}")
+    # print(f"- Total Value Locked: {total_tvl:,.2f} ETH")
+    # print(f"- Average TVL/contract: {total_tvl/len(df):.2f} ETH")
+    
+    results = fetch_all_contract_data(
+        csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv",
+        output_csv_path="/home/ashok/ERC-analysis/erc-classify/TVL_TXN_Data.csv",
+        max_workers=15)
 
     # csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
