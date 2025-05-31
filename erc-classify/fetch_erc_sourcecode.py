@@ -394,30 +394,42 @@ def fetch_all_tvl(csv_file_path, output_csv_path=None, max_workers=10):
                 results.append(future.result())
         
         # Process results
-        success_count = sum(1 for r in results if r["success"])
+        success_results = [r for r in results if r["success"]]
+        success_count = len(success_results)
         print(f"\n✅ Completed: {success_count}/{len(addresses)} successful TVL fetches")
         
-        # Create results DataFrame
+        # Calculate total TVL
+        total_tvl = sum(r["tvl"] for r in success_results)
+        print(f"💰 Total TVL across all contracts: {total_tvl:,.2f} ETH")
+        
+        # Create enhanced results DataFrame
         tvl_df = pd.DataFrame(results)
+        tvl_df["tvl_usd"] = tvl_df["tvl"] * get_eth_price()  # Add USD conversion
         
         # Merge with original data
         output_df = df.merge(
-            tvl_df[["address", "tvl"]],
+            tvl_df[["address", "tvl", "tvl_usd"]],
             on="address",
             how="left"
         )
         
-        # Save if output path specified
+        # Save results
         if output_csv_path:
             output_df.to_csv(output_csv_path, index=False)
             print(f"💾 Saved results to {output_csv_path}")
             
-        return output_df
+        return output_df, total_tvl
         
     except Exception as e:
         print(f"🚨 Error: {str(e)}")
-        return None
+        return None, 0
 
+# Helper function for ETH price (add to your code)
+def get_eth_price():
+    """Fetch current ETH price in USD"""
+    url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+    response = requests.get(url)
+    return response.json()["ethereum"]["usd"]
 # # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
 # ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
 
@@ -501,12 +513,12 @@ def fetch_all_tvl(csv_file_path, output_csv_path=None, max_workers=10):
 # Main execution function
 def main():
     
-    result_df = fetch_all_tvl(
-        csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv",
-        output_csv_path=None,
-        max_workers=15
-    )
-    
+    df, total_tvl = fetch_all_tvl(csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv")
+    print(f"\n📊 Final Report:")
+    print(f"- Contracts analyzed: {len(df)}")
+    print(f"- Total Value Locked: {total_tvl:,.2f} ETH")
+    print(f"- Average TVL/contract: {total_tvl/len(df):.2f} ETH")
+
     # csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
