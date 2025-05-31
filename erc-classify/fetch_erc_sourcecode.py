@@ -332,6 +332,92 @@ def process_contract(address, erc_type, erc_dir):
         }
 
 
+def fetch_contract_tvl(contract_address):
+    """Fetch TVL for a single contract address using Etherscan API"""
+    try:
+        url = f"https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress={contract_address}&address=0x000000000000000000000000000000000000dead&tag=latest&apikey={ETHERSCAN_API_KEY}"
+        response = requests.get(url)
+        data = response.json()
+        
+        if data["status"] == "1":
+            # Convert balance from wei to ETH
+            balance_wei = int(data["result"])
+            balance_eth = balance_wei / 10**18
+            return {
+                "success": True,
+                "address": contract_address,
+                "tvl": balance_eth
+            }
+        else:
+            return {
+                "success": False,
+                "address": contract_address,
+                "error": data.get("message", "Unknown API error")
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "address": contract_address,
+            "error": str(e)
+        }
+
+def fetch_all_tvl(csv_file_path, output_csv_path=None, max_workers=10):
+    """
+    Fetch TVL for all contracts in CSV file
+    Args:
+        csv_file_path: Path to input CSV with contract addresses
+        output_csv_path: Optional path to save results (default: appends to input CSV)
+        max_workers: Number of parallel threads
+    Returns:
+        DataFrame with TVL results
+    """
+    try:
+        # Load CSV
+        df = pd.read_csv(csv_file_path)
+        
+        # Validate columns
+        if "address" not in df.columns:
+            raise ValueError("CSV must contain 'address' column")
+            
+        # Get unique addresses
+        addresses = df["address"].dropna().drop_duplicates().tolist()
+        
+        print(f"⏳ Fetching TVL for {len(addresses)} contracts...")
+        
+        # Parallel processing
+        results = []
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(fetch_contract_tvl, addr) for addr in addresses]
+            
+            for future in tqdm(as_completed(futures), total=len(addresses), desc="Fetching TVL"):
+                results.append(future.result())
+        
+        # Process results
+        success_count = sum(1 for r in results if r["success"])
+        print(f"\n✅ Completed: {success_count}/{len(addresses)} successful TVL fetches")
+        
+        # Create results DataFrame
+        tvl_df = pd.DataFrame(results)
+        
+        # Merge with original data
+        output_df = df.merge(
+            tvl_df[["address", "tvl"]],
+            on="address",
+            how="left"
+        )
+        
+        # Save if output path specified
+        if output_csv_path:
+            output_df.to_csv(output_csv_path, index=False)
+            print(f"💾 Saved results to {output_csv_path}")
+            
+        return output_df
+        
+    except Exception as e:
+        print(f"🚨 Error: {str(e)}")
+        return None
+
 # # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
 # ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
 
@@ -414,44 +500,40 @@ def process_contract(address, erc_type, erc_dir):
 
 # Main execution function
 def main():
-    erc_types = ["ERC4626", "ERC223"]  # Add more ERC types if needed
+    
+    result_df = fetch_all_tvl(
+        csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv",
+        output_csv_path=None,
+        max_workers=15
+    )
     
     # csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
     
-    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC_Solidity_Source"
-    # base_dir = "/home/ashok/output/ERC1155_Solidity_SourceCode"
-    base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
+    
         # ERC-721_setApprovedForAll_binance_deduplicated_results.csv
         # ERC-721_setApprovedForAll_deduplicated_avalanche.csv
         # ERC-721_setApprovedForAll_deduplicated_polygon.csv
         # ERC-721_setApprovedForAll_ethereum_deduplicated_results.csv
-    
-    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
-    
-    # Find all CSV files starting with "ERC-1155"
-    # 1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv
+        
+    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
+    # csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
     
-    # csv_files1 = glob.glob(os.path.join(csv_dir, "ERC-7231*.csv"))
-    # csv_files2 = glob.glob(os.path.join(csv_dir, "ERC-7401*.csv"))
-    # csv_files3 = glob.glob(os.path.join(csv_dir, "ERC-7409*.csv"))
-    # csv_files4 = glob.glob(os.path.join(csv_dir, "ERC-6606*.csv"))
-    # csv_files5 = glob.glob(os.path.join(csv_dir, "ERC-erc5023*.csv"))
-    # csv_files6 = glob.glob(os.path.join(csv_dir, "ERC-erc3643*.csv"))
     
-    if not csv_files:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
+    # if not csv_files:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
     
-    for csv_file_path in csv_files:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            csv_address_source_fetch(base_dir, csv_file_path, download_limit=9914, max_workers=10)
+    # for csv_file_path in csv_files:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         csv_address_source_fetch(base_dir, csv_file_path, download_limit=9914, max_workers=10)
             
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    
+    
     
 
 if __name__ == "__main__":
