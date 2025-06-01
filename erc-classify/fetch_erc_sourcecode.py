@@ -96,7 +96,7 @@ def fetch_source_code(contract_address, chain='ethereum'):
         print(f"❌ Error fetching {chain.upper()} contract {contract_address}: {str(e)}")
         return None
 
-def csv_address_source_fetch(base_dir, csv_file_path, chain='bsc', download_limit=17666, max_workers=10):
+def csv_address_source_fetch(base_dir, csv_file_path, chain='bsc', download_limit=1023, max_workers=10):
     """
     Universal fetcher for multiple chains using Etherscan v2 API
     chain: 'ethereum', 'bsc', 'polygon', or 'avalanche'
@@ -818,10 +818,10 @@ def main():
         # ERC-721_setApprovedForAll_ethereum_deduplicated_results.csv
         
     # base_dir_ethereum = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
-    base_dir_binance = "/home/ashok/ERC-analysis/erc-classify/ERC1155-polygon"
+    base_dir_binance = "/home/ashok/ERC-analysis/erc-classify/ERC1155-avalanche"
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_polygon.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_avalanche.csv"))
     
     
     if not csv_files:
@@ -836,7 +836,7 @@ def main():
             csv_address_source_fetch(
                 base_dir_binance,
                 csv_file_path,
-                chain="polygon",
+                chain="avalanche",
                 max_workers=10
             )
         except Exception as e:
