@@ -39,97 +39,106 @@ sys.setrecursionlimit(20000)
 
 
 
-def fetch_bsc_source(contract_address):
-    """Fetch Solidity source code from BscScan API"""
-    url = f"https://api.bscscan.com/api?module=contract&action=getsourcecode&address={contract_address}&apikey={BSCSCAN_API_KEY}"
-    response = requests.get(url)
-    data = response.json()
-    return _process_source_response(data, contract_address, "BSC")
+# Chain ID mappings
+CHAIN_IDS = {
+    'ethereum': 1,
+    'bsc': 56,
+    'polygon': 137,
+    'avalanche': 43114
+}
 
-def fetch_polygon_source(contract_address):
-    """Fetch Solidity source code from PolygonScan API"""
-    url = f"https://api.polygonscan.com/api?module=contract&action=getsourcecode&address={contract_address}&apikey={POLYGONSCAN_API_KEY}"
-    response = requests.get(url)
-    data = response.json()
-    return _process_source_response(data, contract_address, "Polygon")
-
-def fetch_avalanche_source(contract_address):
-    """Fetch Solidity source code from SnowTrace API"""
-    url = f"https://api.snowtrace.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={SNOWTRACE_API_KEY}"
-    response = requests.get(url)
-    data = response.json()
-    return _process_source_response(data, contract_address, "Avalanche")
-
-def _process_source_response(data, contract_address, chain_name):
-    """Shared processing logic for all chain APIs"""
-    if data["status"] == "1" and data["message"] == "OK":
-        source_code = data["result"][0]["SourceCode"]
-        
-        if source_code.startswith("{{") and source_code.endswith("}}"):
-            try:
-                source_json = json.loads(source_code[1:-1])
-                solidity_code = ""
-                for file_path, file_data in source_json.get("sources", {}).items():
-                    content = file_data.get("content", "")
-                    solidity_code += f"// {chain_name} - File: {file_path}\n{content}\n\n"
-                return solidity_code.strip() or None
-            except json.JSONDecodeError:
-                print(f"❌ {chain_name} JSON parse error for {contract_address}")
-                return None
-        elif isinstance(source_code, str) and source_code.strip():
-            return source_code.strip()
-    else:
-        print(f"❌ {chain_name} API failed for {contract_address}: {data.get('message', 'Unknown error')}")
-    return None
-
-def csv_address_source_fetch(base_dir, csv_file_path, chain="bsc", download_limit=100, max_workers=10):
+def fetch_source_code(contract_address, chain='ethereum'):
     """
-    Universal fetcher for multiple chains
+    Fetch Solidity source code using Etherscan's unified API v2
     chain: 'ethereum', 'bsc', 'polygon', or 'avalanche'
     """
-    chain_fetchers = {
-        'ethereum': fetch_solidity_source,
-        'bsc': fetch_bsc_source,
-        'polygon': fetch_polygon_source,
-        'avalanche': fetch_avalanche_source
-    }
-    
-    fetch_fn = chain_fetchers.get(chain.lower())
-    if not fetch_fn:
+    chain_id = CHAIN_IDS.get(chain.lower())
+    if not chain_id:
         raise ValueError(f"Unsupported chain: {chain}")
-
+    
+    url = (
+        f"https://api.etherscan.io/v2/api"
+        f"?chainid={chain_id}"
+        f"&module=contract"
+        f"&action=getsourcecode"
+        f"&address={contract_address}"
+        f"&apikey={ETHERSCAN_API_KEY}"
+    )
+    
     try:
+        response = requests.get(url)
+        data = response.json()
+        
+        if data.get("status") == "1" and data.get("message") == "OK":
+            source_code = data["result"][0]["SourceCode"]
+            
+            # Handle JSON-wrapped source (multi-file contracts)
+            if source_code.startswith("{{") and source_code.endswith("}}"):
+                try:
+                    source_json = json.loads(source_code[1:-1])
+                    solidity_code = ""
+                    for file_path, file_data in source_json.get("sources", {}).items():
+                        content = file_data.get("content", "")
+                        solidity_code += f"// Chain: {chain.upper()} - File: {file_path}\n{content}\n\n"
+                    return solidity_code.strip() or None
+                except json.JSONDecodeError:
+                    print(f"❌ JSON parse error for {chain.upper()} contract {contract_address}")
+                    return None
+            
+            # Handle direct Solidity code
+            elif isinstance(source_code, str) and source_code.strip():
+                return source_code.strip()
+        
+        print(f"❌ API failed for {chain.upper()} contract {contract_address}: {data.get('message', 'Unknown error')}")
+        return None
+    
+    except Exception as e:
+        print(f"❌ Error fetching {chain.upper()} contract {contract_address}: {str(e)}")
+        return None
+
+def csv_address_source_fetch(base_dir, csv_file_path, chain='bsc', download_limit=100, max_workers=10):
+    """
+    Universal fetcher for multiple chains using Etherscan v2 API
+    chain: 'ethereum', 'bsc', 'polygon', or 'avalanche'
+    """
+    try:
+        # Load and validate CSV
         df = pd.read_csv(csv_file_path)
         if "matched_erc" not in df.columns or "address" not in df.columns:
             raise ValueError("CSV must contain 'matched_erc' and 'address' columns")
 
+        # Group by ERC type
         erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
         
         for erc_type, group in erc_groups:
-            erc_dir = os.path.join(base_dir, f"{chain}_{erc_type}")
-            os.makedirs(erc_dir, exist_ok=True)
+            # Create chain-specific directory
+            chain_dir = os.path.join(base_dir, f"{chain}_{erc_type}")
+            os.makedirs(chain_dir, exist_ok=True)
             
+            # Get unique addresses
             unique_addresses = group["address"].dropna().drop_duplicates().tolist()
-            download_list = []
             
+            # Prepare download list (skip existing files)
+            download_list = []
             for address in unique_addresses[:download_limit]:
-                file_path = os.path.join(erc_dir, f"{chain}_{erc_type}_{address}.sol")
+                file_path = os.path.join(chain_dir, f"{chain}_{erc_type}_{address}.sol")
                 if not os.path.exists(file_path):
                     download_list.append(address)
             
             print(f"⏳ {chain.upper()} {erc_type}: Downloading {len(download_list)} contracts")
             
+            # Parallel processing
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = [
                     executor.submit(
                         process_contract,
                         address=address,
-                        erc_type=f"{chain}_{erc_type}",
-                        erc_dir=erc_dir,
-                        fetch_fn=fetch_fn
+                        file_path=os.path.join(chain_dir, f"{chain}_{erc_type}_{address}.sol"),
+                        chain=chain
                     ) for address in download_list
                 ]
                 
+                # Track progress
                 success_count = 0
                 for future in tqdm(as_completed(futures), total=len(download_list), desc=f"{chain.upper()} {erc_type}"):
                     result = future.result()
@@ -141,15 +150,15 @@ def csv_address_source_fetch(base_dir, csv_file_path, chain="bsc", download_limi
             print(f"\n✅ {chain.upper()} {erc_type}: {success_count}/{len(download_list)} saved")
     
     except Exception as e:
-        print(f"🚨 {chain.upper()} error: {str(e)}")
+        print(f"🚨 {chain.upper()} processing error: {str(e)}")
         return False
     
     return True
 
-def process_contract(address, erc_type, erc_dir, fetch_fn):
-    """Universal contract processor with chain-specific fetcher"""
+def process_contract(address, file_path, chain):
+    """Process individual contract with chain context"""
     try:
-        file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+        # Skip if file already exists (race condition check)
         if os.path.exists(file_path):
             return {
                 "success": False,
@@ -157,7 +166,8 @@ def process_contract(address, erc_type, erc_dir, fetch_fn):
                 "error": "File exists"
             }
         
-        solidity_code = fetch_fn(address)
+        # Fetch source code
+        solidity_code = fetch_source_code(address, chain)
         if not solidity_code:
             return {
                 "success": False,
@@ -165,6 +175,7 @@ def process_contract(address, erc_type, erc_dir, fetch_fn):
                 "error": "No source found"
             }
         
+        # Save to file
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(solidity_code)
         
@@ -180,8 +191,6 @@ def process_contract(address, erc_type, erc_dir, fetch_fn):
             "address": address,
             "error": str(e)
         }
-# Function to fetch Solidity source code from Etherscan
-
 # def csv_address_source_fetch(base_dir, csv_file_path):
 #     random.seed(42)
 #      # Load the CSV file
