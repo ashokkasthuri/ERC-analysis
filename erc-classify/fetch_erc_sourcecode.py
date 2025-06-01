@@ -96,7 +96,7 @@ def fetch_source_code(contract_address, chain='ethereum'):
         print(f"❌ Error fetching {chain.upper()} contract {contract_address}: {str(e)}")
         return None
 
-def csv_address_source_fetch(base_dir, csv_file_path, chain='bsc', download_limit=100, max_workers=10):
+def csv_address_source_fetch(base_dir, csv_file_path, chain='bsc', download_limit=17666, max_workers=10):
     """
     Universal fetcher for multiple chains using Etherscan v2 API
     chain: 'ethereum', 'bsc', 'polygon', or 'avalanche'
@@ -837,7 +837,7 @@ def main():
                 base_dir_binance,
                 csv_file_path,
                 chain="bsc",
-                max_workers=8
+                max_workers=10
             )
         except Exception as e:
             print(f"Error processing {csv_file_path}: {str(e)}")
