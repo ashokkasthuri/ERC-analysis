@@ -818,10 +818,10 @@ def main():
         # ERC-721_setApprovedForAll_ethereum_deduplicated_results.csv
         
     # base_dir_ethereum = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
-    base_dir_binance = "/home/ashok/ERC-analysis/erc-classify/ERC1155-binance"
+    base_dir_binance = "/home/ashok/ERC-analysis/erc-classify/ERC1155-polygon"
     csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
-    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_binance_deduplicated_results.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_polygon.csv"))
     
     
     if not csv_files:
@@ -836,7 +836,7 @@ def main():
             csv_address_source_fetch(
                 base_dir_binance,
                 csv_file_path,
-                chain="bsc",
+                chain="polygon",
                 max_workers=10
             )
         except Exception as e:
