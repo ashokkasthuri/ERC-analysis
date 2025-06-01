@@ -27,53 +27,160 @@ print(f"✅ .env Loaded: {load_env}")
 
 # Get API key from environment variable
 ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
+BINANCE_API_KEY = os.getenv("BINANCE_API_KEY")
+POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
+
+
+
 
 # Set recursion limit
 sys.setrecursionlimit(20000)
 
 
 
-# Function to fetch Solidity source code from Etherscan
-def fetch_solidity_source(contract_address):
-    url = f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={ETHERSCAN_API_KEY}"
+
+def fetch_bsc_source(contract_address):
+    """Fetch Solidity source code from BscScan API"""
+    url = f"https://api.bscscan.com/api?module=contract&action=getsourcecode&address={contract_address}&apikey={BSCSCAN_API_KEY}"
     response = requests.get(url)
     data = response.json()
+    return _process_source_response(data, contract_address, "BSC")
 
-    # Check if API response is valid
+def fetch_polygon_source(contract_address):
+    """Fetch Solidity source code from PolygonScan API"""
+    url = f"https://api.polygonscan.com/api?module=contract&action=getsourcecode&address={contract_address}&apikey={POLYGONSCAN_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+    return _process_source_response(data, contract_address, "Polygon")
+
+def fetch_avalanche_source(contract_address):
+    """Fetch Solidity source code from SnowTrace API"""
+    url = f"https://api.snowtrace.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={SNOWTRACE_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+    return _process_source_response(data, contract_address, "Avalanche")
+
+def _process_source_response(data, contract_address, chain_name):
+    """Shared processing logic for all chain APIs"""
     if data["status"] == "1" and data["message"] == "OK":
         source_code = data["result"][0]["SourceCode"]
         
-        # Case 1: SourceCode is JSON-wrapped
-        if source_code.startswith("{{") and source_code.endswith("}}") and len(source_code) > 0:
-            print(f"JSON-wrapped source code detected for {contract_address}")
+        if source_code.startswith("{{") and source_code.endswith("}}"):
             try:
-                # Parse the JSON-wrapped source code
-                source_json = json.loads(source_code[1:-1])  # Remove outer curly braces
-                sources = source_json.get("sources", {})
-                
-                # Iterate over each source file and extract content
+                source_json = json.loads(source_code[1:-1])
                 solidity_code = ""
-                for file_path, file_data in sources.items():
+                for file_path, file_data in source_json.get("sources", {}).items():
                     content = file_data.get("content", "")
-                    solidity_code += f"// File: {file_path}\n{content}\n\n"
-                
-                return solidity_code if solidity_code.strip() else None
+                    solidity_code += f"// {chain_name} - File: {file_path}\n{content}\n\n"
+                return solidity_code.strip() or None
             except json.JSONDecodeError:
-                print(f"❌ Failed to parse JSON-wrapped source code for {contract_address}")
+                print(f"❌ {chain_name} JSON parse error for {contract_address}")
                 return None
-        
-        # Case 2: SourceCode is direct Solidity code
         elif isinstance(source_code, str) and source_code.strip():
-            print(f"Direct Solidity code detected for {contract_address}")
             return source_code.strip()
-        
-        # # Case 3: Invalid or empty source code
-        # else:
-        #     print(f"❌ No valid source code found for {contract_address}")
-        #     return None
     else:
-        print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
-        return None
+        print(f"❌ {chain_name} API failed for {contract_address}: {data.get('message', 'Unknown error')}")
+    return None
+
+def csv_address_source_fetch(base_dir, csv_file_path, chain="bsc", download_limit=100, max_workers=10):
+    """
+    Universal fetcher for multiple chains
+    chain: 'ethereum', 'bsc', 'polygon', or 'avalanche'
+    """
+    chain_fetchers = {
+        'ethereum': fetch_solidity_source,
+        'bsc': fetch_bsc_source,
+        'polygon': fetch_polygon_source,
+        'avalanche': fetch_avalanche_source
+    }
+    
+    fetch_fn = chain_fetchers.get(chain.lower())
+    if not fetch_fn:
+        raise ValueError(f"Unsupported chain: {chain}")
+
+    try:
+        df = pd.read_csv(csv_file_path)
+        if "matched_erc" not in df.columns or "address" not in df.columns:
+            raise ValueError("CSV must contain 'matched_erc' and 'address' columns")
+
+        erc_groups = df.dropna(subset=["matched_erc"]).groupby("matched_erc")
+        
+        for erc_type, group in erc_groups:
+            erc_dir = os.path.join(base_dir, f"{chain}_{erc_type}")
+            os.makedirs(erc_dir, exist_ok=True)
+            
+            unique_addresses = group["address"].dropna().drop_duplicates().tolist()
+            download_list = []
+            
+            for address in unique_addresses[:download_limit]:
+                file_path = os.path.join(erc_dir, f"{chain}_{erc_type}_{address}.sol")
+                if not os.path.exists(file_path):
+                    download_list.append(address)
+            
+            print(f"⏳ {chain.upper()} {erc_type}: Downloading {len(download_list)} contracts")
+            
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = [
+                    executor.submit(
+                        process_contract,
+                        address=address,
+                        erc_type=f"{chain}_{erc_type}",
+                        erc_dir=erc_dir,
+                        fetch_fn=fetch_fn
+                    ) for address in download_list
+                ]
+                
+                success_count = 0
+                for future in tqdm(as_completed(futures), total=len(download_list), desc=f"{chain.upper()} {erc_type}"):
+                    result = future.result()
+                    if result["success"]:
+                        success_count += 1
+                    else:
+                        print(f"❌ Failed {result['address']}: {result['error']}")
+            
+            print(f"\n✅ {chain.upper()} {erc_type}: {success_count}/{len(download_list)} saved")
+    
+    except Exception as e:
+        print(f"🚨 {chain.upper()} error: {str(e)}")
+        return False
+    
+    return True
+
+def process_contract(address, erc_type, erc_dir, fetch_fn):
+    """Universal contract processor with chain-specific fetcher"""
+    try:
+        file_path = os.path.join(erc_dir, f"{erc_type}_{address}.sol")
+        if os.path.exists(file_path):
+            return {
+                "success": False,
+                "address": address,
+                "error": "File exists"
+            }
+        
+        solidity_code = fetch_fn(address)
+        if not solidity_code:
+            return {
+                "success": False,
+                "address": address,
+                "error": "No source found"
+            }
+        
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(solidity_code)
+        
+        return {
+            "success": True,
+            "address": address,
+            "path": file_path
+        }
+    
+    except Exception as e:
+        return {
+            "success": False,
+            "address": address,
+            "error": str(e)
+        }
+# Function to fetch Solidity source code from Etherscan
 
 # def csv_address_source_fetch(base_dir, csv_file_path):
 #     random.seed(42)
@@ -221,6 +328,46 @@ def fetch_solidity_source(contract_address):
 #             "error": str(e)
 #         }
 
+def fetch_solidity_source(contract_address):
+    url = f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={ETHERSCAN_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    # Check if API response is valid
+    if data["status"] == "1" and data["message"] == "OK":
+        source_code = data["result"][0]["SourceCode"]
+        
+        # Case 1: SourceCode is JSON-wrapped
+        if source_code.startswith("{{") and source_code.endswith("}}") and len(source_code) > 0:
+            print(f"JSON-wrapped source code detected for {contract_address}")
+            try:
+                # Parse the JSON-wrapped source code
+                source_json = json.loads(source_code[1:-1])  # Remove outer curly braces
+                sources = source_json.get("sources", {})
+                
+                # Iterate over each source file and extract content
+                solidity_code = ""
+                for file_path, file_data in sources.items():
+                    content = file_data.get("content", "")
+                    solidity_code += f"// File: {file_path}\n{content}\n\n"
+                
+                return solidity_code if solidity_code.strip() else None
+            except json.JSONDecodeError:
+                print(f"❌ Failed to parse JSON-wrapped source code for {contract_address}")
+                return None
+        
+        # Case 2: SourceCode is direct Solidity code
+        elif isinstance(source_code, str) and source_code.strip():
+            print(f"Direct Solidity code detected for {contract_address}")
+            return source_code.strip()
+        
+        # # Case 3: Invalid or empty source code
+        # else:
+        #     print(f"❌ No valid source code found for {contract_address}")
+        #     return None
+    else:
+        print(f"❌ API request failed for {contract_address}: {data.get('message', 'Unknown error')}")
+        return None
 
 
 def csv_address_source_fetch(base_dir, csv_file_path, download_limit=9914, max_workers=10):
@@ -646,16 +793,11 @@ def get_eth_price():
 # Main execution function
 def main():
     
-    # df, total_tvl = fetch_all_tvl(csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv")
-    # print(f"\n📊 Final Report:")
-    # print(f"- Contracts analyzed: {len(df)}")
-    # print(f"- Total Value Locked: {total_tvl:,.2f} ETH")
-    # print(f"- Average TVL/contract: {total_tvl/len(df):.2f} ETH")
     
-    results = fetch_all_contract_data(
-        csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv",
-        output_csv_path="/home/ashok/ERC-analysis/erc-classify/TVL_TXN_Data.csv",
-        max_workers=15)
+    # results = fetch_all_contract_data(
+    #     csv_file_path="/home/ashok/output/ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv",
+    #     output_csv_path="/home/ashok/ERC-analysis/erc-classify/TVL_TXN_Data.csv",
+    #     max_workers=15)
 
     # csv_dir = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"   
     # base_dir = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source"
@@ -666,22 +808,30 @@ def main():
         # ERC-721_setApprovedForAll_deduplicated_polygon.csv
         # ERC-721_setApprovedForAll_ethereum_deduplicated_results.csv
         
-    # base_dir = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
-    # csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
+    # base_dir_ethereum = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum"
+    base_dir_binance = "/home/ashok/ERC-analysis/erc-classify/ERC1155-binance"
+    csv_dir = "/home/ashok/output/"  # Directory containing your CSV files
     # csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_ethereum_deduplicated_results.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_binance_deduplicated_results.csv"))
     
     
-    # if not csv_files:
-    #     print(f"No CSV files starting with  found in {csv_dir}")
-    #     return
+    if not csv_files:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
     
-    # for csv_file_path in csv_files:
-    #     print(f"\nProcessing file: {csv_file_path}")
-    #     try:
-    #         csv_address_source_fetch(base_dir, csv_file_path, download_limit=9914, max_workers=10)
-            
-    #     except Exception as e:
-    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    for csv_file_path in csv_files:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            # csv_address_source_fetch(base_dir_ethereum, csv_file_path, download_limit=9914, max_workers=10)
+            # Fetch BSC contracts
+            csv_address_source_fetch(
+                base_dir_binance,
+                csv_file_path,
+                chain="bsc",
+                max_workers=8
+            )
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
     
     
     

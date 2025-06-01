@@ -1415,7 +1415,7 @@ abstract contract ERC1155BaseInternal is IERC1155BaseInternal {
      * @param amounts quantities of tokens to transfer
      * @param data data payload
      */
-    function _transferBatch(
+    ERC1155_0xe24746b2c52ea3928b99711b0cb28df91b0d7718function _transferBatch(
         address operator,
         address sender,
         address recipient,

@@ -259,6 +259,20 @@ def perform_data_flow_analysis(all_code: List[Tuple[str, str]], ids_param: str) 
             }
     return length_assignments
 
+def contains_assembly(code):
+    """Check for inline assembly in Solidity code"""
+    if isinstance(code, str):
+        patterns = [
+            r'assembly\s*{',       # Standard assembly block
+            r'assembly\s*\w*\s*{', # With EVM dialect
+            r'let\s+\w+\s*:=',     # Assembly variable declaration
+            r'mload\(|sload\('     # Common assembly ops
+        ]
+        return any(re.search(p, code, re.IGNORECASE) for p in patterns)
+    elif isinstance(code, dict):
+        return any(contains_assembly(part) for part in code.values())
+    return False
+
 def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
     
     
@@ -292,7 +306,8 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         
         # if target_func['body'] != func['body'] and len(internal_functions) != 1:
         all_code.append((func['body'], f"internal function {func['name']}"))
-            
+        
+         
         
     # Find all length assignments first
     length_assignments = perform_data_flow_analysis(all_code, ids_param) if ids_param else {}
@@ -330,7 +345,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         if from_param and not requirements['sender_check']:
             for sender in sender_reprs:
                 if condition_type == "if-revert":
-                    print(f"condition_type :{condition_type}")
+                    
                     # Basic inequality checks (complete conditions)
                     pattern1 = rf'{re.escape(sender)}\s*!=\s*{from_param}'
                     pattern2 = rf'{from_param}\s*!=\s*{re.escape(sender)}'
@@ -361,7 +376,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         if from_param and not requirements['approval_check']:
             for sender in sender_reprs:
                 if condition_type == "if-revert":
-                    print(f"condition_type :{condition_type}")
+                    
                     pattern1 = rf'!isApprovedForAll\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)'
                     exact_pattern1 = rf'operatorApproval\[{from_param}\]\[{re.escape(sender)}\]\s*==\s*false'
                     # New pattern for mapping-style access
@@ -1159,8 +1174,15 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
     
     results = []
     for target_func in target_funcs:
-        internal_calls = get_all_internal_calls(target_func['body'], all_functions)
+        if contains_assembly(target_func['body']):
+            print(f"assembly in target_func:")
+            break
         
+        internal_calls = get_all_internal_calls(target_func['body'], all_functions)
+        for f in internal_calls:
+            if not contains_assembly(f['body']):
+                print(f"assembly in internal_calls:")
+                break
         # Skip analysis if we got None (self-recursive call detected)
         # if internal_calls is None:
         #     continue
@@ -1169,6 +1191,8 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
         print("Found internal calls:", [f['name'] for f in internal_calls])
         # if "safeBatchTransferFrom" in target_sig:
         requirements = verify_erc1155_requirements(target_func, internal_calls)
+        
+        print(f"requirements:{requirements}")
         # if "setApprovalForAll" in target_sig:
         #     requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
         
@@ -1188,6 +1212,7 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
             'to_isContract_check',
             'on_received_check'
         ]
+    
         all_met = all(requirements.get(req, False) for req in all_reqs)
         some_met = any(requirements.get(req, False) for req in all_reqs)
         
@@ -1214,21 +1239,19 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
                 requirements["approval_check"] = True
                 
             if "isSameLength" in f.get('name', ''):
-                requirements["length_matching_check"] = True
-       
-       
-        
+                requirements["length_matching_check"] = True 
+    
         results.append({
-            # "function": target_func['name'],
-            # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
-            # "parameters": target_func.get('parameters', {}),
-            "requirements": requirements,
-            "internal_calls": [f['name'] for f in internal_calls],
-            # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
-            # "on_received_check_found": requirements.get('on_received_check', False),
-            "all_requirements_met": all_met,
-            "some_requirements_met": some_met
-        })
+                # "function": target_func['name'],
+                # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+                # "parameters": target_func.get('parameters', {}),
+                "requirements": requirements,
+                "internal_calls": [f['name'] for f in internal_calls],
+                # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
+                # "on_received_check_found": requirements.get('on_received_check', False),
+                # "all_requirements_met": all_met,
+                # "some_requirements_met": some_met
+            })
     
     # Return consolidated results
     if results:
@@ -1249,7 +1272,7 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     for root, _, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.sol'):
-                # file.startswith("ERC1155_0xfb29834f2d8dbb7b8cf06cb115b75b2a36b1640d.sol") and
+                # file.startswith("ERC1155_0xac9d722e8d19fc620eaa99dd942f4e79fb528f67.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1617,60 +1640,60 @@ if __name__ == "__main__":
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
     erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155"
-    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_safeBatch_RANDOM_SET_testCount.json"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_assembly_delete.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
-    # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
+    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     
     # print(f"Total files analyzed: {len(analysis_results)}")
     
     # # # Print summary statistics
-    # compliant_files = [r for r in analysis_results if not r.get('error')]
-    # print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
+    compliant_files = [r for r in analysis_results if not r.get('error')]
+    print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
     
-    # if compliant_files:
-    #     # Collect all implementations across all files
-    #     all_implementations = []
-    #     for result in compliant_files:
-    #         if 'all_implementations' in result:
-    #             all_implementations.extend(result['all_implementations'])
+    if compliant_files:
+        # Collect all implementations across all files
+        all_implementations = []
+        for result in compliant_files:
+            if 'all_implementations' in result:
+                all_implementations.extend(result['all_implementations'])
         
-    #     if all_implementations:
-    #         print("\nRequirement compliance summary across all implementations:")
-    #         for req in ['sender_check', 'approval_check', 'zero_address_check', 
-    #                    'length_matching_check', 
-    #                    'event_emission_before_transfers',
-    #                    'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
-    #             count = sum(1 for impl in all_implementations 
-    #                       if impl.get('requirements', {}).get(req, False))
-    #             print(f"- {req}: {count}/{len(all_implementations)} compliant")
+        if all_implementations:
+            print("\nRequirement compliance summary across all implementations:")
+            for req in ['sender_check', 'approval_check', 'zero_address_check', 
+                       'length_matching_check', 
+                       'event_emission_before_transfers',
+                       'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
+                count = sum(1 for impl in all_implementations 
+                          if impl.get('requirements', {}).get(req, False))
+                print(f"- {req}: {count}/{len(all_implementations)} compliant")
             
-    #         # Print overall compliance
-    #         fully_compliant = sum(
-    #             1 for impl in all_implementations
-    #             if all(impl.get('requirements', {}).get(req, False) 
-    #                 for req in ['sender_check', 'approval_check', 'zero_address_check',
-    #                             'length_matching_check', 'event_emission_before_transfers',
-    #                             'transfer_batch_event_found', 'to_isContract_check', 
-    #                             'on_received_check'])
-    #         )
-    #         print(f"\nFully compliant implementations: {fully_compliant}/{len(all_implementations)}")
+            # Print overall compliance
+            fully_compliant = sum(
+                1 for impl in all_implementations
+                if all(impl.get('requirements', {}).get(req, False) 
+                    for req in ['sender_check', 'approval_check', 'zero_address_check',
+                                'length_matching_check', 'event_emission_before_transfers',
+                                'transfer_batch_event_found', 'to_isContract_check', 
+                                'on_received_check'])
+            )
+            print(f"\nFully compliant implementations: {fully_compliant}/{len(all_implementations)}")
     
-    # error_files = [r for r in analysis_results if r.get('error')]
-    # if error_files:
-    #     print("\nFiles with processing errors:")
-    #     for file in error_files:
-    #         print(f"- {file['file']}: {file['error']}")
+    error_files = [r for r in analysis_results if r.get('error')]
+    if error_files:
+        print("\nFiles with processing errors:")
+        for file in error_files:
+            print(f"- {file['file']}: {file['error']}")
     
     # Example usage:
     # plot_vulnerability_distribution(
     #     file_path="/Users/ashokk/Downloads/Ethereum_ERC.xlsx",
     #     sheet_name="Multi-Token Operation")
     
-    total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155") if file.endswith('.sol'))
-    print(f"Total .sol files: {total_files}")
+    # total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155") if file.endswith('.sol'))
+    # print(f"Total .sol files: {total_files}")
     
     
    

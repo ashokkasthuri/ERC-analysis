@@ -41,10 +41,6 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0x7912a656ece2bc669d4116ad8e9495f722d92d76.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
   "ERC1155_0xfb31f25f8ac8818e6d6824a199b32df78f57b281.sol": {
     "is_compliant": true,
     "requirements": {
@@ -214,10 +210,10 @@
     "reason": "compliant"
   },
   "ERC1155_0xa6c5b46839e026b4d252d1b2fee1e61d0a56250a.sol": {
-    "is_compliant": false,
+    "is_compliant": true,
     "requirements": {
-      "sender_check": false,
-      "approval_check": false,
+      "sender_check": true,
+      "approval_check": true,
       "zero_address_check": true,
       "length_matching_check": true,
       "event_emission_before_transfers": true,
@@ -225,11 +221,7 @@
       "to_isContract_check": true,
       "on_received_check": true
     },
-    "reason": "sender_check_failed"
-  },
-  "ERC1155_0xce8da327a881093f747b2d7718dcbb9115e44076.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
+    "reason": "compliant"
   },
   "ERC1155_0x399bd363426dfdd7f84fe8b917e1a3525b039309.sol": {
     "is_compliant": true,
@@ -343,20 +335,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0xac9d722e8d19fc620eaa99dd942f4e79fb528f67.sol": {
-    "is_compliant": false,
-    "requirements": {
-      "sender_check": false,
-      "approval_check": false,
-      "zero_address_check": false,
-      "length_matching_check": false,
-      "event_emission_before_transfers": false,
-      "transfer_batch_event_found": false,
-      "to_isContract_check": false,
-      "on_received_check": false
-    },
-    "reason": "non-compliant, assembly implementation"
-  },
+  
   "ERC1155_0x1f3efa6bc3841c0fed98c46fe84166bacb2561e9.sol": {
     "is_compliant": true,
     "requirements": {
@@ -665,10 +644,6 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0x1618533eae37b73d9fa77603b92c0b839e1f55d3.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
   "ERC1155_0x54428e4712c32bf47054df3c2e616b0b4c5c45dd.sol": {
     "is_compliant": true,
     "requirements": {
@@ -781,10 +756,6 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0xf549af462e136d4ca8e2bf0a23893bbd5bdf4309.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
   "ERC1155_0xee50d5a8cf42b6b7b8a5466a5b1dffcad22e1fc1.sol": {
     "is_compliant": true,
     "requirements": {
@@ -869,10 +840,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0x3ec79c446f98776bc568cac5c29a60216a025d16.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+  
   "ERC1155_0xe799ec2abd844cd4a3a54200127bd02285147975.sol": {
     "is_compliant": true,
     "requirements": {
@@ -1027,10 +995,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0x79462568d895aeabf3a09fda059a47d51aa0086e.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+ 
   "ERC1155_0x513b75190bb0873792a6a678b65a4e6679f52e97.sol": {
     "is_compliant": true,
     "requirements": {
@@ -1269,10 +1234,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0xadcc413da9decce40730a0ab07e884576c93504e.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+  
   "ERC1155_0x9aac0a07aad7ed91b45a4459f4f9834dc5a31a37.sol": {
     "is_compliant": true,
     "requirements": {
@@ -1442,10 +1404,10 @@
     "reason": "compliant"
   },
   "ERC1155_0x1fa66c4d6665b3ac7ff11115d2864e0045c47565.sol": {
-    "is_compliant": false,
+    "is_compliant": true,
     "requirements": {
-      "sender_check": false,
-      "approval_check": false,
+      "sender_check": true,
+      "approval_check": true,
       "zero_address_check": true,
       "length_matching_check": true,
       "event_emission_before_transfers": true,
@@ -1453,7 +1415,7 @@
       "to_isContract_check": true,
       "on_received_check": true
     },
-    "reason": "sender_check_failed"
+    "reason": "compliant"
   },
   "ERC1155_0x063c8286c0f23d53c2c92b05447f884a3d2d0a23.sol": {
     "is_compliant": true,
@@ -1469,10 +1431,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0xbd933d9cf8a401274e6d3cc2c33292ab9799af49.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+  
   "ERC1155_0xb2f63b9649e17bc477f278d97a2cb64893b1bcfd.sol": {
     "is_compliant": true,
     "requirements": {
@@ -1599,14 +1558,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0xcd80c916b1194beb48abf007d0b79a7238436d56.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
-  "ERC1155_0x5035d9031f18c920347cb3ca62c59ae5a148f23c.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+  
   "ERC1155_0x9f108e2d4e889e9bd041f285e12d894cf9f78e1d.sol": {
     "is_compliant": true,
     "requirements": {
@@ -1804,10 +1756,10 @@
     "reason": "compliant"
   },
   "ERC1155_0x17c31dc7df24288915ea279a16398ae9738ce273.sol": {
-    "is_compliant": false,
+    "is_compliant": true,
     "requirements": {
       "sender_check": true,
-      "approval_check": false,
+      "approval_check": true,
       "zero_address_check": true,
       "length_matching_check": true,
       "event_emission_before_transfers": true,
@@ -1815,12 +1767,9 @@
       "to_isContract_check": true,
       "on_received_check": true
     },
-    "reason": "failed_requirements: approval_check"
+    "reason": "compliant"
   },
-  "ERC1155_0x94f6010dc1577d07f1043c03eb54cfcb47e8ec7a.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+ 
   "ERC1155_0x33a0b4abba5657b842c6b3cbac2341010cde2ac8.sol": {
     "is_compliant": true,
     "requirements": {
@@ -2017,10 +1966,7 @@
     },
     "reason": "compliant"
   },
-  "ERC1155_0x46b4fb7fe9aa00b21d8937d40422eeeddbe40524.sol": {
-    "is_compliant": false,
-    "reason": "function_not_found_or_error"
-  },
+  
   "ERC1155_0x599124661f8e030eb58139831ad4566b36976601.sol": {
     "is_compliant": false,
     "requirements": {
@@ -7816,10 +7762,10 @@
     "reason": "compliant"
   },
   "ERC1155_0x5e81bd0d37632b82899d53ca212e134f75a1fba7.sol": {
-    "is_compliant": false,
+    "is_compliant": true,
     "requirements": {
-      "sender_check": false,
-      "approval_check": false,
+      "sender_check": true,
+      "approval_check": true,
       "zero_address_check": true,
       "length_matching_check": true,
       "event_emission_before_transfers": false,
@@ -7827,7 +7773,7 @@
       "to_isContract_check": false,
       "on_received_check": false
     },
-    "reason": "sender_check_failed"
+    "reason": "non-compliant, to_isContract_check and on_received_check are present"
   },
   "ERC1155_0x79b6881452d38bee2fe5082bee5d60c647002168.sol": {
     "is_compliant": true,
