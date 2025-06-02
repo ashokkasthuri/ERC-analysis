@@ -85,7 +85,7 @@ def get_contract_creation_years(contract_addresses):
 def process_erc1155_contracts(folder_path):
     """Main function to process all ERC-1155 contract CSVs"""
     # Find all matching CSV files
-    csv_pattern = os.path.join(folder_path, "ERC-1155_safeBatchTransferFrom*.sol")
+    csv_pattern = os.path.join(folder_path, "ERC-1155_safeBatchTransferFrom*.csv")
     csv_files = glob.glob(csv_pattern)
     
     if not csv_files:
