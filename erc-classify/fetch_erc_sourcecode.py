@@ -35,16 +35,15 @@ POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
 sys.setrecursionlimit(20000)
 
 
-from collections import defaultdict
-from datetime import datetime
-import requests
-import json
+
+
 
 def get_contract_creation_years(contract_addresses):
     """Fetch contract creation timestamps and group by year (2017–2025)."""
     url = (
-        "https://api.etherscan.io/api"  # corrected endpoint
-        "?module=contract"
+        "https://api.etherscan.io/v2/api"
+        "?chainid=1"
+        "&module=contract"
         "&action=getcontractcreation"
         f"&contractaddresses={','.join(contract_addresses)}"
         f"&apikey={ETHERSCAN_API_KEY}"
@@ -78,9 +77,9 @@ def get_contract_creation_years(contract_addresses):
                     # Include only 2017–2025
                     if 2017 <= year <= 2025:
                         year_groups[year].append({
-                            "address":     contract.get("contractAddress"),
-                            "creator":     contract.get("contractCreator"),
-                            "tx_hash":     contract.get("txHash"),
+                            "address":      contract.get("contractAddress"),
+                            "creator":      contract.get("contractCreator"),
+                            "tx_hash":      contract.get("txHash"),
                             "block_number": int(contract.get("blockNumber", 0)),
                             "timestamp":    timestamp,
                             "date":         date.strftime("%Y-%m-%d %H:%M:%S")
