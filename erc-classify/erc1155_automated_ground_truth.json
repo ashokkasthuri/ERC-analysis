@@ -1968,18 +1968,18 @@
   },
   
   "ERC1155_0x599124661f8e030eb58139831ad4566b36976601.sol": {
-    "is_compliant": false,
+    "is_compliant": true,
     "requirements": {
       "sender_check": true,
       "approval_check": true,
-      "zero_address_check": true,
+      "zero_address_check": false,
       "length_matching_check": true,
       "event_emission_before_transfers": true,
       "transfer_batch_event_found": true,
       "to_isContract_check": true,
-      "on_received_check": false
+      "on_received_check": true
     },
-    "reason": "interface_check_failed"
+    "reason": "compliant"
   },
   "ERC1155_0x2746b8ef350c4e119d20323b9bb8a0168cf4b6de.sol": {
     "is_compliant": true,
@@ -2055,13 +2055,28 @@
     "is_compliant": false,
     "requirements": {
       "sender_check": true,
-      "approval_check": true,
+      "approval_check": false,
       "zero_address_check": true,
-      "length_matching_check": false,
+      "length_matching_check": true,
       "event_emission_before_transfers": true,
       "transfer_batch_event_found": true,
       "to_isContract_check": true,
       "on_received_check": true
+    },
+    "reason": "non-compliant, all checks are present"
+  },
+
+  "ERC1155_0xbc2f63a8f9a6345702c51023d35bacd86c9ccc1c.sol": {
+    "is_compliant": false,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
     },
     "reason": "non-compliant, all checks are present"
   },
@@ -2285,7 +2300,7 @@
       "to_isContract_check": true,
       "on_received_check": true
     },
-    "reason": "failed_requirements: length_matching_check; failed_requirements: length_matching_check"
+    "reason": "non-compliant, all checks are present"
   },
   "ERC1155_0xfbaf2187eff9182deb00dada640c81d7ec8656c1.sol": {
     "is_compliant": true,
@@ -3539,7 +3554,7 @@
       "to_isContract_check": false,
       "on_received_check": false
     },
-    "reason": "failed_requirements: to_isContract_check, on_received_check"
+    "reason": "compliant, to_isContract_check and on_received_check are missing"
   },
   "ERC1155_0xb9beca40f6e28d27b1b49fd98ad5b2a3bc1d9a6b.sol": {
     "is_compliant": false,

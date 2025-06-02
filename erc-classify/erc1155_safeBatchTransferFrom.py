@@ -314,6 +314,8 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
     all_conditions = []
     event_pos = None
     
+    
+    
     # Forward Flow Analysis - main analysis loop
     for code, source in all_code:
         
@@ -335,8 +337,11 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             
         all_conditions.extend(condition_matches)
     
+    
     # Possible sender representations
     sender_reprs = ['msg.sender', '_msgSender()', 'sender']
+    
+    
     
     # Check conditions
     for condition_content, condition_source, condition_type in all_conditions:
@@ -431,6 +436,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 ]
                 for pattern in zero_addr_pattern1:
                     if re.search(pattern, condition_content):
+                        
                         requirements['zero_address_check'] = True
                         break
                     
@@ -446,6 +452,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 ]
                 for pattern in zero_addr_pattern2:
                     if re.search(pattern, condition_content):
+                        
                         requirements['zero_address_check'] = True
                         break
             
@@ -487,6 +494,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         #     balance_pattern = rf'balanceOf\(\s*{from_param}\s*,\s*{ids_param}\[i\]\)\s*>=\s*{amounts_param}\[i\]'
         #     if re.search(balance_pattern, condition_content):
         #         requirements['balance_checks'] = True
+    
     
     # Check for event emission and onReceived in the code
     # Backward Flow Analysis - event position tracking
@@ -1202,20 +1210,8 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
         # if "eip712Domain" in target_sig:
         #     requirements = verify_erc5267_requirements(target_func, internal_calls)
         # Calculate whether all requirements are met for this implementation
-        all_reqs = [
-            'sender_check',
-            'approval_check',
-            'zero_address_check',
-            'length_matching_check',
-            'event_emission_before_transfers',
-            'transfer_batch_event_found',
-            'to_isContract_check',
-            'on_received_check'
-        ]
-    
-        all_met = all(requirements.get(req, False) for req in all_reqs)
-        some_met = any(requirements.get(req, False) for req in all_reqs)
         
+    
         
         for f in internal_calls:
             if "onERC1155BatchReceived" in f.get('name', ''):
@@ -1241,6 +1237,19 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
             if "isSameLength" in f.get('name', ''):
                 requirements["length_matching_check"] = True 
     
+        all_reqs = [
+                'sender_check',
+                'approval_check',
+                'zero_address_check',
+                'length_matching_check',
+                'event_emission_before_transfers',
+                'transfer_batch_event_found',
+                'to_isContract_check',
+                'on_received_check'
+        ]
+        all_met = all(requirements.get(req, False) for req in all_reqs)
+        some_met = any(requirements.get(req, False) for req in all_reqs)
+        
         results.append({
                 # "function": target_func['name'],
                 # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
@@ -1249,19 +1258,19 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
                 "internal_calls": [f['name'] for f in internal_calls],
                 # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
                 # "on_received_check_found": requirements.get('on_received_check', False),
-                # "all_requirements_met": all_met,
-                # "some_requirements_met": some_met
+                "all_requirements_met": all_met,
+                "some_requirements_met": some_met
             })
     
     # Return consolidated results
     if results:
         return {
             "all_implementations": results,
-            "summary": {
-                "total_implementations": len(results),
-                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
-                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
-            }
+            # "summary": {
+            #     "total_implementations": len(results),
+            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            # }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
 
@@ -1272,7 +1281,7 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     for root, _, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.sol'):
-                # file.startswith("ERC1155_0xac9d722e8d19fc620eaa99dd942f4e79fb528f67.sol") and
+                # file.startswith("ERC1155_0x599124661f8e030eb58139831ad4566b36976601.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1639,17 +1648,14 @@ if __name__ == "__main__":
     
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
-    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155"
-    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_assembly_delete.json"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-binance/bsc_ERC1155"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_bsc_assembly_delete.json"
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
     
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
     analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     
-    # print(f"Total files analyzed: {len(analysis_results)}")
-    
-    # # # Print summary statistics
     compliant_files = [r for r in analysis_results if not r.get('error')]
     print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
     
@@ -1686,13 +1692,18 @@ if __name__ == "__main__":
         print("\nFiles with processing errors:")
         for file in error_files:
             print(f"- {file['file']}: {file['error']}")
+            
+            
+            
+            
+            
     
     # Example usage:
     # plot_vulnerability_distribution(
     #     file_path="/Users/ashokk/Downloads/Ethereum_ERC.xlsx",
     #     sheet_name="Multi-Token Operation")
     
-    # total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-ethereum/ERC1155") if file.endswith('.sol'))
+    # total_files = sum(1 for file in os.listdir("/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-binance/bsc_ERC1155") if file.endswith('.sol'))
     # print(f"Total .sol files: {total_files}")
     
     

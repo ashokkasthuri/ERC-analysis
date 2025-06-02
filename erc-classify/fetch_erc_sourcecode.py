@@ -7,16 +7,14 @@ import json
 import glob
 import random
 
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-
-
 import time
-
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from datetime import datetime
+from collections import defaultdict
 
 # Load environment variables
 # load_env = load_dotenv()
@@ -38,6 +36,110 @@ sys.setrecursionlimit(20000)
 
 
 
+
+
+def get_contract_creation_years(contract_addresses):
+    """Fetch contract creation timestamps and group by year"""
+    url = (
+        "https://api.etherscan.io/v2/api"
+        "?chainid=1"
+        "&module=contract"
+        "&action=getcontractcreation"
+        f"&contractaddresses={','.join(contract_addresses)}"
+        f"&apikey={ETHERSCAN_API_KEY}"
+    )
+    
+    try:
+        response = requests.get(url)
+        data = response.json()
+        
+        if data.get("status") == "1" and data.get("message") == "OK":
+            year_groups = defaultdict(list)
+            
+            for contract in data["result"]:
+                tx_hash = contract["txHash"]
+                creator = contract["contractCreator"]
+                timestamp = int(contract["timeStamp"])
+                date = datetime.fromtimestamp(timestamp)
+                year = date.year
+                
+                # Filter for 2017-2025 range
+                if 2017 <= year <= 2025:
+                    year_groups[year].append({
+                        "address": contract["contractAddress"],
+                        "creator": creator,
+                        "tx_hash": tx_hash,
+                        "timestamp": timestamp,
+                        "date": date.strftime("%Y-%m-%d")
+                    })
+            
+            return dict(sorted(year_groups.items()))
+        
+        print(f"❌ API error: {data.get('message', 'Unknown error')}")
+        return None
+    
+    except Exception as e:
+        print(f"❌ Network error: {str(e)}")
+        return None
+
+def process_erc1155_contracts(folder_path):
+    """Main function to process all ERC-1155 contract CSVs"""
+    # Find all matching CSV files
+    csv_pattern = os.path.join(folder_path, "ERC-1155_safeBatchTransferFrom*.sol")
+    csv_files = glob.glob(csv_pattern)
+    
+    if not csv_files:
+        print(f"No matching files found in {folder_path}")
+        return None
+    
+    # Collect all addresses from all CSVs
+    all_addresses = []
+    for csv_file in csv_files:
+        try:
+            df = pd.read_csv(csv_file)
+            if "address" in df.columns:
+                all_addresses.extend(df["address"].dropna().unique().tolist())
+        except Exception as e:
+            print(f"❌ Error reading {csv_file}: {str(e)}")
+    
+    if not all_addresses:
+        print("No valid addresses found in any CSV")
+        return None
+    
+    # Process in batches (Etherscan allows max 5 addresses per call)
+    results = {}
+    batch_size = 5
+    for i in range(0, len(all_addresses), batch_size):
+        batch = all_addresses[i:i + batch_size]
+        batch_results = get_contract_creation_years(batch)
+        
+        if batch_results:
+            for year, contracts in batch_results.items():
+                if year not in results:
+                    results[year] = []
+                results[year].extend(contracts)
+    
+    # Sort final results
+    sorted_results = dict(sorted(results.items()))
+    return sorted_results
+
+def save_year_grouped_results(results, output_file="contracts_by_year.json"):
+    """Save the grouped results to a JSON file"""
+    if not results:
+        print("No results to save")
+        return False
+    
+    try:
+        with open(output_file, "w") as f:
+            json.dump(results, f, indent=2)
+        print(f"✅ Saved results to {output_file}")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to save results: {str(e)}")
+        return False
+
+
+    
 
 # Chain ID mappings
 CHAIN_IDS = {
@@ -191,6 +293,7 @@ def process_contract(address, file_path, chain):
             "address": address,
             "error": str(e)
         }
+
 # def csv_address_source_fetch(base_dir, csv_file_path):
 #     random.seed(42)
 #      # Load the CSV file
@@ -801,6 +904,19 @@ def get_eth_price():
 
 # Main execution function
 def main():
+    folder_path = "/home/ashok/output/"
+    results = process_erc1155_contracts(folder_path)
+    
+    if results:
+        # Print summary
+        print("\n📊 Contract Creation Year Distribution:")
+        for year, contracts in results.items():
+            print(f"{year}: {len(contracts)} contracts")
+        
+        # Save results
+        save_year_grouped_results(results)
+    else:
+        print("No valid results obtained")
     
     
     # results = fetch_all_contract_data(
@@ -824,23 +940,23 @@ def main():
     csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_avalanche.csv"))
     
     
-    if not csv_files:
-        print(f"No CSV files starting with  found in {csv_dir}")
-        return
+    # if not csv_files:
+    #     print(f"No CSV files starting with  found in {csv_dir}")
+    #     return
     
-    for csv_file_path in csv_files:
-        print(f"\nProcessing file: {csv_file_path}")
-        try:
-            # csv_address_source_fetch(base_dir_ethereum, csv_file_path, download_limit=9914, max_workers=10)
-            # Fetch BSC contracts
-            csv_address_source_fetch(
-                base_dir_binance,
-                csv_file_path,
-                chain="avalanche",
-                max_workers=10
-            )
-        except Exception as e:
-            print(f"Error processing {csv_file_path}: {str(e)}")
+    # for csv_file_path in csv_files:
+    #     print(f"\nProcessing file: {csv_file_path}")
+    #     try:
+    #         # csv_address_source_fetch(base_dir_ethereum, csv_file_path, download_limit=9914, max_workers=10)
+    #         # Fetch BSC contracts
+    #         csv_address_source_fetch(
+    #             base_dir_binance,
+    #             csv_file_path,
+    #             chain="avalanche",
+    #             max_workers=10
+    #         )
+    #     except Exception as e:
+    #         print(f"Error processing {csv_file_path}: {str(e)}")
     
     
     

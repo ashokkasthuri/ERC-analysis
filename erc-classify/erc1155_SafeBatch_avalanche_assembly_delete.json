@@ -1,0 +1,3477 @@
+[
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x1f466cebe2000f9962266ee31285fc628aa84cd9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "balanceOf",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "contains",
+          "_contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xcc6c3660d7d9e59136834b66a64220400f9a82e5.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x67da361502b8ac4517b02597d655a512da6d9107.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x02cc17c1fa3c9a95ec841c2d6c96fc9cd233b779.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_getERC1155Storage",
+          "_safeBatchTransferFrom",
+          "_updateWithAcceptanceCheck",
+          "_update",
+          "_update",
+          "unsafeMemoryAccess",
+          "unsafeMemoryAccess",
+          "_update",
+          "_update",
+          "_getERC1155SupplyStorage",
+          "balanceOf",
+          "totalSupply",
+          "totalSupply",
+          "_doSafeTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x95ccd6f01698e34e38a90691398a495695caa7a9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": false,
+          "on_received_check": false
+        },
+        "internal_calls": [
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x9a5ad0875820e31f65f4a42dbb335777f522a2aa.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xe69ec1233bb8d4f409e11b3622e0a36d566dcc98.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x0ede5f099e0d5303e2380a0d1eca7b53675400eb.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x0183eafff53061dfa5e1ee2a528c30e140ab41ce.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x9327133d9d873894afb7f2278657d1044224bc71.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x871832d8c04dece15e87f1b04acca01dc1066ec7.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd04655fa20209a5b134b2a6182b20b7cdae0f24a.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x5f018682fb3b8957446d713e9c0602d7a11323de.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x87d88076c2e4accb58cc836c2e06ad6a9d80f7c5.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xa1e53e174b61f87a5c0a857bd190ff73e60bbc78.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd2a7f42a9336249ff2c5ebe31509ac9f129d8d66.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": false,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd4385fbe9a8334162742254947858381edcefdce.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "tryGet",
+          "contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "tryGet",
+          "tryGet",
+          "tryGet",
+          "tryGet",
+          "set",
+          "set",
+          "set",
+          "set",
+          "set",
+          "set",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "removeFrom",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "addTo",
+          "removeIfEmpty",
+          "tokensOf",
+          "values",
+          "_values",
+          "values",
+          "values",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x82d6dc3fd601f1edc9d448ecc3216b1db66f42a3.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd11c97dd5f5546b5bbd630d7d1d7327481b0b92c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x8bcf36ef04bd4beb465991247a9cdb7a0a9a2b31.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x3c1000bb0b0b2d6678e0c3f58957f33c48c6c89c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xedffe79d5ed138952fe2383b313861a46af06a5b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x95c19fb079f05dda4135cbbc4afa32520c6eb723.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd1c9fa13c6828a24de26c92adcc097780b285020.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x0d63e6e8214e98c1177b8553b34e34944503b09b.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x2a1dd590d70ce779a236da96dff2194561adf481.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xdca0ee3a9fe1b68fec005d3b5d1ac16ff1d1a1c4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd31ada53d8059a793f5b124dbdabb127c5908c58.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xbec0b55eee1f805e3c95e44cf3e6edaf03ed76ef.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd9f9bdbb39d2a60c01d1a91c4884833e1c7cd2b8.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x941030586a512197f7108a49d722e6554250aefb.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x6dfb7660c5c81f5ffcd6aa4aea9d2f02989b4c58.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x31527f4b4adf34e6e465358b4418f4f68aa4bffa.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xbc950901fd393ba3fa24092415d260ebc0d692a0.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xa146e5358213c53ea28f37a1242a3029532662ed.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "balanceOf",
+          "_burn",
+          "_asSingletonArray",
+          "_afterTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xeed78852387f7d1f565daf4f74878456c1588db4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xfe8b33f9a696b5d8e2c23e8a56287c4d69c38df9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xe145592eaf96bd343403b8ccdf4d1ec16a377d0a.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd9700b643b6170cd5737278af336c1a041a67859.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x88888dd82a91f0406ed42bf750baf881e64894f6.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x26e6619579570878b476a30b9e4a6e5e71ebd402.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "balanceOf",
+          "_burn",
+          "_asSingletonArray",
+          "_afterTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x4540f922887ba87cda0b60dcfb9ace2a95a09584.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "balanceOf",
+          "_burn",
+          "_asSingletonArray",
+          "_afterTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xbb068b5b4d740408b914a70616df407507a4eec4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x1cfbdc5468f7d10d136c3d92317d50294127b24b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_getERC1155Storage",
+          "_safeBatchTransferFrom",
+          "_updateWithAcceptanceCheck",
+          "_update",
+          "_update",
+          "unsafeMemoryAccess",
+          "unsafeMemoryAccess",
+          "_update",
+          "_update",
+          "_getERC1155SupplyStorage",
+          "balanceOf",
+          "totalSupply",
+          "totalSupply",
+          "_doSafeTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x83f439f91cfa0eee541e7f6f2effc2b03f24b554.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xdd37f62b17adad7fd7aded0cb084076b4fce609e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x5a8a600d852ee477891ac9b71794e850323aaf60.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "calculateEmissions",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x8f1f74e9cad296f99a6f36a56e1f3afb45571cc9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x7bd35ee66c32edd5a04c508525c32731c6ba31cb.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xa59be80eaf127f5a250991b12c931b6b6da80aab.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "balanceOf",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "contains",
+          "_contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x521460d672b346b7e8cf2d72a4102c32c6cd7ed3.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x07206365ca1886c64161c7b5f60b32b04f08878b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xfcb9ebd6c8abc26ddf0755236d990fc555c1b73f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xda635ca13321b7cf2d57320ca53a2f6695cc6d36.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd81c73f35a4a59c6363239ff2cff48262fa0b7d3.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_addTokenToAllTokensEnumeration",
+          "_removeTokenFromOwnerEnumeration",
+          "balanceOf",
+          "balanceOf",
+          "_removeTokenFromAllTokensEnumeration",
+          "_addTokenToOwnerEnumeration",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x3c10306bcc66f9431525c414d0186fa52aff3950.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xfe5c0c66986be8fb16a5186fd047eb035468db74.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x48b10ea24594df958ecf6ae7a4e82835a07dbc6f.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xc6b642f03ad32a45a4cda52246783affe210991b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x7dc975dfffbc2fc703f9d0a32075bb76dc5b128e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x1f859150a2a6e8642c086eb4c23fe69481e14607.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x5680933221b752eb443654a014f88b101f868d50.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": false
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer"
+        ],
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": false
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer"
+        ],
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x3bef4ce67588beb59d37f47ee2e6de7065c7f4f8.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x64ce57850c2f15944c7988f60e6c5efd9037b09a.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x811ef8d5c0f70df1335271e712111e12016944e4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_validateTransfer",
+          "_msgSender",
+          "isApprovedForAll",
+          "getTokenValue",
+          "_swapIfNeeded",
+          "increaseAllowance",
+          "_approve",
+          "_burnBatch",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "decreaseBalanceSupply",
+          "safeTransfer",
+          "_mintHeroNFTIfNeeded",
+          "_safeBatchTransferFrom",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_validateTransfer",
+          "getTokenValue",
+          "_swapIfNeeded",
+          "increaseAllowance",
+          "_approve",
+          "_burnBatch",
+          "decreaseBalanceSupply",
+          "safeTransfer",
+          "_mintHeroNFTIfNeeded"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x200898584f14c4213787556d40693c163cc677af.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xc9ba3e7e596b74ab482da7ea7b3c40fd69ff61cb.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x4cbf905e9fbc1c22aa083fb4d772aa47200b2e2e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x0603c80cd50110c60cbaed8c62b62197609508f1.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x1385210371ba7ecb0d5cc2dee570a073f3b66be2.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "balanceOf",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "contains",
+          "_contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x201786901a23056353abf6dcc3366d44e243fd6e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "tryGet",
+          "contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "tryGet",
+          "tryGet",
+          "tryGet",
+          "tryGet",
+          "set",
+          "set",
+          "set",
+          "set",
+          "set",
+          "set",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "removeFrom",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "addTo",
+          "removeIfEmpty",
+          "tokensOf",
+          "values",
+          "_values",
+          "values",
+          "values",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x6e5f39583bda41a4a03d488679ce7f8334d83a02.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "balanceOf",
+          "balanceOf",
+          "refreshClaimed",
+          "mulDiv",
+          "not",
+          "wrap",
+          "wrap",
+          "wrap",
+          "wrap",
+          "not",
+          "unwrap",
+          "unwrap",
+          "unwrap",
+          "unwrap",
+          "mul",
+          "mulDiv18",
+          "lt",
+          "lt",
+          "or",
+          "or",
+          "mul",
+          "gt",
+          "gt",
+          "div",
+          "div",
+          "mulDiv",
+          "mulDiv",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "balanceOf",
+          "balanceOf",
+          "refreshClaimed",
+          "mulDiv",
+          "not",
+          "wrap",
+          "wrap",
+          "wrap",
+          "wrap",
+          "not",
+          "unwrap",
+          "unwrap",
+          "unwrap",
+          "unwrap",
+          "mul",
+          "mulDiv18",
+          "lt",
+          "lt",
+          "or",
+          "or",
+          "mul",
+          "gt",
+          "gt",
+          "div",
+          "div",
+          "mulDiv",
+          "mulDiv",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x0d7b30580a94e293bd29a9d33798617a384fcb0c.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x24ae0b9dc81d2e4e9383e283163913bf200a579f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xfbd3738e5760847328ddb50a5b2c8c2a958e7fe3.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xc3670f6c31b7a198e5c40ad6ea9fd4c121910630.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x63a4da9d755e273000170764407f9fed5e305095.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x93401e673226e59a98ae55e8adcb06d5dcf55856.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x4d7a1306c6e006aa26c6298517bef0e9f95cfd3e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x09b69941a842f732b455613c19e27c62029ce49d.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xdbd2bace25998f67781aa087ceaf8f2a45b5f9b4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x3f98528cd437b042abdcfc4f6bb5fccc45090ef1.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xdf8b44456690bad9341df9bb69fd06a7283e6e6f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x960ec704896a7da7c2fb5d4c6455f7c5f974ee9a.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_getERC1155Storage",
+          "_safeBatchTransferFrom",
+          "_updateWithAcceptanceCheck",
+          "_update",
+          "_update",
+          "unsafeMemoryAccess",
+          "unsafeMemoryAccess",
+          "_update",
+          "_update",
+          "_getERC1155SupplyStorage",
+          "balanceOf",
+          "totalSupply",
+          "totalSupply",
+          "_doSafeTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x4b23c8c966d194e98a4aa39130f817acf952430b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xbad5d3fe40808dbaa51064d80eb1b192b2a5c25e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x26569e92c82b474a5e492d8b47a3aa4ceeb36bcc.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x6a62dff3ac6dbbfdac840f631234316fa7f0a0eb.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xbe8df35ecc0177bc06a360a876a76436b8c62567.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "_msgSender",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd598d0c3680fc54647ab397581dc077da76a563e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xa3aa968e351619a7cb3e406492f807d73ae18603.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x4c84b3a44eeef4351b954716af33eb6af2cf599d.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": false,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x37063eb3a923f31dc7093c9537941c3a6674ff1f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xc95a5725583e7f7e8fc6e1029cac4bcce0ec6f63.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xee51f5d78cc1f22b37db2b64342397f7bddc625d.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x55af6bc69d624229e265d57e4195f5b7ff67ded6.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x3fd7153e102bddcacc4d119015e686b899ddca83.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x9059c56612dd459f2bf61c4a3526a6c23b4de005.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_updateWithAcceptanceCheck",
+          "_update",
+          "unsafeMemoryAccess",
+          "unsafeMemoryAccess",
+          "_doSafeTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xd2582ecfe1e44000c5718cb6f4d8c02fab53240c.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x0f74dadbc62bdb11ff79c7be4ac131e23dc8a449.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0xc8c54156f8e3872bee13cc4b0ba1ebe8775b6034.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x53286ef8714796d1bbed9a459a1ea6fa77de4389.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_before_transfers": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche/avalanche_ERC1155/avalanche_ERC1155_0x4e179ba25d31c9353c5769a915a634fe8b8be3d5.sol"
+  }
+]
