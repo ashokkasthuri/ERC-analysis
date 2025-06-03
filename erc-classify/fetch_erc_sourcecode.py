@@ -42,7 +42,7 @@ def get_contract_creation_years(contract_addresses):
     """Fetch contract creation timestamps and group by year (2017–2025)."""
     url = (
         "https://api.etherscan.io/v2/api"
-        "?chainid=137"
+        "?chainid=56"
         "&module=contract"
         "&action=getcontractcreation"
         f"&contractaddresses={','.join(contract_addresses)}"
@@ -105,76 +105,10 @@ def get_contract_creation_years(contract_addresses):
 
 
 
-# def get_contract_creation_years(contract_addresses):
-#     """Fetch contract creation timestamps and group by year (2017-2025)"""
-#     url = (
-#         "https://api.etherscan.io/v2/api"
-#         "?chainid=1"
-#         "&module=contract"
-#         "&action=getcontractcreation"
-#         f"&contractaddresses={','.join(contract_addresses)}"
-#         f"&apikey={ETHERSCAN_API_KEY}"
-#     )
-    
-#     try:
-#         response = requests.get(url)
-#         response.raise_for_status()
-#         data = response.json()
-        
-#         if data.get("status") == "1" and data.get("message") == "OK":
-#             year_groups = defaultdict(list)
-            
-#             for contract in data["result"]:
-#                 try:
-#                     # Extract and validate timestamp
-#                     timestamp_str = contract.get("timeStamp")
-#                     if not timestamp_str:
-#                         print(f"⚠️ No timestamp for contract {contract.get('contractAddress')}")
-#                         continue
-                        
-#                     timestamp = int(timestamp_str)
-#                     if timestamp <= 0:
-#                         print(f"⚠️ Invalid timestamp {timestamp} for contract {contract.get('contractAddress')}")
-#                         continue
-                        
-#                     # Convert to datetime and extract year
-#                     date = datetime.fromtimestamp(timestamp)
-#                     year = date.year
-                    
-#                     # Filter for 2017-2025 range
-#                     if 2017 <= year <= 2025:
-#                         year_groups[year].append({
-#                             "address": contract.get("contractAddress"),
-#                             "creator": contract.get("contractCreator"),
-#                             "tx_hash": contract.get("txHash"),
-#                             "block_number": int(contract.get("blockNumber", 0)),
-#                             "timestamp": timestamp,
-#                             "date": date.strftime("%Y-%m-%d %H:%M:%S"),
-#                             "creation_bytecode": contract.get("creationBytecode", "")[:100] + "..."  # Truncate
-#                         })
-#                     else:
-#                         print(f"⚠️ Contract {contract.get('contractAddress')} created in {year} (outside range)")
-                        
-#                 except (ValueError, KeyError) as e:
-#                     print(f"❌ Error processing contract data: {str(e)}")
-#                     continue
-            
-#             return dict(sorted(year_groups.items()))
-        
-#         print(f"❌ API error: {data.get('message', 'Unknown error')}")
-#         return None
-    
-#     except requests.exceptions.RequestException as e:
-#         print(f"❌ Network error: {str(e)}")
-#         return None
-#     except json.JSONDecodeError as e:
-#         print(f"❌ JSON decode error: {str(e)}")
-#         return None
-
 def process_erc1155_contracts(folder_path):
     """Main function to process all ERC-1155 contract CSVs"""
     # Find all matching CSV files
-    csv_pattern = os.path.join(folder_path, "ERC-1155_safeBatchTransferFrom_deduplicated_polygon*.csv")
+    csv_pattern = os.path.join(folder_path, "ERC-1155_safeBatchTransferFrom_binance_deduplicated_results*.csv")
     csv_files = glob.glob(csv_pattern)
     
     if not csv_files:

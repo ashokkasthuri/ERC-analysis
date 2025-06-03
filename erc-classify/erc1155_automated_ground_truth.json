@@ -9884,7 +9884,7 @@
       "to_isContract_check": true,
       "on_received_check": true
     },
-    "reason": "failed_requirements: length_matching_check; failed_requirements: length_matching_check"
+    "reason": "compliant"
   },
   "ERC1155_0x8f173f62bfa40bb024dc423131fdc1096b3d11b7.sol": {
     "is_compliant": true,
@@ -13172,7 +13172,20 @@
 
   
   
-
+  "ERC1155_0xa18b21239b10d557bba025318812c7954ea2f9a1.sol": {
+    "is_compliant": true,
+    "requirements": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "reason": "compliant, zero_address_check is missing"
+  },
   
 
   
