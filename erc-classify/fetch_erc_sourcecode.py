@@ -37,9 +37,8 @@ sys.setrecursionlimit(20000)
 
 
 
-
 def get_contract_creation_years(contract_addresses):
-    """Fetch contract creation timestamps and group by year (2017–2025)."""
+    """Fetch contract creation timestamps and group by year (2017-2025)"""
     url = (
         "https://api.etherscan.io/v2/api"
         "?chainid=1"
@@ -59,36 +58,44 @@ def get_contract_creation_years(contract_addresses):
             
             for contract in data["result"]:
                 try:
-                    # The API returns "timestamp" (lowercase)
+                    # Extract contract address for error reporting
+                    contract_addr = contract.get("contractAddress", "unknown")
+                    
+                    # Validate and extract timestamp
                     timestamp_str = contract.get("timestamp")
                     if not timestamp_str:
-                        print(f"⚠️ No timestamp for contract {contract.get('contractAddress')}")
+                        print(f"⚠️ No timestamp field for contract {contract_addr} - skipping")
                         continue
                         
-                    timestamp = int(timestamp_str)
+                    try:
+                        timestamp = int(timestamp_str)
+                    except ValueError:
+                        print(f"⚠️ Invalid timestamp format for contract {contract_addr}: {timestamp_str}")
+                        continue
+                        
                     if timestamp <= 0:
-                        print(f"⚠️ Invalid timestamp {timestamp} for contract {contract.get('contractAddress')}")
+                        print(f"⚠️ Invalid timestamp value for contract {contract_addr}: {timestamp}")
                         continue
                         
                     # Convert to datetime and extract year
                     date = datetime.fromtimestamp(timestamp)
                     year = date.year
                     
-                    # Include only 2017–2025
+                    # Filter for 2017-2025 range
                     if 2017 <= year <= 2025:
                         year_groups[year].append({
-                            "address":      contract.get("contractAddress"),
-                            "creator":      contract.get("contractCreator"),
-                            "tx_hash":      contract.get("txHash"),
+                            "address": contract_addr,
+                            "creator": contract.get("contractCreator", "unknown"),
+                            "tx_hash": contract.get("txHash", ""),
                             "block_number": int(contract.get("blockNumber", 0)),
-                            "timestamp":    timestamp,
-                            "date":         date.strftime("%Y-%m-%d %H:%M:%S")
+                            "timestamp": timestamp,
+                            "date": date.strftime("%Y-%m-%d %H:%M:%S")
                         })
                     else:
-                        print(f"⚠️ Contract {contract.get('contractAddress')} created in {year} (outside range)")
+                        print(f"⚠️ Contract {contract_addr} created in {year} (outside 2017-2025 range)")
                         
-                except (ValueError, KeyError) as e:
-                    print(f"❌ Error processing contract {contract.get('contractAddress')}: {e}")
+                except Exception as e:
+                    print(f"❌ Unexpected error processing contract {contract_addr}: {str(e)}")
                     continue
             
             return dict(sorted(year_groups.items()))
@@ -97,13 +104,11 @@ def get_contract_creation_years(contract_addresses):
         return None
     
     except requests.exceptions.RequestException as e:
-        print(f"❌ Network error: {e}")
+        print(f"❌ Network error: {str(e)}")
         return None
     except json.JSONDecodeError as e:
-        print(f"❌ JSON decode error: {e}")
+        print(f"❌ JSON decode error: {str(e)}")
         return None
-
-
 
 # def get_contract_creation_years(contract_addresses):
 #     """Fetch contract creation timestamps and group by year (2017-2025)"""
@@ -1006,6 +1011,18 @@ def main():
         save_year_grouped_results(results)
     else:
         print("No valid results obtained")
+    
+    # Test with your sample contract that was showing the error
+    # addresses = ["0xa68daece05c1cb022a7ede132e8188c9d2fa7eae"]
+    # results = get_contract_creation_years(addresses)
+
+    # if results:
+    #     for year, contracts in results.items():
+    #         print(f"\nYear {year}:")
+    #         for contract in contracts:
+    #             print(f"  - {contract['address']} created on {contract['date']}")
+    # else:
+    #     print("Failed to get results")
     
     
     # results = fetch_all_contract_data(

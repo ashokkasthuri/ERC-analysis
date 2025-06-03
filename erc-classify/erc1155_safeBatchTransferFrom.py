@@ -1654,44 +1654,44 @@ if __name__ == "__main__":
     
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
-    analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
+    # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
     
-    compliant_files = [r for r in analysis_results if not r.get('error')]
-    print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
+    # compliant_files = [r for r in analysis_results if not r.get('error')]
+    # print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
     
-    if compliant_files:
-        # Collect all implementations across all files
-        all_implementations = []
-        for result in compliant_files:
-            if 'all_implementations' in result:
-                all_implementations.extend(result['all_implementations'])
+    # if compliant_files:
+    #     # Collect all implementations across all files
+    #     all_implementations = []
+    #     for result in compliant_files:
+    #         if 'all_implementations' in result:
+    #             all_implementations.extend(result['all_implementations'])
         
-        if all_implementations:
-            print("\nRequirement compliance summary across all implementations:")
-            for req in ['sender_check', 'approval_check', 'zero_address_check', 
-                       'length_matching_check', 
-                       'event_emission_before_transfers',
-                       'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
-                count = sum(1 for impl in all_implementations 
-                          if impl.get('requirements', {}).get(req, False))
-                print(f"- {req}: {count}/{len(all_implementations)} compliant")
+    #     if all_implementations:
+    #         print("\nRequirement compliance summary across all implementations:")
+    #         for req in ['sender_check', 'approval_check', 'zero_address_check', 
+    #                    'length_matching_check', 
+    #                    'event_emission_before_transfers',
+    #                    'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
+    #             count = sum(1 for impl in all_implementations 
+    #                       if impl.get('requirements', {}).get(req, False))
+    #             print(f"- {req}: {count}/{len(all_implementations)} compliant")
             
-            # Print overall compliance
-            fully_compliant = sum(
-                1 for impl in all_implementations
-                if all(impl.get('requirements', {}).get(req, False) 
-                    for req in ['sender_check', 'approval_check', 'zero_address_check',
-                                'length_matching_check', 'event_emission_before_transfers',
-                                'transfer_batch_event_found', 'to_isContract_check', 
-                                'on_received_check'])
-            )
-            print(f"\nFully compliant implementations: {fully_compliant}/{len(all_implementations)}")
+    #         # Print overall compliance
+    #         fully_compliant = sum(
+    #             1 for impl in all_implementations
+    #             if all(impl.get('requirements', {}).get(req, False) 
+    #                 for req in ['sender_check', 'approval_check', 'zero_address_check',
+    #                             'length_matching_check', 'event_emission_before_transfers',
+    #                             'transfer_batch_event_found', 'to_isContract_check', 
+    #                             'on_received_check'])
+    #         )
+    #         print(f"\nFully compliant implementations: {fully_compliant}/{len(all_implementations)}")
     
-    error_files = [r for r in analysis_results if r.get('error')]
-    if error_files:
-        print("\nFiles with processing errors:")
-        for file in error_files:
-            print(f"- {file['file']}: {file['error']}")
+    # error_files = [r for r in analysis_results if r.get('error')]
+    # if error_files:
+    #     print("\nFiles with processing errors:")
+    #     for file in error_files:
+    #         print(f"- {file['file']}: {file['error']}")
             
             
             
