@@ -283,10 +283,12 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         'zero_address_check': False,
         'length_matching_check': False,
        
-        'event_emission_before_transfers': False,
+        'event_emission_order': False,
         'transfer_batch_event_found': False,
         'to_isContract_check':False,
-        'on_received_check': False
+        'on_received_check': False, 
+        'gas_family_errors': False, 
+        
         
     }
     #  'balance_checks': False,
@@ -425,6 +427,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         
         # Check for zero address condition
         if to_param and not requirements['zero_address_check']:
+            
             if condition_type == "if-revert":
                 zero_addr_pattern1 = [
                     rf'{to_param}\s*==\s*address\(0\)',
@@ -455,7 +458,8 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                         
                         requirements['zero_address_check'] = True
                         break
-            
+        
+       
         # Check for length matching condition
         if ids_param and amounts_param and not requirements['length_matching_check']:
             assigned_var = None
@@ -509,9 +513,9 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
             event_pos_num = event_pos[1]
             post_event_code = code[event_pos_num:]
             if 'safeTransferFrom(' in post_event_code or 'safeBatchTransferFrom(' in post_event_code:
-                requirements['event_emission_before_transfers'] = False
+                requirements['event_emission_order'] = False
             else:
-                requirements['event_emission_before_transfers'] = True
+                requirements['event_emission_order'] = True
         # Normalize code by removing comments and extra spaces
         normalized_code = re.sub(r'//.*?\n|/\*.*?\*/', '', code, flags=re.DOTALL)
         normalized_code = re.sub(r'\s+', ' ', normalized_code)
@@ -521,19 +525,32 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         contract_check_patterns = [
         # Standard if(isContract()) checks
         rf'if\s*\(\s*{to_param}\s*\.\s*isContract\s*\(\s*\)\s*\)',
+        ]
+        contract_check_patterns1 = [
         
         # Various code.length comparisons
         rf'if\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*[!=]=\s*0\s*\)',
         rf'if\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*>\s*0\s*\)',
-        
+        ]
+        contract_check_patterns2 = [
         # Ternary require checks
         rf'require\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*==\s*0\s*\?\s*{to_param}\s*!=\s*address\s*\(\s*0\s*\)',
         rf'require\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*==\s*0\s*\?\s*{to_param}\s*!=\s*0x0\b',
         rf'require\s*\(\s*{to_param}\s*\.\s*code\s*\.\s*length\s*==\s*0\s*\?\s*{to_param}\s*!=\s*address\s*\(\s*0\s*\)\s*:'
         ]
 
+        if any(re.search(pattern, normalized_code) for pattern in contract_check_patterns1):
+            requirements['to_isContract_check'] = True
+            print(f"contract_check_patterns1")
+        if any(re.search(pattern, normalized_code) for pattern in contract_check_patterns2):
+            requirements['zero_address_check'] = False
+            requirements['to_isContract_check'] = True
+            requirements['event_emission_order'] = False
+            requirements['on_received_check'] = True
+            print(f"contract_check_patterns2")
         if any(re.search(pattern, normalized_code) for pattern in contract_check_patterns):
             requirements['to_isContract_check'] = True
+            print(f"contract_check_patterns")
         # Check for onReceived implementation in functions called after the event
         if event_pos and source != event_pos[0]:
             if requirements['to_isContract_check'] and check_on_received_implementation(code, params, requirements['to_isContract_check']):
@@ -542,6 +559,315 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
                 requirements['on_received_check'] = True
 
     return requirements
+
+
+
+def verify_erc3643_batchTransfer_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+
+    erc3643_requirements = {
+        # 'erc3643_sender_check': False,
+        'erc3643_zero_address_check_from': False,
+        'erc3643_zero_address_check_to': False,
+        'erc3643_frozen_wallet_check': False,
+        'erc3643_balance_check': False,
+        'erc3643_identity_registry_check': False,
+        'erc3643_compliance_check': False,
+        # 'erc3643_length_matching_check': False,
+        'erc3643_event_emission_check': False
+    }
+
+    params = extract_parameters_data_flow_analysis(target_func)
+    erc3643_from_param = 'msg.sender'
+    erc3643_to_param = 'to'
+    erc3643_amounts_param = 'amount'
+
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        all_code.append((func['body'], f"internal function {func['name']}"))
+
+    for code, source in all_code:
+        # # 1. Length matching check
+        # if not erc3643_requirements['erc3643_length_matching_check']:
+        #     length_pattern = rf'{erc3643_to_param}\.length\s*==\s*{erc3643_amounts_param}\.length'
+        #     if re.search(length_pattern, code):
+        #         erc3643_requirements['erc3643_length_matching_check'] = True
+
+        # 2. Zero address checks (for _from, which is msg.sender, and _to inside loop)
+        if not erc3643_requirements['erc3643_zero_address_check_from']:
+            zero_from_patterns = [
+                rf'{erc3643_from_param}\s*!=\s*address\(0\)',
+                rf'{erc3643_from_param}\s*!=\s*0x0',
+                rf'from\s*!=\s*address\(0\)',
+                rf'from\s*!=\s*0x0'
+            ]
+            if any(re.search(p, code) for p in zero_from_patterns):
+                erc3643_requirements['erc3643_zero_address_check_from'] = True
+
+        if not erc3643_requirements['erc3643_zero_address_check_to']:
+            zero_to_patterns = [
+                rf'{erc3643_to_param}\[i\]\s*!=\s*address\(0\)',
+                rf'{erc3643_to_param}\[i\]\s*!=\s*0x0',
+                 rf'to\s*!=\s*address\(0\)',
+                rf'to\s*!=\s*0x0'
+            ]
+            if any(re.search(p, code) for p in zero_to_patterns):
+                erc3643_requirements['erc3643_zero_address_check_to'] = True
+
+        # 3. Frozen wallet checks
+        if not erc3643_requirements['erc3643_frozen_wallet_check']:
+            frozen_pattern = r'!frozen\[\s*(msg\.sender|_from|_to)\s*\]'
+            if re.search(frozen_pattern, code):
+                erc3643_requirements['erc3643_frozen_wallet_check'] = True
+
+        # 4. Balance check
+        if not erc3643_requirements['erc3643_balance_check']:
+            balance_pattern = rf'_balances\[\s*{erc3643_from_param}\s*\]\s*>=\s*{erc3643_amounts_param}'
+            if re.search(balance_pattern, code):
+                erc3643_requirements['erc3643_balance_check'] = True
+
+        # 5. Identity registry check (isVerified)
+        if not erc3643_requirements['erc3643_identity_registry_check']:
+            id_registry_pattern = rf'tokenIdentityRegistry\.isVerified\(\s*{erc3643_to_param}\s*\)'
+            if re.search(id_registry_pattern, code):
+                erc3643_requirements['erc3643_identity_registry_check'] = True
+
+        # 6. Compliance check (canTransfer)
+        if not erc3643_requirements['erc3643_compliance_check']:
+            compliance_pattern = rf'tokenCompliance\.canTransfer\(\s*{erc3643_from_param}\s*,\s*{erc3643_to_param}\s*,\s*{erc3643_amounts_param}\s*\)'
+            if re.search(compliance_pattern, code):
+                erc3643_requirements['erc3643_compliance_check'] = True
+
+        # 7. Event emission check
+        if not erc3643_requirements['erc3643_event_emission_check']:
+            if re.search(r'emit\s+Transfer\(', code):
+                erc3643_requirements['erc3643_event_emission_check'] = True
+
+        # # 8. Sender check (normally implicit, but we still verify)
+        # if not erc3643_requirements['erc3643_sender_check']:
+        #     if erc3643_from_param in code:
+        #         erc3643_requirements['erc3643_sender_check'] = True
+
+    return erc3643_requirements
+
+
+
+def verify_erc3643_batchForcedTransfer_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+
+    erc3643_forced_requirements = {
+        'length_matching_check': False,
+        'zero_address_check_from': False,
+        'zero_address_check_to': False,
+        'frozen_tokens_unfreeze_check': False,
+        'frozen_tokens_balance_check': False,
+        'identity_registry_check': False,
+        'compliance_check': False,
+        'unfreeze_event_check': False,
+        'transfer_event_check': False
+    }
+
+    # Assume function parameters as per forced transfer
+    from_list_param = 'from'
+    to_list_param = 'to'
+    amounts_param = 'amount'
+
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        all_code.append((func['body'], f"internal function {func['name']}"))
+
+    for code, source in all_code:
+        # 1. Length matching check
+        if not erc3643_forced_requirements['length_matching_check']:
+            length_pattern = rf'{from_list_param}\.length\s*==\s*{to_list_param}\.length\s*&&\s*{to_list_param}\.length\s*==\s*{amounts_param}\.length'
+            length_pattern_simple = rf'{from_list_param}\.length\s*==\s*{to_list_param}\.length'
+            if re.search(length_pattern, code) or re.search(length_pattern_simple, code):
+                erc3643_forced_requirements['length_matching_check'] = True
+
+        # 2. Zero address check for _from
+        if not erc3643_forced_requirements['zero_address_check_from']:
+            zero_from_patterns = [
+                rf'{from_list_param}\[i\]\s*!=\s*address\(0\)',
+                rf'{from_list_param}\[i\]\s*!=\s*0x0'
+            ]
+            if any(re.search(p, code) for p in zero_from_patterns):
+                erc3643_forced_requirements['zero_address_check_from'] = True
+
+        # 3. Zero address check for _to
+        if not erc3643_forced_requirements['zero_address_check_to']:
+            zero_to_patterns = [
+                rf'{to_list_param}\[i\]\s*!=\s*address\(0\)',
+                rf'{to_list_param}\[i\]\s*!=\s*0x0'
+            ]
+            if any(re.search(p, code) for p in zero_to_patterns):
+                erc3643_forced_requirements['zero_address_check_to'] = True
+
+        # 4. Frozen token unfreeze logic (freeBalance / frozenTokens[_from])
+        if not erc3643_forced_requirements['frozen_tokens_unfreeze_check']:
+            unfreeze_patterns = [
+                r'if\s*\(\s*_amount\s*>\s*freeBalance\s*\)',
+                r'frozenTokens\[\s*_from\s*\]\s*=\s*frozenTokens\[\s*_from\s*\]\s*-\s*tokensToUnfreeze'
+            ]
+            if all(re.search(p, code) for p in unfreeze_patterns):
+                erc3643_forced_requirements['frozen_tokens_unfreeze_check'] = True
+
+        # 5. Check that frozenTokens[_from] >= tokensToUnfreeze before subtract
+        if not erc3643_forced_requirements['frozen_tokens_balance_check']:
+            balance_pattern = r'frozenTokens\[\s*_from\s*\]\s*>=\s*tokensToUnfreeze'
+            if re.search(balance_pattern, code):
+                erc3643_forced_requirements['frozen_tokens_balance_check'] = True
+
+        # 6. IdentityRegistry check
+        if not erc3643_forced_requirements['identity_registry_check']:
+            id_registry_pattern = rf'tokenIdentityRegistry\.isVerified\(\s*_to\s*\)'
+            if re.search(id_registry_pattern, code):
+                erc3643_forced_requirements['identity_registry_check'] = True
+
+        # 7. Compliance hook check
+        if not erc3643_forced_requirements['compliance_check']:
+            compliance_pattern = rf'tokenCompliance\.transferred\(\s*_from\s*,\s*_to\s*,\s*_amount\s*\)'
+            if re.search(compliance_pattern, code):
+                erc3643_forced_requirements['compliance_check'] = True
+
+        # 8. Unfreeze event emitted
+        if not erc3643_forced_requirements['unfreeze_event_check']:
+            if re.search(r'emit\s+TokensUnfrozen\(', code):
+                erc3643_forced_requirements['unfreeze_event_check'] = True
+
+        # 9. Transfer event emitted
+        if not erc3643_forced_requirements['transfer_event_check']:
+            if re.search(r'emit\s+Transfer\(', code):
+                erc3643_forced_requirements['transfer_event_check'] = True
+
+    return erc3643_forced_requirements
+
+
+def verify_erc3643_batchBurn_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+
+    burn_requirements = {
+        'length_matching_check': False,
+        'zero_address_check': False,
+        'balance_check': False,
+        'frozen_unfreeze_check': False,
+        'frozen_balance_check': False,
+        'unfreeze_event_check': False,
+        'burn_event_check': False,
+        'compliance_destroyed_check': False
+    }
+
+    user_addresses_param = '_userAddresses'
+    amounts_param = '_amounts'
+
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        all_code.append((func['body'], f"internal function {func['name']}"))
+
+    for code, source in all_code:
+        # 1. Length matching check
+        if not burn_requirements['length_matching_check']:
+            length_pattern = rf'{user_addresses_param}\.length\s*==\s*{amounts_param}\.length'
+            if re.search(length_pattern, code):
+                burn_requirements['length_matching_check'] = True
+
+        # 2. Zero address check
+        if not burn_requirements['zero_address_check']:
+            zero_addr_pattern = r'_userAddress\s*!=\s*address\(0\)'
+            if re.search(zero_addr_pattern, code):
+                burn_requirements['zero_address_check'] = True
+
+        # 3. Balance check
+        if not burn_requirements['balance_check']:
+            balance_pattern = r'_balances\[\s*_userAddress\s*\]\s*>=\s*_amount'
+            if re.search(balance_pattern, code):
+                burn_requirements['balance_check'] = True
+
+        # 4. Unfreeze check if insufficient free balance
+        if not burn_requirements['frozen_unfreeze_check']:
+            unfreeze_pattern = r'if\s*\(\s*_amount\s*>\s*freeBalance\s*\)'
+            if re.search(unfreeze_pattern, code):
+                burn_requirements['frozen_unfreeze_check'] = True
+
+        # 5. Frozen token sufficient before unfreeze
+        if not burn_requirements['frozen_balance_check']:
+            frozen_balance_pattern = r'frozenTokens\[\s*_userAddress\s*\]\s*>=\s*tokensToUnfreeze'
+            if re.search(frozen_balance_pattern, code):
+                burn_requirements['frozen_balance_check'] = True
+
+        # 6. Emit TokensUnfrozen()
+        if not burn_requirements['unfreeze_event_check']:
+            if re.search(r'emit\s+TokensUnfrozen\(', code):
+                burn_requirements['unfreeze_event_check'] = True
+
+        # 7. Emit burn Transfer event
+        if not burn_requirements['burn_event_check']:
+            if re.search(r'emit\s+Transfer\(\s*_userAddress\s*,\s*address\(0\)\s*,', code):
+                burn_requirements['burn_event_check'] = True
+
+        # 8. Compliance destroyed hook
+        if not burn_requirements['compliance_destroyed_check']:
+            if re.search(r'tokenCompliance\.destroyed\(\s*_userAddress\s*,\s*_amount\s*\)', code):
+                burn_requirements['compliance_destroyed_check'] = True
+
+    return burn_requirements
+
+
+
+
+def verify_erc3643_batchMint_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+
+    mint_requirements = {
+        'length_matching_check': False,
+        'zero_address_check': False,
+        'identity_registry_check': False,
+        'compliance_check': False,
+        'mint_event_check': False,
+        'compliance_created_check': False
+    }
+
+    to_list_param = '_toList'
+    amounts_param = '_amounts'
+
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        all_code.append((func['body'], f"internal function {func['name']}"))
+
+    for code, source in all_code:
+        # 1. Length matching check
+        if not mint_requirements['length_matching_check']:
+            length_pattern = rf'{to_list_param}\.length\s*==\s*{amounts_param}\.length'
+            if re.search(length_pattern, code):
+                mint_requirements['length_matching_check'] = True
+
+        # 2. Zero address check in _mint()
+        if not mint_requirements['zero_address_check']:
+            zero_addr_pattern = r'_userAddress\s*!=\s*address\(0\)'
+            if re.search(zero_addr_pattern, code):
+                mint_requirements['zero_address_check'] = True
+
+        # 3. Identity Registry check
+        if not mint_requirements['identity_registry_check']:
+            id_registry_pattern = r'tokenIdentityRegistry\.isVerified\(\s*_to\s*\)'
+            if re.search(id_registry_pattern, code):
+                mint_requirements['identity_registry_check'] = True
+
+        # 4. Compliance check
+        if not mint_requirements['compliance_check']:
+            compliance_pattern = r'tokenCompliance\.canTransfer\(\s*msg\.sender\s*,\s*_to\s*,\s*_amount\s*\)'
+            if re.search(compliance_pattern, code):
+                mint_requirements['compliance_check'] = True
+
+        # 5. Mint Transfer event
+        if not mint_requirements['mint_event_check']:
+            if re.search(r'emit\s+Transfer\(\s*address\(0\)\s*,\s*_userAddress\s*,', code):
+                mint_requirements['mint_event_check'] = True
+
+        # 6. Compliance created hook
+        if not mint_requirements['compliance_created_check']:
+            if re.search(r'tokenCompliance\.created\(\s*_to\s*,\s*_amount\s*\)', code):
+                mint_requirements['compliance_created_check'] = True
+
+    return mint_requirements
+
+
+
 
 def verify_setApprovalForAll_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
     """Verify if the function meets setApprovalForAll requirements."""
@@ -591,7 +917,7 @@ def verify_setApprovalForAll_requirements(target_func: Dict, internal_functions:
             condition_matches.append((req_content, source, 'require'))
         
         # Find if-revert conditions
-        if_revert_conditions = find_if_revert_conditions(code)
+        if_revert_conditions = find_if_revert_control_flow(code)
         for condition in if_revert_conditions:
             condition_matches.append((condition, source, 'if-revert'))
             
@@ -722,7 +1048,7 @@ def verify_erc2612_requirements(target_func: Dict, internal_functions: List[Dict
             condition_matches.append((req_content, source, 'require'))
         
         # Find if-revert conditions
-        if_revert_conditions = find_if_revert_conditions(code)
+        if_revert_conditions = find_if_revert_control_flow(code)
         for condition in if_revert_conditions:
             condition_matches.append((condition, source, 'if-revert'))
             
@@ -1188,7 +1514,7 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
         
         internal_calls = get_all_internal_calls(target_func['body'], all_functions)
         for f in internal_calls:
-            if not contains_assembly(f['body']):
+            if contains_assembly(f['body']):
                 print(f"assembly in internal_calls:")
                 break
         # Skip analysis if we got None (self-recursive call detected)
@@ -1198,22 +1524,58 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
         print(f"\nAnalyzing function implementation: {target_func['name']}")
         print("Found internal calls:", [f['name'] for f in internal_calls])
         # if "safeBatchTransferFrom" in target_sig:
-        requirements = verify_erc1155_requirements(target_func, internal_calls)
+        # requirements = verify_erc1155_requirements(target_func, internal_calls)
         
-        print(f"requirements:{requirements}")
+        
+        # if "batchTransfer" in target_sig:
+        requirements = verify_erc3643_batchTransfer_requirements(target_func, internal_calls)
+        
         # if "setApprovalForAll" in target_sig:
         #     requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
         
         
-        # if "permit" in target_sig:
-        #     requirements = verify_erc2612_requirements(target_func, internal_calls)
-        # if "eip712Domain" in target_sig:
-        #     requirements = verify_erc5267_requirements(target_func, internal_calls)
-        # Calculate whether all requirements are met for this implementation
         
+        # requirements = furtherERC1155Checks(internal_calls, requirements)
     
+        # all_reqs = [
+        #         'sender_check',
+        #         'approval_check',
+        #         'zero_address_check',
+        #         'length_matching_check',
+        #         'event_emission_order',
+        #         'transfer_batch_event_found',
+        #         'to_isContract_check',
+        #         'on_received_check', 
+        # ]
+        # all_met = all(requirements.get(req, False) for req in all_reqs)
+        # some_met = any(requirements.get(req, False) for req in all_reqs)
         
-        for f in internal_calls:
+        results.append({
+                # "function": target_func['name'],
+                # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+                # "parameters": target_func.get('parameters', {}),
+                "requirements": requirements,
+                "internal_calls": [f['name'] for f in internal_calls],
+                # "gas_family_errors": requirements.get('gas_family_errors', False),
+                # "on_received_check_found": requirements.get('on_received_check', False),
+                # "all_requirements_met": all_met,
+                # "some_requirements_met": some_met
+            })
+    
+    # Return consolidated results
+    if results:
+        return {
+            "all_implementations": results,
+            # "summary": {
+            #     "total_implementations": len(results),
+            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            # }
+        }
+    return {"error": "No valid implementations found (possibly due to recursive calls)"}
+
+def furtherERC1155Checks(internal_calls, requirements) -> List[Dict]:
+    for f in internal_calls:
             if "onERC1155BatchReceived" in f.get('name', ''):
                 requirements["on_received_check"] = True
                 
@@ -1236,52 +1598,21 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
                 
             if "isSameLength" in f.get('name', ''):
                 requirements["length_matching_check"] = True 
+                
+            if f.get('name', '') == "safeTransferFrom":
+                requirements["gas_family_errors"] = True 
+                
+    return requirements
     
-        all_reqs = [
-                'sender_check',
-                'approval_check',
-                'zero_address_check',
-                'length_matching_check',
-                'event_emission_before_transfers',
-                'transfer_batch_event_found',
-                'to_isContract_check',
-                'on_received_check'
-        ]
-        all_met = all(requirements.get(req, False) for req in all_reqs)
-        some_met = any(requirements.get(req, False) for req in all_reqs)
-        
-        results.append({
-                # "function": target_func['name'],
-                # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
-                # "parameters": target_func.get('parameters', {}),
-                "requirements": requirements,
-                "internal_calls": [f['name'] for f in internal_calls],
-                # "transfer_batch_event_found": requirements.get('transfer_batch_event_found', False),
-                # "on_received_check_found": requirements.get('on_received_check', False),
-                "all_requirements_met": all_met,
-                "some_requirements_met": some_met
-            })
-    
-    # Return consolidated results
-    if results:
-        return {
-            "all_implementations": results,
-            # "summary": {
-            #     "total_implementations": len(results),
-            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
-            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
-            # }
-        }
-    return {"error": "No valid implementations found (possibly due to recursive calls)"}
-
 def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict]:
     """Analyze all Solidity files in a directory for ERC1155 compliance."""
     results = []
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.endswith('.sol'):
-                # file.startswith("ERC1155_0x599124661f8e030eb58139831ad4566b36976601.sol") and
+            if file.startswith("ERC3643_0x6e534da0cbfeed25fad935d213615001fe7a71be.sol") and file.endswith('.sol'):
+            # if file.endswith('.sol'):
+                # file.startswith("avalanche_ERC1155_0x3bef4ce67588beb59d37f47ee2e6de7065c7f4f8.sol") and
                 
                 file_path = os.path.join(root, file)
                 try:
@@ -1290,6 +1621,15 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
                     
                     result = analyze_safeBatchTransfer_interprocedural_analysis(solidity_code, target_sig)
                     result['file'] = file_path
+                    
+                    # Check if any implementation has gas_family_errors
+                    if 'all_implementations' in result:
+                        for impl in result['all_implementations']:
+                            if impl.get('gas_family_errors', False):
+                                result["gas_error_file"] = file_path
+                                print(f"Gas family error found in {file_path}")
+                                break  # Only need to mark once per file
+                              
                     results.append(result)
                     """Save analysis results to a JSON file."""
                     with open(output_file, 'w', encoding='utf-8') as f:
@@ -1648,13 +1988,39 @@ if __name__ == "__main__":
     
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
-    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-binance/bsc_ERC1155"
-    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_bsc_assembly_delete.json"
-    erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-polygon/polygon_ERC1155"
+    erc3643_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC3643"
+    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_avalanche_assembly_delete.json"
+    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_bsc_assembly_delete.json"
+    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_polygon_assembly_delete.json"
+    # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_ethereum_assembly_delete.json"
+    
+    erc3643_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc3643_batchTransfer_TEST_ONE.json"
+    
+    erc1155_target_sig = "batchTransfer(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    erc3643_target_sig = "batchTransfer(address[] calldata _toList, uint256[] calldata _amounts)"
+    
+    # # BatchMetadataUpdate(uint256,uint256) : 6bd5c950
+    #ERC3443
+    # event TokensFrozen(address indexed _userAddress, uint256 _amount);
+    # event TokensUnfrozen(address indexed _userAddress, uint256 _amount);
+    # "batchTransfer(address[],uint256[])": "88d695b2",
+    #         "batchForcedTransfer(address[],address[],uint256[])": "42a47abc",
+    #         "batchMint(address[],uint256[])": "68573107",
+    #         "batchBurn(address[],uint256[])": "4a6cc677",
+    #         "batchSetAddressFrozen(address[],bool[])": "1a7af379",
+    #         "batchFreezePartialTokens(address[],uint256[])": "fc7e5fa8",
+    #         "batchUnfreezePartialTokens(address[],uint256[])": "4710362d"
+    #         "safeMintBatch(address,uint256[],uint256[],bytes)": "c39dfed8",
+    #  
+    #         "burnBatch(address,uint256[],uint256[],bytes)": "5473422e"
+    # "balanceOfBatch(address[],uint256[])": "4e1273f4",
+    # "setApprovalForAll(address,bool)": "a22cb465",
     
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
+    analysis_results = analyze_directory(erc3643_directory,erc3643_output_file, erc3643_target_sig)
     
     # compliant_files = [r for r in analysis_results if not r.get('error')]
     # print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
@@ -1670,8 +2036,8 @@ if __name__ == "__main__":
     #         print("\nRequirement compliance summary across all implementations:")
     #         for req in ['sender_check', 'approval_check', 'zero_address_check', 
     #                    'length_matching_check', 
-    #                    'event_emission_before_transfers',
-    #                    'transfer_batch_event_found', 'to_isContract_check', 'on_received_check']:
+    #                    'event_emission_order',
+    #                    'transfer_batch_event_found', 'to_isContract_check', 'on_received_check','gas_family_errors']:
     #             count = sum(1 for impl in all_implementations 
     #                       if impl.get('requirements', {}).get(req, False))
     #             print(f"- {req}: {count}/{len(all_implementations)} compliant")
@@ -1681,9 +2047,9 @@ if __name__ == "__main__":
     #             1 for impl in all_implementations
     #             if all(impl.get('requirements', {}).get(req, False) 
     #                 for req in ['sender_check', 'approval_check', 'zero_address_check',
-    #                             'length_matching_check', 'event_emission_before_transfers',
+    #                             'length_matching_check', 'event_emission_order',
     #                             'transfer_batch_event_found', 'to_isContract_check', 
-    #                             'on_received_check'])
+    #                             'on_received_check','gas_family_errors'])
     #         )
     #         print(f"\nFully compliant implementations: {fully_compliant}/{len(all_implementations)}")
     

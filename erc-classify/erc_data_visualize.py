@@ -1,6 +1,13 @@
+'''
+Author: ashokkasthuri ashokk@smu.edu.sg
+Date: 2025-03-27 11:16:22
+LastEditors: ashokkasthuri ashokk@smu.edu.sg
+LastEditTime: 2025-07-22 14:11:42
+'''
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+# import ace_tools as tools
 
 # ERC classification results for Basic Config
 erc_match_counts_basic = {
@@ -86,6 +93,12 @@ plt.legend(title="ERC Type", bbox_to_anchor=(1, 1))
 plt.show()
 
 # 📜 Display ERC Type Breakdown
-import ace_tools as tools
-tools.display_dataframe_to_user(name="ERC Type Breakdown (Basic + Full Configurations)", dataframe=df_combined)
-tools.display_dataframe_to_user(name="ERC Type Breakdown (Partial Matches - Basic + Full Configurations)", dataframe=df_partial_combined)
+
+# tools.display_dataframe_to_user(name="ERC Type Breakdown (Basic + Full Configurations)", dataframe=df_combined)
+# tools.display_dataframe_to_user(name="ERC Type Breakdown (Partial Matches - Basic + Full Configurations)", dataframe=df_partial_combined)
+
+print("ERC Type Breakdown (Basic + Full Configurations):")
+print(df_combined)
+
+print("\nERC Type Breakdown (Partial Matches - Basic + Full Configurations):")
+print(df_partial_combined)

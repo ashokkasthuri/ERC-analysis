@@ -27,6 +27,8 @@ PERMIT_SIG_1 = int("0xd505accf", 16)
 PERMIT_SIG_2 = int("0x8fcbaf0c", 16)
 PERMIT_SIG_3 = int("0x2a6a40e2", 16)
 SAFE_TRANSFER = int("0xeb795549", 16)
+SAFE_BATCH_TRANSFER_FROM = int("0x2eb2c2d6", 16)
+
 TRANSFER = int("0xddf252ad", 16)
 TRANSFER1 = int("0x850a6919", 16)
 ONERC20RECIEVED = int("0x4fc35859", 16)
@@ -83,45 +85,46 @@ def main(argv: Sequence[str] = tuple(sys.argv)) -> None:
     
     # Recover the SSA representation from the input bytecode (and optional CFG edges)
     
-    # ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
-    #                      split_functions=args.no_split_functions)
-    
-    with args.input as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row_number, row in enumerate(reader, start=1):
-            if row_number > 10:
-                break  # Stop after processing 10 rows
-
-            if 'bytecode' not in row:
-                logger.error(f"Row {row_number}: No 'bytecode' column found.")
-                continue
-
-            bytecode = row['bytecode']
-
-            # Remove the "0x" prefix if it exists
-            if bytecode.startswith('0x'):
-                bytecode = bytecode[2:]
-
-            # Validate bytecode
-            if not is_valid_bytecode(bytecode):
-                logger.error(f"Row {row_number}: Invalid bytecode format.")
-                continue
-
-            logger.info(f"Processing row {row_number}: Bytecode length = {len(bytecode)}")
-
-            try:
-                # Pass the bytecode to the Recover class
-                ssa = rattle.Recover(bytecode.encode(), edges=edges, optimize=args.optimize,
-                                     split_functions=args.no_split_functions)
-                logger.info(f"Successfully processed row {row_number}")
-                # PermitMain(ssa)
-                # analyze_received_implementation(ssa)
-            except Exception as e:
-                logger.error(f"Error processing row {row_number}: {e}")
-    
+    ssa = rattle.Recover(args.input.read(), edges=edges, optimize=args.optimize,
+                         split_functions=args.no_split_functions)
     # Run the permit check analysis on all functions that match the permit signature.
-    # PermitMain(ssa)
+    PermitMain(ssa)
     # analyze_received_implementation(ssa)
+    
+    # with args.input as csvfile:
+    #     reader = csv.DictReader(csvfile)
+    #     for row_number, row in enumerate(reader, start=1):
+    #         if row_number > 10:
+    #             break  # Stop after processing 10 rows
+
+    #         if 'bytecode' not in row:
+    #             logger.error(f"Row {row_number}: No 'bytecode' column found.")
+    #             continue
+
+    #         bytecode = row['bytecode']
+
+    #         # Remove the "0x" prefix if it exists
+    #         if bytecode.startswith('0x'):
+    #             bytecode = bytecode[2:]
+
+    #         # Validate bytecode
+    #         if not is_valid_bytecode(bytecode):
+    #             logger.error(f"Row {row_number}: Invalid bytecode format.")
+    #             continue
+
+    #         logger.info(f"Processing row {row_number}: Bytecode length = {len(bytecode)}")
+
+    #         try:
+    #             # Pass the bytecode to the Recover class
+    #             ssa = rattle.Recover(bytecode.encode(), edges=edges, optimize=args.optimize,
+    #                                  split_functions=args.no_split_functions)
+    #             logger.info(f"Successfully processed row {row_number}")
+    #             # PermitMain(ssa)
+    #             # analyze_received_implementation(ssa)
+    #         except Exception as e:
+    #             logger.error(f"Error processing row {row_number}: {e}")
+    
+    
 
     if args.stdout_to:
         sys.stdout = orig_stdout
@@ -666,30 +669,538 @@ def find_and_print_jump_chains(ssa, target_function):
     # Finally, print the CFG for the target function.
     print_cfg(target_function)
 
-def PermitMain(ssa):
+# def PermitMain(ssa):
    
-    for function in sorted(ssa.functions, key=lambda f: f.offset):
+#     for function in sorted(ssa.functions, key=lambda f: f.offset):
         
-        # print_cfg(function)
+#         # print_cfg(function)
         
-        # if check_check_ecrecover_analysis(function):
-        #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
+#         # if check_check_ecrecover_analysis(function):
+#         #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
         
-        if function.hash in (SAFE_TRANSFER, TRANSFER, TRANSFER1, ONERC20RECIEVED):
-            print(f"function.hash : {function.hash}")
-            # print(f"function.blockmap : {function.blockmap}")
-            # print(f"function.block : {function.blocks}")
+#         # if function.hash in (SAFE_TRANSFER, TRANSFER, TRANSFER1, ONERC20RECIEVED):
+        
+#         if function.hash == SAFE_BATCH_TRANSFER_FROM:
+#             print(f"function.hash : {function.hash}")
+#             # print(f"function.blockmap : {function.blockmap}")
+#             print(f"function.blocks : {function.blocks}")
             
-            find_and_print_jump_chains(ssa, function)
-            print_cfg(function)
-        # if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
-        #     # print_cfg(function)
-        #     print(f"Match found for permit signature: {hex(function.hash)} in function {function.name}")
-        #     matched_function = function
-        #     if check_check_ecrecover_analysis(matched_function):
-        #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
+#             find_and_print_jump_chains(ssa, function)
+#             print_cfg(function)
+#         # if function.hash in (PERMIT_SIG_1, PERMIT_SIG_2, PERMIT_SIG_3):
+#         #     # print_cfg(function)
+#         #     print(f"Match found for permit signature: {hex(function.hash)} in function {function.name}")
+#         #     matched_function = function
+#         #     if check_check_ecrecover_analysis(matched_function):
+#         #         print(f"[+] Function {function.name} (offset {function.offset:#x}) satisfies permit checks.")
+
+
+
+
+
+
+
+
+
+# def verify_erc1155_bytecode(ssa):
+#     # Find the function with the safeBatchTransferFrom selector
+#     target = next((f for f in ssa.functions if f.hash == SAFE_BATCH_TRANSFER_FROM), None)
+#     if target is None:
+#         raise RuntimeError("safeBatchTransferFrom not found")
+
+#     requirements = {
+#         'sender_check': False,
+#         'approval_check': False,
+#         'zero_address_check': False,
+#         'length_matching_check': False,
+#         'transfer_batch_event_found': False,
+#         'to_isContract_check': False,
+#         'on_received_check': False,
+#     }
+
+#     # Use blockmap and trace_blocks to explore only the reachable CFG
+#     entry_block = target.blockmap.get(target.offset)
+#     if entry_block is None:
+#         raise RuntimeError(f"Entry block at offset {target.offset:#x} not found")
+#     reachable_blocks = target.trace_blocks(entry_block)
+
+#     for block in reachable_blocks:
+#         for insn in block.insns:
+#             name = insn.insn.name
+
+#             # Check for calls and extract the selector
+#             if name in ('CALL', 'CALLCODE', 'DELEGATECALL', 'STATICCALL'):
+#                 selector = None
+#                 for arg in insn.arguments:
+#                     if hasattr(arg, 'concrete_value'):
+#                         selector = arg.concrete_value >> 224
+#                         print(f"selector:{selector}")
+#                         break
+#                 if selector == IS_APPROVED_FOR_ALL:
+#                     requirements['approval_check'] = True
+#                 elif selector == ON_BATCH_RECEIVED:
+#                     requirements['on_received_check'] = True
+
+#             # Detect inlined Address.isContract via EXTCODESIZE
+#             if name == 'EXTCODESIZE':
+#                 requirements['to_isContract_check'] = True
+
+#             # Detect the TransferBatch event emission (LOGx with event hash)
+#             if name.startswith('LOG'):
+#                 for arg in insn.arguments:
+#                     if hasattr(arg, 'concrete_value') and arg.concrete_value == TRANSFER_BATCH_EVENT:
+#                         requirements['transfer_batch_event_found'] = True
+
+#             # TODO: deeper data-flow checks for sender_check, zero_address_check, length_matching_check
+
+#     return requirements
+
+# def PermitMain(ssa):
+#     for func in sorted(ssa.functions, key=lambda f: f.offset):
+#         if func.hash == SAFE_BATCH_TRANSFER_FROM:
+#             result = verify_erc1155_bytecode(ssa)
+#             print(json.dumps(result, indent=2))
+#             break
+
+
+
+
+
+
+# def verify_erc1155_bytecode(ssa):
+#     # Find the safeBatchTransferFrom function by its selector/hash
+#     entry_func = next((f for f in ssa.functions
+#                        if f.hash == SAFE_BATCH_TRANSFER_FROM), None)
+#     if entry_func is None:
+#         raise RuntimeError("safeBatchTransferFrom not found")
+
+#     # Prepare flags for each ERC‑1155 requirement
+#     requirements = {
+#         'sender_check': False,
+#         'approval_check': False,
+#         'zero_address_check': False,
+#         'length_matching_check': False,
+#         'transfer_batch_event_found': False,
+#         'to_isContract_check': False,
+#         'on_received_check': False,
+#     }
+
+#     # Worklist for functions (to follow internal calls)
+#     todo = [entry_func]
+#     seen_funcs = set()
+
+#     while todo:
+#         func = todo.pop()
+#         if func.offset in seen_funcs:
+#             continue
+#         seen_funcs.add(func.offset)
+
+#         # Trace reachable blocks from the entry point
+#         entry_block = func.blockmap.get(func.offset)
         
-        
+#         # print(f"entry_block:{entry_block}")
+#         if entry_block is None:
+#             continue
+#         blocks = func.trace_blocks(entry_block)
+#         # print(f"entry_block_blocks:{blocks}")
+
+#         # Map from SSA value -> role (from_param, to_param, ids_offset, amounts_offset, caller)
+#         role_of_value = {}
+
+#         for block in blocks:
+#             for insn in block.insns:
+#                 op = insn.insn.name
+
+#                 # Parameter capture
+#                 if op == 'CALLDATALOAD' and len(insn.arguments) == 1:
+#                     arg0 = insn.arguments[0]
+                    
+#                     # print(f"DEBUG_arg0:{arg0.concrete_value}")
+#                     # print(f"DEBUG_insn:{insn}")
+                    
+#                     # Resolve the argument to its concrete value (if possible)
+#                     # arg0.resolve() returns (resolved_value, updated_flag)
+#                     try:
+#                         resolved_value, _ = arg0.resolve()
+#                         print(f"DEBUG_resolved_value:{resolved_value}")
+#                     except Exception:
+#                         resolved_value = arg0  # fall back if resolve() raises
+                        
+#                     if hasattr(resolved_value, 'concrete_value'):
+#                         off = resolved_value.concrete_value
+#                         # off = arg0.concrete_value
+#                         print(f"DEBUG_off:{off}")
+#                         if off == 4:    # first 32 bytes after selector
+#                             role_of_value[insn.return_value] = 'from'
+#                         elif off == 36: # second param
+#                             role_of_value[insn.return_value] = 'to'
+#                         elif off == 68: # third param (ids offset)
+#                             role_of_value[insn.return_value] = 'ids_offset'
+#                         elif off == 100:# fourth param (amounts offset)
+#                             role_of_value[insn.return_value] = 'amounts_offset'
+
+#                 # Capture CALLER (msg.sender)
+#                 elif op == 'CALLER':
+#                     role_of_value[insn.return_value] = 'caller'
+
+#         # Second pass: look for comparisons, calls, events, and reverts
+#         for block in blocks:
+#             for insn in block.insns:
+#                 op = insn.insn.name
+
+#                 # Internal calls (ICALL / ICONDCALL) to identify helpers and isApprovedForAll
+#                 if op in ('ICALL', 'CONDICALL'):
+#                     callee = insn.insn.target  # SSAFunction for the callee
+#                     # Follow internal calls
+#                     if callee and callee.offset not in seen_funcs:
+#                         todo.append(callee)
+#                     # Check if the callee is isApprovedForAll
+#                     if callee and callee.hash == IS_APPROVED_FOR_ALL:
+#                         requirements['approval_check'] = True
+
+#                 # External call opcodes: look for selectors in constants
+#                 if op in ('CALL', 'CALLCODE', 'DELEGATECALL', 'STATICCALL'):
+#                     for arg in insn.arguments:
+#                         if hasattr(arg, 'concrete_value'):
+#                             val  = arg.concrete_value
+#                             high = (val >> 224) & 0xffffffff
+#                             low  = val & 0xffffffff
+#                             if high == IS_APPROVED_FOR_ALL or low == IS_APPROVED_FOR_ALL:
+#                                 requirements['approval_check'] = True
+#                             if high == ON_BATCH_RECEIVED or low == ON_BATCH_RECEIVED:
+#                                 requirements['on_received_check'] = True
+
+#                 # EXTCODESIZE is used in Address.isContract
+#                 if op == 'EXTCODESIZE':
+#                     requirements['to_isContract_check'] = True
+
+#                 # LOG opcodes for the TransferBatch event
+#                 if op.startswith('LOG'):
+#                     for arg in insn.arguments:
+#                         if hasattr(arg, 'concrete_value') and arg.concrete_value == TRANSFER_BATCH_EVENT:
+#                             requirements['transfer_batch_event_found'] = True
+
+#                 # sender_check: look for EQ comparing caller and from
+#                 if op == 'EQ':
+#                     a, b = insn.arguments
+#                     role_a = role_of_value.get(a)
+#                     role_b = role_of_value.get(b)
+#                     if ((role_a == 'caller' and role_b == 'from') or
+#                         (role_a == 'from'   and role_b == 'caller')):
+#                         requirements['sender_check'] = True
+
+#                     # zero_address_check via EQ(to, 0)
+#                     if ((role_a == 'to' and hasattr(b, 'concrete_value') and b.concrete_value == 0) or
+#                         (role_b == 'to' and hasattr(a, 'concrete_value') and a.concrete_value == 0)):
+#                         requirements['zero_address_check'] = True
+
+#                 # zero_address_check via ISZERO(to)
+#                 if op == 'ISZERO' and insn.arguments:
+#                     arg = insn.arguments[0]
+#                     if role_of_value.get(arg) == 'to':
+#                         requirements['zero_address_check'] = True
+
+#                 # length_matching_check: detect revert messages
+#                 if op.startswith('PUSH') and insn.arguments:
+#                     # Many constants (strings) are pushed onto the stack in 32‑byte chunks.
+#                     # We compare the hex representation of the constant’s high 32 bytes
+#                     # to our known segments.
+#                     const = insn.insn.immediate if hasattr(insn.insn, 'immediate') else None
+#                     if isinstance(const, int):
+#                         hex_const = f"{const:064x}"
+#                         if hex_const.startswith(REVERT_LEN_MISMATCH):
+#                             requirements['length_matching_check'] = True
+#                         elif hex_const.startswith(REVERT_ZERO_ADDRESS):
+#                             requirements['zero_address_check'] = True
+#                         elif hex_const.startswith(REVERT_CALLER_NOT_OWNER):
+#                             # We consider this implies both sender check and approval check
+#                             requirements['sender_check'] = True
+#                             requirements['approval_check'] = True
+
+#     return requirements
+
+# def PermitMain(ssa):
+#     for func in sorted(ssa.functions, key=lambda f: f.offset):
+#         if func.hash == SAFE_BATCH_TRANSFER_FROM:
+#             result = verify_erc1155_bytecode(ssa)
+#             print(json.dumps(result, indent=2))
+#             break
+
+
+
+
+SAFE_BATCH_TRANSFER_FROM = 0x2eb2c2d6
+IS_APPROVED_FOR_ALL      = 0xe985e9c5
+ON_BATCH_RECEIVED        = 0xbc197c81
+
+TRANSFER_BATCH_EVENT     = 0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb
+
+
+
+
+# def verify_erc1155_bytecode(ssa):
+#     target = next((f for f in ssa.functions if f.hash == SAFE_BATCH_TRANSFER_FROM), None)
+#     if target is None:
+#         raise RuntimeError("safeBatchTransferFrom not found")
+
+#     requirements = {
+#         'sender_check': False,
+#         'approval_check': False,
+#         'zero_address_check': False,
+#         'length_matching_check': False,
+#         'transfer_batch_event_found': False,
+#         'to_isContract_check': False,
+#         'on_received_check': False,
+#     }
+
+#     worklist = [target]
+#     visited_funcs = set()
+
+#     while worklist:
+#         func = worklist.pop()
+#         if func.offset in visited_funcs:
+#             continue
+#         visited_funcs.add(func.offset)
+
+#         entry_block = func.blockmap.get(func.offset)
+#         blocks = func.trace_blocks(entry_block) if entry_block else []
+
+#         caller_vals   = set()
+#         calldata_vals = set()
+
+#         for block in blocks:
+#             for insn in block.insns:
+#                 op = insn.insn.name
+#                 if op == 'CALLER':
+#                     caller_vals.add(insn.return_value)
+#                     print(f"DEBUG: CALLER return_value={insn.return_value}")
+#                 if op == 'CALLDATALOAD' and len(insn.arguments) == 1:
+#                     calldata_vals.add(insn.return_value)
+#                     print(f"DEBUG: CALLDATALOAD return_value={insn.return_value} arg={insn.arguments[0]}")
+
+#         for block in blocks:
+#             for insn in block.insns:
+#                 op = insn.insn.name
+
+#                 # Internal calls
+#                 if op in ('ICALL', 'CONDICALL'):
+#                     callee = insn.insn.target
+#                     print(f"DEBUG: internal call to {callee.desc()} offset={callee.offset:#x} hash={callee.hash:#x}")
+#                     if callee and callee.offset not in visited_funcs:
+#                         worklist.append(callee)
+#                     if callee and callee.hash == IS_APPROVED_FOR_ALL:
+#                         requirements['approval_check'] = True
+#                         print("DEBUG: approval_check via internal call")
+
+#                 # External calls
+#                 if op in ('CALL', 'CALLCODE', 'DELEGATECALL', 'STATICCALL'):
+#                     for arg in insn.arguments:
+#                         if hasattr(arg, 'concrete_value'):
+#                             val  = arg.concrete_value
+#                             high = (val >> 224) & 0xffffffff
+#                             low  = val & 0xffffffff
+#                             if high == IS_APPROVED_FOR_ALL or low == IS_APPROVED_FOR_ALL:
+#                                 requirements['approval_check'] = True
+#                                 print(f"DEBUG: approval_check via selector {val:#x}")
+#                             if high == ON_BATCH_RECEIVED or low == ON_BATCH_RECEIVED:
+#                                 requirements['on_received_check'] = True
+#                                 print(f"DEBUG: on_received_check via selector {val:#x}")
+
+#                 # Address.isContract
+#                 if op == 'EXTCODESIZE':
+#                     requirements['to_isContract_check'] = True
+#                     print(f"DEBUG: to_isContract_check via EXTCODESIZE at {insn.offset:#x}")
+
+#                 # TransferBatch event
+#                 if op.startswith('LOG'):
+#                     for arg in insn.arguments:
+#                         if hasattr(arg, 'concrete_value') and arg.concrete_value == TRANSFER_BATCH_EVENT:
+#                             requirements['transfer_batch_event_found'] = True
+#                             print(f"DEBUG: transfer_batch_event_found via LOG at {insn.offset:#x}")
+
+#                 # Sender and zero‑address checks via comparisons
+#                 if op == 'EQ' and len(insn.arguments) == 2:
+#                     a, b = insn.arguments
+#                     role_a = ("caller" if a in caller_vals else "calldata" if a in calldata_vals else "other")
+#                     role_b = ("caller" if b in caller_vals else "calldata" if b in calldata_vals else "other")
+#                     print(f"DEBUG: EQ at {insn.offset:#x} args roles=({role_a}, {role_b})")
+#                     if ((a in caller_vals and b in calldata_vals) or
+#                         (b in caller_vals and a in calldata_vals)):
+#                         requirements['sender_check'] = True
+#                         print("DEBUG: sender_check detected via EQ")
+#                     if ((a in calldata_vals and hasattr(b, 'concrete_value') and b.concrete_value == 0) or
+#                         (b in calldata_vals and hasattr(a, 'concrete_value') and a.concrete_value == 0)):
+#                         requirements['zero_address_check'] = True
+#                         print("DEBUG: zero_address_check detected via EQ(calldata,0)")
+
+#                 if op == 'ISZERO' and len(insn.arguments) == 1:
+#                     arg = insn.arguments[0]
+#                     if arg in calldata_vals:
+#                         requirements['zero_address_check'] = True
+#                         print(f"DEBUG: zero_address_check via ISZERO at {insn.offset:#x}")
+
+#                 # Revert strings: search for segments in any 32‑byte constant
+#                 if op.startswith('PUSH') and hasattr(insn.insn, 'immediate'):
+#                     const = insn.insn.immediate
+#                     if isinstance(const, int):
+#                         hex_const = f"{const:064x}"
+#                         if (CALLER_NOT_OWNER_SEG1 in hex_const or CALLER_NOT_OWNER_SEG2 in hex_const):
+#                             requirements['sender_check']   = True
+#                             requirements['approval_check'] = True
+#                             print(f"DEBUG: found caller-not-owner segment in {hex_const} at {insn.offset:#x}")
+#                         if (ZERO_ADDRESS_SEG1 in hex_const or ZERO_ADDRESS_SEG2 in hex_const):
+#                             requirements['zero_address_check'] = True
+#                             print(f"DEBUG: found zero-address segment in {hex_const} at {insn.offset:#x}")
+#                         if (LEN_MISMATCH_SEG1 in hex_const or LEN_MISMATCH_SEG2 in hex_const):
+#                             requirements['length_matching_check'] = True
+#                             print(f"DEBUG: found length-mismatch segment in {hex_const} at {insn.offset:#x}")
+
+#     return requirements
+
+# def PermitMain(ssa):
+#     for func in sorted(ssa.functions, key=lambda f: f.offset):
+#         if func.hash == SAFE_BATCH_TRANSFER_FROM:
+#             result = verify_erc1155_bytecode(ssa)
+#             print(json.dumps(result, indent=2))
+#             break
+
+
+
+
+# Revert string segments
+CALLER_NOT_OWNER_SEG1 = "455243313135353a207472616e736665722063616c6c6572206973206e6f7420"
+CALLER_NOT_OWNER_SEG2 = "6f776e6572206e6f7220617070726f766564"
+ZERO_ADDRESS_SEG1     = "455243313135353a207472616e7366657220746f20746865207a65726f206164"
+ZERO_ADDRESS_SEG2     = "6472657373"
+LEN_MISMATCH_SEG1     = "455243313135353a2069647320616e6420616d6f756e7473206c656e67746820"
+LEN_MISMATCH_SEG2     = "6d69736d61746368"
+
+from .ssa import InternalCall, ConditionalInternalCall
+
+def verify_erc1155_contract(ssa):
+    requirements = {
+        'sender_check': False,
+        'approval_check': False,
+        'zero_address_check': False,
+        'length_matching_check': False,
+        'transfer_batch_event_found': False,
+        'to_isContract_check': False,
+        'on_received_check': False,
+    }
+
+    for func in ssa.functions:
+        print(f"DEBUG: scanning function {func.desc()} (offset {func.offset:#x})")
+        entry_block = func.blockmap.get(func.offset)
+        print(f"entry_block:{entry_block}")
+        blocks = func.trace_blocks(entry_block) if entry_block else []
+
+        caller_vals   = set()
+        calldata_vals = set()
+
+        # Collect CALLER and CALLDATALOAD
+        for block in blocks:
+            for insn in block.insns:
+                if insn.insn.name == 'CALLER':
+                    caller_vals.add(insn.return_value)
+                if insn.insn.name == 'CALLDATALOAD' and len(insn.arguments) == 1:
+                    calldata_vals.add(insn.return_value)
+
+        for block in blocks:
+            for insn in block.insns:
+                name = insn.insn.name
+
+                # Internal calls
+                if isinstance(insn, (InternalCall, ConditionalInternalCall)):
+                    callee = insn.target
+                    if callee and callee.hash == IS_APPROVED_FOR_ALL:
+                        if not requirements['approval_check']:
+                            print(f"DEBUG: approval_check via internal call to {callee.desc()} in {func.desc()}")
+                        requirements['approval_check'] = True
+                    continue
+
+                # External call selectors
+                if name in ('CALL', 'CALLCODE', 'DELEGATECALL', 'STATICCALL'):
+                    for arg in insn.arguments:
+                        if hasattr(arg, 'concrete_value'):
+                            val  = arg.concrete_value
+                            high = (val >> 224) & 0xffffffff
+                            low  = val & 0xffffffff
+                            if high == IS_APPROVED_FOR_ALL or low == IS_APPROVED_FOR_ALL:
+                                if not requirements['approval_check']:
+                                    print(f"DEBUG: approval_check via external call constant {val:#x} in {func.desc()}")
+                                requirements['approval_check'] = True
+                            if high == ON_BATCH_RECEIVED or low == ON_BATCH_RECEIVED:
+                                if not requirements['on_received_check']:
+                                    print(f"DEBUG: on_received_check via selector {val:#x} in {func.desc()}")
+                                requirements['on_received_check'] = True
+
+                # to.isContract()
+                if name == 'EXTCODESIZE':
+                    if not requirements['to_isContract_check']:
+                        print(f"DEBUG: to_isContract_check via EXTCODESIZE at {insn.offset:#x} in {func.desc()}")
+                    requirements['to_isContract_check'] = True
+
+                # TransferBatch event
+                if name.startswith('LOG'):
+                    for arg in insn.arguments:
+                        if hasattr(arg, 'concrete_value') and arg.concrete_value == TRANSFER_BATCH_EVENT:
+                            if not requirements['transfer_batch_event_found']:
+                                print(f"DEBUG: transfer_batch_event_found via LOG at {insn.offset:#x} in {func.desc()}")
+                            requirements['transfer_batch_event_found'] = True
+
+                # sender and zero address checks
+                if name == 'EQ' and len(insn.arguments) == 2:
+                    a, b = insn.arguments
+                    role_a = ("caller" if a in caller_vals else "calldata" if a in calldata_vals else "other")
+                    role_b = ("caller" if b in caller_vals else "calldata" if b in calldata_vals else "other")
+                    print(f"DEBUG: EQ at {insn.offset:#x} in {func.desc()} roles=({role_a},{role_b})")
+                    if ((a in caller_vals and b in calldata_vals) or
+                        (b in caller_vals and a in calldata_vals)):
+                        if not requirements['sender_check']:
+                            print(f"DEBUG: sender_check via EQ in {func.desc()} at {insn.offset:#x}")
+                        requirements['sender_check'] = True
+                    if ((a in calldata_vals and hasattr(b, 'concrete_value') and b.concrete_value == 0) or
+                        (b in calldata_vals and hasattr(a, 'concrete_value') and a.concrete_value == 0)):
+                        if not requirements['zero_address_check']:
+                            print(f"DEBUG: zero_address_check via EQ(calldata,0) in {func.desc()} at {insn.offset:#x}")
+                        requirements['zero_address_check'] = True
+
+                if name == 'ISZERO' and len(insn.arguments) == 1:
+                    arg = insn.arguments[0]
+                    if arg in calldata_vals:
+                        if not requirements['zero_address_check']:
+                            print(f"DEBUG: zero_address_check via ISZERO in {func.desc()} at {insn.offset:#x}")
+                        requirements['zero_address_check'] = True
+
+                # Revert message segments
+                if name.startswith('PUSH') and hasattr(insn.insn, 'immediate'):
+                    const = insn.insn.immediate
+                    if isinstance(const, int):
+                        hex_const = f"{const:064x}"
+                        if (CALLER_NOT_OWNER_SEG1 in hex_const or CALLER_NOT_OWNER_SEG2 in hex_const):
+                            if not requirements['sender_check'] or not requirements['approval_check']:
+                                print(f"DEBUG: found caller-not-owner message in const {hex_const} at {insn.offset:#x} in {func.desc()}")
+                            requirements['sender_check']   = True
+                            requirements['approval_check'] = True
+                        if (ZERO_ADDRESS_SEG1 in hex_const or ZERO_ADDRESS_SEG2 in hex_const):
+                            if not requirements['zero_address_check']:
+                                print(f"DEBUG: found zero-address message in const {hex_const} at {insn.offset:#x} in {func.desc()}")
+                            requirements['zero_address_check'] = True
+                        if (LEN_MISMATCH_SEG1 in hex_const or LEN_MISMATCH_SEG2 in hex_const):
+                            if not requirements['length_matching_check']:
+                                print(f"DEBUG: found length-mismatch message in const {hex_const} at {insn.offset:#x} in {func.desc()}")
+                            requirements['length_matching_check'] = True
+
+    return requirements
+
+def PermitMain(ssa):
+    result = verify_erc1155_contract(ssa)
+    print(json.dumps(result, indent=2))
+
+
+
+
+
 
 def get_fallthrough_branch(block, insn):
     return block.fallthrough_edge

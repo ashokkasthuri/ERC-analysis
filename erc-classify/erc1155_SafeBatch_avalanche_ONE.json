@@ -10,8 +10,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -20,7 +19,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -33,8 +31,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -43,7 +40,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -61,8 +57,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -92,7 +87,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -110,8 +104,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -121,7 +114,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -139,8 +131,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -149,7 +140,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -167,8 +157,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -189,7 +178,6 @@
           "_doSafeTransferAcceptanceCheck",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -207,15 +195,13 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": false,
-          "on_received_check": false,
-          "gas_family_errors": false
+          "on_received_check": false
         },
         "internal_calls": [
           "isApprovedForAll",
           "_safeBatchTransferFrom",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": false,
         "some_requirements_met": true
       }
@@ -233,8 +219,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -248,7 +233,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -266,8 +250,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -278,7 +261,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -296,8 +278,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -315,7 +296,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -333,8 +313,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -354,7 +333,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -367,8 +345,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -388,7 +365,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -406,8 +382,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -421,7 +396,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -439,8 +413,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -451,7 +424,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -469,8 +441,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -481,7 +452,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -499,8 +469,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -517,7 +486,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -530,8 +498,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -548,7 +515,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -566,8 +532,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -579,7 +544,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -597,8 +561,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -608,7 +571,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -621,8 +583,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -632,7 +593,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -650,8 +610,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -667,7 +626,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -680,8 +638,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -697,7 +654,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": false,
         "some_requirements_met": true
       }
@@ -715,8 +671,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -777,7 +732,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -795,8 +749,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -812,7 +765,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -825,8 +777,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -842,7 +793,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -860,8 +810,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -871,7 +820,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -889,8 +837,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -902,7 +849,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -920,8 +866,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -930,7 +875,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -943,8 +887,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -953,7 +896,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -971,8 +913,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -983,7 +924,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1001,8 +941,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1016,7 +955,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1034,8 +972,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "isApprovedForAll",
@@ -1043,7 +980,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1065,8 +1001,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1076,7 +1011,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1094,8 +1028,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1107,7 +1040,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1125,8 +1057,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1136,7 +1067,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1154,8 +1084,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1168,7 +1097,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -1181,8 +1109,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1195,7 +1122,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1213,8 +1139,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1225,7 +1150,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1243,8 +1167,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1254,7 +1177,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1272,8 +1194,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1286,7 +1207,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1304,8 +1224,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1315,7 +1234,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1333,8 +1251,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1344,7 +1261,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1362,8 +1278,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1378,7 +1293,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1396,8 +1310,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1411,7 +1324,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1429,8 +1341,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1439,7 +1350,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1469,8 +1379,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1485,7 +1394,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1503,8 +1411,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1519,7 +1426,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1537,8 +1443,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1552,7 +1457,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1570,8 +1474,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1592,7 +1495,6 @@
           "_doSafeTransferAcceptanceCheck",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1610,8 +1512,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1620,7 +1521,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -1633,8 +1533,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1643,7 +1542,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1661,8 +1559,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1679,7 +1576,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -1692,8 +1588,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1710,7 +1605,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1728,8 +1622,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1742,7 +1635,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1760,8 +1652,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1780,7 +1671,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -1793,8 +1683,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1813,7 +1702,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1831,8 +1719,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1852,7 +1739,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -1865,8 +1751,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -1886,7 +1771,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1904,8 +1788,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1935,7 +1818,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1953,8 +1835,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1964,7 +1845,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -1982,8 +1862,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -1993,7 +1872,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2011,8 +1889,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2022,7 +1899,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2040,8 +1916,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2051,7 +1926,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2069,8 +1943,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2094,7 +1967,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2116,8 +1988,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2129,7 +2000,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2151,8 +2021,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2164,7 +2033,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2182,8 +2050,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2200,7 +2067,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -2213,8 +2079,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2231,7 +2096,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2249,8 +2113,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2266,7 +2129,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -2279,8 +2141,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2296,7 +2157,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2314,15 +2174,13 @@
           "event_emission_order": false,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
           "_beforeTokenTransfer",
           "_beforeTokenTransfer"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": false,
         "some_requirements_met": true
       },
@@ -2335,15 +2193,13 @@
           "event_emission_order": false,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
           "_beforeTokenTransfer",
           "_beforeTokenTransfer"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": false,
         "some_requirements_met": true
       }
@@ -2361,8 +2217,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2379,7 +2234,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -2392,8 +2246,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2410,7 +2263,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2428,15 +2280,13 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "isApprovedForAll",
           "_safeBatchTransferFrom",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2454,8 +2304,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2477,7 +2326,6 @@
           "_safeBatchTransferFrom",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -2490,8 +2338,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2513,7 +2360,6 @@
           "safeTransfer",
           "_mintHeroNFTIfNeeded"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2531,8 +2377,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2541,7 +2386,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2563,8 +2407,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2574,7 +2417,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2592,8 +2434,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2604,7 +2445,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2622,8 +2462,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2653,7 +2492,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2671,8 +2509,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2733,7 +2570,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2751,8 +2587,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2798,7 +2633,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -2811,8 +2645,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -2858,7 +2691,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2880,8 +2712,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2891,7 +2722,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2909,8 +2739,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2922,7 +2751,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2940,8 +2768,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2955,7 +2782,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -2981,8 +2807,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -2994,7 +2819,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3012,8 +2836,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3023,7 +2846,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3041,8 +2863,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3051,7 +2872,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3073,8 +2893,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3083,7 +2902,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -3096,8 +2914,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3106,7 +2923,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3124,8 +2940,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3146,7 +2961,6 @@
           "_doSafeTransferAcceptanceCheck",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3164,8 +2978,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3177,7 +2990,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3195,8 +3007,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3210,7 +3021,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3228,8 +3038,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3241,7 +3050,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3263,8 +3071,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3279,7 +3086,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3297,8 +3103,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3307,7 +3112,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3329,8 +3133,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3347,7 +3150,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -3360,8 +3162,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3378,7 +3179,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": false,
         "some_requirements_met": true
       }
@@ -3396,8 +3196,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3406,7 +3205,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -3419,8 +3217,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3429,7 +3226,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3447,8 +3243,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3458,7 +3253,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3476,8 +3270,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3488,7 +3281,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3506,8 +3298,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3517,7 +3308,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3539,8 +3329,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3553,7 +3342,6 @@
           "_doSafeTransferAcceptanceCheck",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3575,8 +3363,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3596,7 +3383,6 @@
           "_doSafeBatchTransferAcceptanceCheck",
           "onERC1155BatchReceived"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       },
@@ -3609,8 +3395,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "safeBatchTransferFrom",
@@ -3630,7 +3415,6 @@
           "_pushMintBatch",
           "_pushMint"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3648,8 +3432,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3658,7 +3441,6 @@
           "_beforeTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }
@@ -3676,8 +3458,7 @@
           "event_emission_order": true,
           "transfer_batch_event_found": true,
           "to_isContract_check": true,
-          "on_received_check": true,
-          "gas_family_errors": false
+          "on_received_check": true
         },
         "internal_calls": [
           "_msgSender",
@@ -3687,7 +3468,6 @@
           "_afterTokenTransfer",
           "_doSafeBatchTransferAcceptanceCheck"
         ],
-        "gas_family_errors": false,
         "all_requirements_met": true,
         "some_requirements_met": true
       }

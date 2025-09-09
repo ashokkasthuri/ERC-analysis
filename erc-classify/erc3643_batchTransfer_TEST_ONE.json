@@ -1,0 +1,24 @@
+[
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "erc3643_zero_address_check_from": true,
+          "erc3643_zero_address_check_to": true,
+          "erc3643_frozen_wallet_check": true,
+          "erc3643_balance_check": false,
+          "erc3643_identity_registry_check": false,
+          "erc3643_compliance_check": false,
+          "erc3643_event_emission_check": true
+        },
+        "internal_calls": [
+          "transfer",
+          "balanceOf",
+          "_transfer",
+          "_beforeTokenTransfer"
+        ]
+      }
+    ],
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC3643/ERC3643_0x6e534da0cbfeed25fad935d213615001fe7a71be.sol"
+  }
+]
