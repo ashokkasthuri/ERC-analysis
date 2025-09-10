@@ -33,8 +33,8 @@ def load_api_key() -> str:
     Load ETHERSCAN_API_KEY from .env or environment.
     Raises ValueError if the key isn't found.
     """
-    load_dotenv()
-    # load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+    # load_dotenv()
+    load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
     api_key = os.getenv("ETHERSCAN_API_KEY")
     if not api_key:
         raise ValueError("❌ API key not found. Please set ETHERSCAN_API_KEY in .env or environment.")
