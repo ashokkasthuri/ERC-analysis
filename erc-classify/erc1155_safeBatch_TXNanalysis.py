@@ -380,7 +380,7 @@ def main():
                         help='Path to the CSV file containing contract metadata')
     parser.add_argument('--num-addresses', type=int, default=10,
                         help='Number of addresses to process (default 10)')
-    parser.add_argument('--raw-bytecode_SafeBatch-TX-csv', default=None,
+    parser.add_argument('--raw-csv', default=None,
                         help='Optional file path to save raw transaction data')
     parser.add_argument('--annotated-csv', default=None,
                         help='Optional file path to save annotated results with flags')
