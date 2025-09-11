@@ -194,52 +194,52 @@ def decode_setApprovalForAll_input(input_hex: str) -> Tuple[str, bool]:
     return operator_addr, approved_value
 
 
-def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Decode and flag each safeBatchTransferFrom tx for:
-      * unauthorized (caller != from_param)
-      * zero_address (to == 0x0)
-      * length_mismatch (ids.length != amounts.length)
-    Returns a dataframe with extra columns.
-    """
-    df = pd.DataFrame(txs)
-    df["decoded_from"] = None
-    df["decoded_to"]   = None
-    df["decoded_ids"]  = None
-    df["decoded_amounts"] = None
-    df["unauthorized"]    = False
-    df["unauthorized_addr"]    = None
-    df["zero_address"]    = False
-    df["length_mismatch"] = False
+# def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
+#     """
+#     Decode and flag each safeBatchTransferFrom tx for:
+#       * unauthorized (caller != from_param)
+#       * zero_address (to == 0x0)
+#       * length_mismatch (ids.length != amounts.length)
+#     Returns a dataframe with extra columns.
+#     """
+#     df = pd.DataFrame(txs)
+#     df["decoded_from"] = None
+#     df["decoded_to"]   = None
+#     df["decoded_ids"]  = None
+#     df["decoded_amounts"] = None
+#     df["unauthorized"]    = False
+#     df["unauthorized_addr"]    = None
+#     df["zero_address"]    = False
+#     df["length_mismatch"] = False
     
-    df["decoded_operator"] = None
-    df["operator_permission"] = False
+#     df["decoded_operator"] = None
+#     df["operator_permission"] = False
 
-    for idx, row in df.iterrows():
-        try:
-            from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input",""))
-            operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input",""))
-        except Exception:
-            continue
-        df.at[idx, "decoded_from"]    = from_addr
-        df.at[idx, "decoded_to"]      = to_addr
-        df.at[idx, "decoded_ids"]     = ids_list
-        df.at[idx, "decoded_amounts"] = amts_list
+#     for idx, row in df.iterrows():
+#         try:
+#             from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input",""))
+#             operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input",""))
+#         except Exception:
+#             continue
+#         df.at[idx, "decoded_from"]    = from_addr
+#         df.at[idx, "decoded_to"]      = to_addr
+#         df.at[idx, "decoded_ids"]     = ids_list
+#         df.at[idx, "decoded_amounts"] = amts_list
         
-        df["decoded_operator"] = operator_addr
-        df["operator_permission"] = perm_bool
-        # unauthorised if caller doesn't match encoded from
-        if from_addr.lower() != row.get("from","").lower() and from_addr.lower() != operator_addr.lower():
+#         df["decoded_operator"] = operator_addr
+#         df["operator_permission"] = perm_bool
+#         # unauthorised if caller doesn't match encoded from
+#         if from_addr.lower() != row.get("from","").lower() and from_addr.lower() != operator_addr.lower():
             
-            df["unauthorized_addr"]  = operator_addr.lower()
-            df.at[idx, "unauthorized"] = True
-        # zero address
-        if to_addr == "0x0000000000000000000000000000000000000000":
-            df.at[idx, "zero_address"] = True
-        # length mismatch
-        if len(ids_list) != len(amts_list):
-            df.at[idx, "length_mismatch"] = True
-    return df
+#             df["unauthorized_addr"]  = operator_addr.lower()
+#             df.at[idx, "unauthorized"] = True
+#         # zero address
+#         if to_addr == "0x0000000000000000000000000000000000000000":
+#             df.at[idx, "zero_address"] = True
+#         # length mismatch
+#         if len(ids_list) != len(amts_list):
+#             df.at[idx, "length_mismatch"] = True
+#     return df
 
 def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     """
