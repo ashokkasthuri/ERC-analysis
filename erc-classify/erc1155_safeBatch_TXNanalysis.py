@@ -396,22 +396,22 @@ def fetch_and_analyse(path: str,
         print(analysed_df.head())
         
     
-    analysed_with_contracts = augment_with_contract_checks(analysed_df, api_key)
+#     analysed_with_contracts = augment_with_contract_checks(analysed_df, api_key)
     
-   # Filter rows where either check is False
-    false_rows = analysed_with_contracts[
-        (~analysed_with_contracts['to_is_contract']) | 
-        (~analysed_with_contracts['on_batch_received_impl'])
-    ]
+#    # Filter rows where either check is False
+#     false_rows = analysed_with_contracts[
+#         (~analysed_with_contracts['to_is_contract']) | 
+#         (~analysed_with_contracts['on_batch_received_impl'])
+#     ]
     
-    print(f"Number of false rows: {len(false_rows)}")
-    # Display the filtered DataFrame
-    print(false_rows[['decoded_to', 'to_is_contract', 'on_batch_received_impl']])
+#     print(f"Number of false rows: {len(false_rows)}")
+#     # Display the filtered DataFrame
+#     print(false_rows[['decoded_to', 'to_is_contract', 'on_batch_received_impl']])
     
 
-    # Save filtered results to CSV
-    false_rows.to_csv("false_contract_checks.csv", index=False)
-    print("✅ False results saved to false_contract_checks.csv")
+#     # Save filtered results to CSV
+#     false_rows.to_csv("false_contract_checks.csv", index=False)
+#     print("✅ False results saved to false_contract_checks.csv")
 
 
 
