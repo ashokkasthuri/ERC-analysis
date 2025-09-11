@@ -193,6 +193,7 @@ def decode_setApprovalForAll_input(input_hex: str) -> Tuple[str, bool]:
     
     return operator_addr, approved_value
 
+
 def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     """
     Decode and flag each safeBatchTransferFrom tx for:
@@ -207,6 +208,7 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     df["decoded_ids"]  = None
     df["decoded_amounts"] = None
     df["unauthorized"]    = False
+    df["unauthorized_addr"]    = None
     df["zero_address"]    = False
     df["length_mismatch"] = False
     
@@ -227,8 +229,9 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
         df["decoded_operator"] = operator_addr
         df["operator_permission"] = perm_bool
         # unauthorised if caller doesn't match encoded from
-        if from_addr.lower() != row.get("from","").lower() and from_addr.lower() == operator_addr.lower():
+        if from_addr.lower() != row.get("from","").lower() and from_addr.lower() != operator_addr.lower():
             
+            df["unauthorized_addr"]  = operator_addr.lower()
             df.at[idx, "unauthorized"] = True
         # zero address
         if to_addr == "0x0000000000000000000000000000000000000000":
@@ -236,6 +239,105 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
         # length mismatch
         if len(ids_list) != len(amts_list):
             df.at[idx, "length_mismatch"] = True
+    return df
+
+def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Decode and flag each transaction:
+    - For safeBatchTransferFrom: check unauthorized, zero_address, length_mismatch
+    - For setApprovalForAll: decode operator and permission
+    Returns a dataframe with extra columns.
+    """
+    df = pd.DataFrame(txs)
+    df["decoded_from"] = None
+    df["decoded_to"] = None
+    df["decoded_ids"] = None
+    df["decoded_amounts"] = None
+    df["unauthorized"] = False
+    df["unauthorized_addr"] = None
+    df["zero_address"] = False
+    df["length_mismatch"] = False
+    df["decoded_operator"] = None
+    df["operator_permission"] = False
+
+    # Track all approval transactions with timestamps
+    approvals = []  # List of (owner, operator, approved, timestamp, blockNumber)
+    
+    # First pass: Process all setApprovalForAll transactions to build approval history
+    for idx, row in df.iterrows():
+        func_name = row.get("functionName", "").split("(")[0].strip()
+        
+        if func_name == "setApprovalForAll":
+            try:
+                operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input", ""))
+                owner_addr = row.get("from", "").lower()
+                operator_addr_lower = operator_addr.lower()
+                timestamp = int(row.get("timeStamp", 0))
+                block_number = int(row.get("blockNumber", 0))
+                
+                df.at[idx, "decoded_operator"] = operator_addr
+                df.at[idx, "operator_permission"] = perm_bool
+                
+                # Store approval for later reference
+                approvals.append((owner_addr, operator_addr_lower, perm_bool, timestamp, block_number))
+                
+            except Exception as e:
+                print(f"Error decoding setApprovalForAll for tx {row.get('hash', 'unknown')}: {e}")
+                continue
+
+    # Second pass: Process safeBatchTransferFrom transactions and check authorization
+    for idx, row in df.iterrows():
+        func_name = row.get("functionName", "").split("(")[0].strip()
+        
+        if func_name == "safeBatchTransferFrom":
+            try:
+                from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input", ""))
+                df.at[idx, "decoded_from"] = from_addr
+                df.at[idx, "decoded_to"] = to_addr
+                df.at[idx, "decoded_ids"] = ids_list
+                df.at[idx, "decoded_amounts"] = amts_list
+                
+                # Check if caller is authorized
+                caller = row.get("from", "").lower()
+                from_addr_lower = from_addr.lower()
+                current_timestamp = int(row.get("timeStamp", 0))
+                current_block = int(row.get("blockNumber", 0))
+                
+                if caller != from_addr_lower:
+                    # Check if caller was approved as operator by from_addr before this transaction
+                    is_approved = False
+                    
+                    # Look for approval transactions where:
+                    # 1. Owner is the from_addr
+                    # 2. Operator is the caller
+                    # 3. Approved is True
+                    # 4. Timestamp/block is before current transaction
+                    for owner, operator, approved, timestamp, block_num in approvals:
+                        if (owner == from_addr_lower and 
+                            operator == caller and 
+                            approved and 
+                            (timestamp < current_timestamp or 
+                             (timestamp == current_timestamp and block_num < current_block))):
+                            is_approved = True
+                            break
+                    
+                    # If not approved, flag as unauthorized
+                    if not is_approved:
+                        df.at[idx, "unauthorized"] = True
+                        df.at[idx, "unauthorized_addr"] = caller
+                
+                # zero address check
+                if to_addr == "0x0000000000000000000000000000000000000000":
+                    df.at[idx, "zero_address"] = True
+                
+                # length mismatch check
+                if len(ids_list) != len(amts_list):
+                    df.at[idx, "length_mismatch"] = True
+                    
+            except Exception as e:
+                print(f"Error decoding safeBatchTransferFrom for tx {row.get('hash', 'unknown')}: {e}")
+                continue
+    
     return df
 
 # ---------------------------------------------------------------------
