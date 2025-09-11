@@ -128,9 +128,10 @@ def get_safeBatchTransferFrom_txs(address: str, api_key: str,
         resp = requests.get(url, timeout=10)
         data = resp.json()
         if data.get("status") == "1" and data.get("result"):
+            target_functions = {"safeBatchTransferFrom", "setApprovalForAll"}
             return [
                 tx for tx in data["result"]
-                if tx.get("functionName", "").split("(")[0].strip() == "safeBatchTransferFrom"
+                if tx.get("functionName", "").split("(")[0].strip() in target_functions
             ]
         return []
     except Exception as e:
@@ -167,6 +168,31 @@ def decode_safeBatchTransferFrom_input(input_hex: str) -> Tuple[str, str, List[i
     amts = decode_array(amts_off, params_hex)
     return from_addr, to_addr, ids, amts
 
+def decode_setApprovalForAll_input(input_hex: str) -> Tuple[str, bool]:
+    """
+    Decode the calldata for setApprovalForAll: (operator, approved).
+    Raises ValueError if the payload is malformed.
+    """
+    # Remove '0x' prefix if present
+    data = input_hex[2:] if input_hex.startswith("0x") else input_hex
+    
+    # Check minimum length (function selector + 2 parameters of 32 bytes each)
+    if len(data) < 8 + 64 * 2:
+        raise ValueError("Input too short")
+    
+    # Skip function selector (first 4 bytes/8 hex characters)
+    params_hex = data[8:]
+    
+    # Extract operator (address)
+    operator_word = params_hex[0:64]
+    operator_addr = "0x" + operator_word[-40:]
+    
+    # Extract approved (bool)
+    approved_word = params_hex[64:128]
+    approved_value = int(approved_word, 16) != 0  # Convert to boolean
+    
+    return operator_addr, approved_value
+
 def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     """
     Decode and flag each safeBatchTransferFrom tx for:
@@ -183,18 +209,26 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     df["unauthorized"]    = False
     df["zero_address"]    = False
     df["length_mismatch"] = False
+    
+    df["decoded_operator"] = None
+    df["operator_permission"] = False
 
     for idx, row in df.iterrows():
         try:
             from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input",""))
+            operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input",""))
         except Exception:
             continue
         df.at[idx, "decoded_from"]    = from_addr
         df.at[idx, "decoded_to"]      = to_addr
         df.at[idx, "decoded_ids"]     = ids_list
         df.at[idx, "decoded_amounts"] = amts_list
+        
+        df["decoded_operator"] = operator_addr
+        df["operator_permission"] = perm_bool
         # unauthorised if caller doesn't match encoded from
-        if from_addr.lower() != row.get("from","").lower():
+        if from_addr.lower() != row.get("from","").lower() and from_addr.lower() != operator_addr.lower():
+            
             df.at[idx, "unauthorized"] = True
         # zero address
         if to_addr == "0x0000000000000000000000000000000000000000":
