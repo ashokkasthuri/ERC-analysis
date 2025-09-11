@@ -227,7 +227,7 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
         df["decoded_operator"] = operator_addr
         df["operator_permission"] = perm_bool
         # unauthorised if caller doesn't match encoded from
-        if from_addr.lower() != row.get("from","").lower() and from_addr.lower() != operator_addr.lower():
+        if from_addr.lower() != row.get("from","").lower() and from_addr.lower() == operator_addr.lower():
             
             df.at[idx, "unauthorized"] = True
         # zero address
