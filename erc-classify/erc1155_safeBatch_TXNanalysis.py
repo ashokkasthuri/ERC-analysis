@@ -107,7 +107,7 @@ def extract_addresses_from_csv(csv_path: str, max_addresses: int) -> List[str]:
     
     return addresses
 
-def get_safeBatchTransferFrom_txs(address: str, api_key: str,
+def get_safeBatchTransferFrom_and_setApprovalForAll_txs(address: str, api_key: str,
                                   start_block: int = 0,
                                   end_block: int = 99999999,
                                   sort: str = "asc") -> List[Dict[str, Any]]:
@@ -194,51 +194,110 @@ def decode_setApprovalForAll_input(input_hex: str) -> Tuple[str, bool]:
     return operator_addr, approved_value
 
 
+
 # def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
 #     """
-#     Decode and flag each safeBatchTransferFrom tx for:
-#       * unauthorized (caller != from_param)
-#       * zero_address (to == 0x0)
-#       * length_mismatch (ids.length != amounts.length)
+#     Decode and flag each transaction:
+#     - For safeBatchTransferFrom: check unauthorized, zero_address, length_mismatch
+#     - For setApprovalForAll: decode operator and permission
 #     Returns a dataframe with extra columns.
 #     """
 #     df = pd.DataFrame(txs)
 #     df["decoded_from"] = None
-#     df["decoded_to"]   = None
-#     df["decoded_ids"]  = None
+#     df["decoded_to"] = None
+#     df["decoded_ids"] = None
 #     df["decoded_amounts"] = None
-#     df["unauthorized"]    = False
-#     df["unauthorized_addr"]    = None
-#     df["zero_address"]    = False
+    
+#     df["unauthorized"] = False
+#     df["unauthorized_addr"] = None
+#     df["zero_address"] = False
 #     df["length_mismatch"] = False
     
 #     df["decoded_operator"] = None
 #     df["operator_permission"] = False
 
+#     # Track all approval transactions with timestamps
+#     approvals = []  # List of (owner, operator, approved, timestamp, blockNumber)
+    
+#     # First pass: Process all setApprovalForAll transactions to build approval history
 #     for idx, row in df.iterrows():
-#         try:
-#             from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input",""))
-#             operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input",""))
-#         except Exception:
-#             continue
-#         df.at[idx, "decoded_from"]    = from_addr
-#         df.at[idx, "decoded_to"]      = to_addr
-#         df.at[idx, "decoded_ids"]     = ids_list
-#         df.at[idx, "decoded_amounts"] = amts_list
+#         func_name = row.get("functionName", "").split("(")[0].strip()
         
-#         df["decoded_operator"] = operator_addr
-#         df["operator_permission"] = perm_bool
-#         # unauthorised if caller doesn't match encoded from
-#         if from_addr.lower() != row.get("from","").lower() and from_addr.lower() != operator_addr.lower():
-            
-#             df["unauthorized_addr"]  = operator_addr.lower()
-#             df.at[idx, "unauthorized"] = True
-#         # zero address
-#         if to_addr == "0x0000000000000000000000000000000000000000":
-#             df.at[idx, "zero_address"] = True
-#         # length mismatch
-#         if len(ids_list) != len(amts_list):
-#             df.at[idx, "length_mismatch"] = True
+#         if func_name == "setApprovalForAll":
+#             try:
+#                 operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input", ""))
+#                 owner_addr = row.get("from", "").lower()
+#                 operator_addr_lower = operator_addr.lower()
+#                 timestamp = int(row.get("timeStamp", 0))
+#                 block_number = int(row.get("blockNumber", 0))
+                
+#                 df.at[idx, "decoded_operator"] = operator_addr
+#                 df.at[idx, "operator_permission"] = perm_bool
+                
+#                 # Store approval for later reference
+#                 approvals.append((owner_addr, operator_addr_lower, perm_bool, timestamp, block_number))
+                
+#             except Exception as e:
+#                 print(f"Error decoding setApprovalForAll for tx {row.get('hash', 'unknown')}: {e}")
+#                 continue
+
+#     # Second pass: Process safeBatchTransferFrom transactions and check authorization
+#     for idx, row in df.iterrows():
+#         func_name = row.get("functionName", "").split("(")[0].strip()
+        
+#         if func_name == "safeBatchTransferFrom":
+#             try:
+#                 from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input", ""))
+#                 df.at[idx, "decoded_from"] = from_addr
+#                 df.at[idx, "decoded_to"] = to_addr
+#                 df.at[idx, "decoded_ids"] = ids_list
+#                 df.at[idx, "decoded_amounts"] = amts_list
+                
+#                 # Check if caller is authorized
+#                 caller = row.get("from", "").lower()
+#                 from_addr = from_addr.lower()
+#                 current_timestamp = int(row.get("timeStamp", 0))
+#                 current_block = int(row.get("blockNumber", 0))
+                
+#                 if caller != from_addr:
+#                     # Check if caller was approved as operator by from_addr before this transaction
+#                     is_approved = False
+                    
+#                     # Look for approval transactions where:
+#                     # 1. Owner is the from_addr
+#                     # 2. Operator is the caller
+#                     # 3. Approved is True
+#                     # 4. Timestamp/block is before current transaction
+#                     for owner, operator, approved, timestamp, block_num in approvals:
+#                         if (
+#                             # owner == from_addr and 
+#                             operator == from_addr and 
+#                             approved and 
+#                             (timestamp < current_timestamp or 
+#                              (timestamp == current_timestamp and block_num < current_block))):
+#                             is_approved = True
+#                             break
+                    
+#                     # If not approved, flag as unauthorized
+#                     if not is_approved:
+#                         df.at[idx, "unauthorized"] = True
+#                         df.at[idx, "unauthorized_addr"] = from_addr
+                        
+#                         df.at[idx, "decoded_operator"] = operator
+#                         df.at[idx, "operator_permission"] = approved
+                
+#                 # zero address check
+#                 if to_addr == "0x0000000000000000000000000000000000000000" or to_addr == "0x000000":
+#                     df.at[idx, "zero_address"] = True
+                
+#                 # length mismatch check
+#                 if len(ids_list) != len(amts_list):
+#                     df.at[idx, "length_mismatch"] = True
+                    
+#             except Exception as e:
+#                 print(f"Error decoding safeBatchTransferFrom for tx {row.get('hash', 'unknown')}: {e}")
+#                 continue
+    
 #     return df
 
 def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
@@ -246,6 +305,7 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     Decode and flag each transaction:
     - For safeBatchTransferFrom: check unauthorized, zero_address, length_mismatch
     - For setApprovalForAll: decode operator and permission
+    - Check if newly approved operators are providing further approvals
     Returns a dataframe with extra columns.
     """
     df = pd.DataFrame(txs)
@@ -253,12 +313,16 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     df["decoded_to"] = None
     df["decoded_ids"] = None
     df["decoded_amounts"] = None
+    
     df["unauthorized"] = False
     df["unauthorized_addr"] = None
     df["zero_address"] = False
     df["length_mismatch"] = False
+    
     df["decoded_operator"] = None
     df["operator_permission"] = False
+    df["operator_provides_further_approvals"] = False  # New column
+    df["secondary_approvals_count"] = 0  # New column: count of secondary approvals
 
     # Track all approval transactions with timestamps
     approvals = []  # List of (owner, operator, approved, timestamp, blockNumber)
@@ -279,11 +343,57 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                 df.at[idx, "operator_permission"] = perm_bool
                 
                 # Store approval for later reference
-                approvals.append((owner_addr, operator_addr_lower, perm_bool, timestamp, block_number))
+                approvals.append((owner_addr, operator_addr_lower, perm_bool, timestamp, block_number, idx))
                 
             except Exception as e:
                 print(f"Error decoding setApprovalForAll for tx {row.get('hash', 'unknown')}: {e}")
                 continue
+
+    # NEW METHOD: Check if newly approved operators provide further approvals
+    def check_operator_further_approvals(operator_addr, current_timestamp, current_block):
+        """
+        Check if an operator provides further approvals to other addresses
+        after being approved themselves.
+        """
+        secondary_approvals = []
+        
+        # Sort approvals chronologically (by timestamp, then block number)
+        sorted_approvals = sorted(approvals, key=lambda x: (x[3], x[4]))
+        
+        # Find all approvals where the operator becomes an owner (provides approval to others)
+        for approval in sorted_approvals:
+            owner, operator, approved, timestamp, block_num, tx_idx = approval
+            
+            # Check if this approval happens after the operator was approved
+            # and the owner is the operator we're checking
+            if (owner.lower() == operator_addr.lower() and 
+                (timestamp > current_timestamp or 
+                 (timestamp == current_timestamp and block_num > current_block))):
+                secondary_approvals.append((operator, approved, timestamp, block_num, tx_idx))
+        
+        return secondary_approvals
+
+    # Apply the check to each setApprovalForAll transaction
+    for approval in approvals:
+        owner_addr, operator_addr, perm_bool, timestamp, block_number, tx_idx = approval
+        
+        if perm_bool:  # Only check for True approvals
+            secondary_approvals = check_operator_further_approvals(
+                operator_addr, timestamp, block_number
+            )
+            
+            if secondary_approvals:
+                df.at[tx_idx, "operator_provides_further_approvals"] = True
+                df.at[tx_idx, "secondary_approvals_count"] = len(secondary_approvals)
+                
+                # Optional: Store details of secondary approvals
+                # You can add more columns if needed
+                secondary_info = []
+                for sec_operator, sec_approved, sec_ts, sec_block, sec_tx_idx in secondary_approvals:
+                    secondary_info.append(f"{sec_operator}:{sec_approved}@{sec_ts}")
+                
+                # Uncomment if you want to store the details
+                # df.at[tx_idx, "secondary_approvals_details"] = ";".join(secondary_info)
 
     # Second pass: Process safeBatchTransferFrom transactions and check authorization
     for idx, row in df.iterrows():
@@ -299,11 +409,11 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                 
                 # Check if caller is authorized
                 caller = row.get("from", "").lower()
-                from_addr_lower = from_addr.lower()
+                from_addr = from_addr.lower()
                 current_timestamp = int(row.get("timeStamp", 0))
                 current_block = int(row.get("blockNumber", 0))
                 
-                if caller != from_addr_lower:
+                if caller != from_addr:
                     # Check if caller was approved as operator by from_addr before this transaction
                     is_approved = False
                     
@@ -312,8 +422,8 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                     # 2. Operator is the caller
                     # 3. Approved is True
                     # 4. Timestamp/block is before current transaction
-                    for owner, operator, approved, timestamp, block_num in approvals:
-                        if (owner == from_addr_lower and 
+                    for owner, operator, approved, timestamp, block_num, tx_idx in approvals:
+                        if (owner == from_addr and 
                             operator == caller and 
                             approved and 
                             (timestamp < current_timestamp or 
@@ -324,10 +434,10 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                     # If not approved, flag as unauthorized
                     if not is_approved:
                         df.at[idx, "unauthorized"] = True
-                        df.at[idx, "unauthorized_addr"] = caller
+                        df.at[idx, "unauthorized_addr"] = from_addr
                 
                 # zero address check
-                if to_addr == "0x0000000000000000000000000000000000000000":
+                if to_addr == "0x0000000000000000000000000000000000000000" or to_addr == "0x000000":
                     df.at[idx, "zero_address"] = True
                 
                 # length mismatch check
@@ -340,11 +450,12 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     
     return df
 
+
 # ---------------------------------------------------------------------
 # High‑level orchestration
 # ---------------------------------------------------------------------
 
-def fetch_and_analyse(path: str,
+def fetch_txs(path: str,
                       max_addresses: int,
                       raw_csv: Optional[str],
                       annotated_csv: Optional[str]) -> None:
@@ -360,7 +471,7 @@ def fetch_and_analyse(path: str,
     all_txs = []
     for addr in addresses:
         # print(f"🔍 Fetching safeBatchTransferFrom transactions for {addr}…")
-        txs = get_safeBatchTransferFrom_txs(addr, api_key)
+        txs = get_safeBatchTransferFrom_and_setApprovalForAll_txs(addr, api_key)
         for tx in txs:
             tx["contract_address"] = addr
         all_txs.extend(txs)
@@ -371,6 +482,14 @@ def fetch_and_analyse(path: str,
         pd.DataFrame(all_txs).to_csv(raw_csv, index=False)
         print(f"💾 Raw transactions saved to {raw_csv}")
 
+def analyse_txs(path: str,
+                      annotated_csv: Optional[str]) -> None:
+    # analysed_df = analyse_transactions(all_txs)
+    df = pd.read_csv(path)
+    
+    # Convert to list of dictionaries (same format as original all_txs)
+    all_txs = df.to_dict('records')
+    
     analysed_df = analyse_transactions(all_txs)
     # Summarise issues
     summary = analysed_df[['unauthorized', 'zero_address', 'length_mismatch']].sum()
@@ -380,6 +499,7 @@ def fetch_and_analyse(path: str,
     # Print contract addresses for each flag
     if analysed_df['unauthorized'].any():
         unauthorized_contracts = analysed_df.loc[analysed_df['unauthorized'], 'contract_address'].unique()
+        print("Contracts with unauthorized transfers:", len(list(unauthorized_contracts)))
         print("Contracts with unauthorized transfers:", list(unauthorized_contracts))
     if analysed_df['zero_address'].any():
         zero_addr_contracts = analysed_df.loc[analysed_df['zero_address'], 'contract_address'].unique()
@@ -512,18 +632,27 @@ def main():
     )
     # parser.add_argument('--json', required=True,
     #                     help='Path to the JSON file containing contract metadata')
-    parser.add_argument('--csv', required=True,
-                        help='Path to the CSV file containing contract metadata')
-    parser.add_argument('--num-addresses', type=int, default=10,
-                        help='Number of addresses to process (default 10)')
-    parser.add_argument('--raw-csv', default=None,
+    # parser.add_argument('--csv', required=True,
+    #                     help='Path to the CSV file containing contract metadata')
+    # parser.add_argument('--num-addresses', type=int, default=10,
+    #                     help='Number of addresses to process (default 10)')
+    # parser.add_argument('--raw-csv', default=None,
+    #                     help='Optional file path to save raw transaction data')
+    # parser.add_argument('--annotated-csv', default=None,
+    #                     help='Optional file path to save annotated results with flags')
+    # args = parser.parse_args()
+    
+    # fetch_and_analyse(args.json, args.num_addresses, args.raw_csv, args.annotated_csv)
+    # fetch_txs(args.csv, args.num_addresses, args.raw_csv, args.annotated_csv)
+    
+    
+    parser.add_argument('--tx-csv', required=True,
                         help='Optional file path to save raw transaction data')
     parser.add_argument('--annotated-csv', default=None,
                         help='Optional file path to save annotated results with flags')
     args = parser.parse_args()
     
-    # fetch_and_analyse(args.json, args.num_addresses, args.raw_csv, args.annotated_csv)
-    fetch_and_analyse(args.csv, args.num_addresses, args.raw_csv, args.annotated_csv)
+    analyse_txs(args.tx_csv, args.annotated_csv)
     
     
     
