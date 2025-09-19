@@ -392,8 +392,7 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                 for sec_operator, sec_approved, sec_ts, sec_block, sec_tx_idx in secondary_approvals:
                     secondary_info.append(f"{sec_operator}:{sec_approved}@{sec_ts}")
                 
-                # Uncomment if you want to store the details
-                # df.at[tx_idx, "secondary_approvals_details"] = ";".join(secondary_info)
+                df.at[tx_idx, "secondary_approvals_details"] = ";".join(secondary_info)
 
     # Second pass: Process safeBatchTransferFrom transactions and check authorization
     for idx, row in df.iterrows():
@@ -423,8 +422,9 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                     # 3. Approved is True
                     # 4. Timestamp/block is before current transaction
                     for owner, operator, approved, timestamp, block_num, tx_idx in approvals:
-                        if (owner == from_addr and 
-                            operator == caller and 
+                        if (
+                            # owner == from_addr and 
+                            operator == from_addr and 
                             approved and 
                             (timestamp < current_timestamp or 
                              (timestamp == current_timestamp and block_num < current_block))):
