@@ -349,50 +349,115 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                 print(f"Error decoding setApprovalForAll for tx {row.get('hash', 'unknown')}: {e}")
                 continue
 
-    # NEW METHOD: Check if newly approved operators provide further approvals
-    def check_operator_further_approvals(operator_addr, current_timestamp, current_block):
-        """
-        Check if an operator provides further approvals to other addresses
-        after being approved themselves.
-        """
-        secondary_approvals = []
+    
+    # def check_operator_further_approvals(operator_addr, current_timestamp, current_block):
+    #     """
+    #     Check if an operator provides further approvals to other addresses
+    #     after being approved themselves.
+    #     """
+    #     secondary_approvals = []
         
-        # Sort approvals chronologically (by timestamp, then block number)
+    #     # Sort approvals chronologically (by timestamp, then block number)
+    #     sorted_approvals = sorted(approvals, key=lambda x: (x[3], x[4]))
+        
+    #     # Find all approvals where the operator becomes an owner (provides approval to others)
+    #     for approval in sorted_approvals:
+    #         owner, operator, approved, timestamp, block_num, tx_idx = approval
+            
+    #         # Check if this approval happens after the operator was approved
+    #         # and the owner is the operator we're checking
+    #         if (owner.lower() == operator_addr.lower() and 
+    #             (timestamp > current_timestamp or 
+    #              (timestamp == current_timestamp and block_num > current_block))):
+    #             secondary_approvals.append((operator, approved, timestamp, block_num, tx_idx))
+        
+    #     return secondary_approvals
+
+    def check_operator_approval_chain(operator_addr, current_timestamp, current_block, max_depth=5, current_depth=1):
+        """
+        Recursively check approval chains to multiple levels
+        """
+        if current_depth > max_depth:
+            return []
+        
+        chain_approvals = []
+        
+        # Sort approvals chronologically
         sorted_approvals = sorted(approvals, key=lambda x: (x[3], x[4]))
         
-        # Find all approvals where the operator becomes an owner (provides approval to others)
         for approval in sorted_approvals:
             owner, operator, approved, timestamp, block_num, tx_idx = approval
             
-            # Check if this approval happens after the operator was approved
+            # Check if this approval happens after the current operator was approved
             # and the owner is the operator we're checking
             if (owner.lower() == operator_addr.lower() and 
                 (timestamp > current_timestamp or 
-                 (timestamp == current_timestamp and block_num > current_block))):
-                secondary_approvals.append((operator, approved, timestamp, block_num, tx_idx))
+                 (timestamp == current_timestamp and block_num > current_block)) and
+                approved):  # Only consider True approvals
+                
+                # Add this approval to the chain
+                chain_approvals.append((current_depth, operator, approved, timestamp, block_num, tx_idx))
+                
+                # Recursively check for further approvals from this new operator
+                deeper_approvals = check_operator_approval_chain(
+                    operator, timestamp, block_num, max_depth, current_depth + 1
+                )
+                chain_approvals.extend(deeper_approvals)
         
-        return secondary_approvals
+        return chain_approvals
 
+    
     # Apply the check to each setApprovalForAll transaction
     for approval in approvals:
         owner_addr, operator_addr, perm_bool, timestamp, block_number, tx_idx = approval
         
+        # if perm_bool:  # Only check for True approvals
+        #     secondary_approvals = check_operator_further_approvals(
+        #         operator_addr, timestamp, block_number
+        #     )
+            
+        #     if secondary_approvals:
+        #         df.at[tx_idx, "operator_provides_further_approvals"] = True
+        #         df.at[tx_idx, "secondary_approvals_count"] = len(secondary_approvals)
+                
+        #         # Optional: Store details of secondary approvals
+        #         # You can add more columns if needed
+        #         secondary_info = []
+        #         for sec_operator, sec_approved, sec_ts, sec_block, sec_tx_idx in secondary_approvals:
+        #             secondary_info.append(f"{sec_operator}:{sec_approved}@{sec_ts}")
+                
+        #         df.at[tx_idx, "secondary_approvals_details"] = ";".join(secondary_info)
+        
         if perm_bool:  # Only check for True approvals
-            secondary_approvals = check_operator_further_approvals(
-                operator_addr, timestamp, block_number
+            # Check for approval chains up to 5 levels deep
+            approval_chain = check_operator_approval_chain(
+                operator_addr, timestamp, block_number, max_depth=5
             )
             
-            if secondary_approvals:
+            if approval_chain:
                 df.at[tx_idx, "operator_provides_further_approvals"] = True
-                df.at[tx_idx, "secondary_approvals_count"] = len(secondary_approvals)
                 
-                # Optional: Store details of secondary approvals
-                # You can add more columns if needed
-                secondary_info = []
-                for sec_operator, sec_approved, sec_ts, sec_block, sec_tx_idx in secondary_approvals:
-                    secondary_info.append(f"{sec_operator}:{sec_approved}@{sec_ts}")
+                # Count approvals at each level
+                level_counts = {}
+                for depth, operator, approved, ts, block_num, chain_tx_idx in approval_chain:
+                    level_counts[depth] = level_counts.get(depth, 0) + 1
                 
-                df.at[tx_idx, "secondary_approvals_details"] = ";".join(secondary_info)
+                # Store level information
+                max_depth = max(level_counts.keys()) if level_counts else 0
+                df.at[tx_idx, "approval_chain_depth"] = max_depth
+                df.at[tx_idx, "total_chain_approvals"] = len(approval_chain)
+                df.at[tx_idx, "secondary_approvals_count"] = len(approval_chain)  # Backward compatibility
+                
+                # Store level-wise counts
+                for depth in range(1, 6):  # Levels 1-5
+                    df.at[tx_idx, f"level_{depth}_approvals"] = level_counts.get(depth, 0)
+                
+                # Store chain details
+                chain_details = []
+                for depth, operator, approved, ts, block_num, chain_tx_idx in approval_chain:
+                    chain_details.append(f"L{depth}:{operator}@{ts}")
+                
+                df.at[tx_idx, "approval_chain_details"] = ";".join(chain_details)
 
     # Second pass: Process safeBatchTransferFrom transactions and check authorization
     for idx, row in df.iterrows():
@@ -416,8 +481,10 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                     # Check if caller was approved as operator by from_addr before this transaction
                     is_approved = False
                     
+                    
+                    
                     # Look for approval transactions where:
-                    # 1. Owner is the from_addr
+                    # 1. Owner is the caller
                     # 2. Operator is the caller
                     # 3. Approved is True
                     # 4. Timestamp/block is before current transaction
@@ -430,6 +497,8 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                              (timestamp == current_timestamp and block_num < current_block))):
                             is_approved = True
                             break
+                        
+                   
                     
                     # If not approved, flag as unauthorized
                     if not is_approved:
