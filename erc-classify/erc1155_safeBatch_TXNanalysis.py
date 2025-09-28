@@ -326,7 +326,8 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
 
     # Track all approval transactions with timestamps
     approvals = []  # List of (owner, operator, approved, timestamp, blockNumber)
-    
+    callerCount = 0
+    operatorCount = 0
     # First pass: Process all setApprovalForAll transactions to build approval history
     for idx, row in df.iterrows():
         func_name = row.get("functionName", "").split("(")[0].strip()
@@ -345,10 +346,12 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                 # Store approval for later reference
                 approvals.append((owner_addr, operator_addr_lower, perm_bool, timestamp, block_number, idx))
                 
+                
             except Exception as e:
                 print(f"Error decoding setApprovalForAll for tx {row.get('hash', 'unknown')}: {e}")
                 continue
 
+    print(f"approvals total length : {len(approvals)}")
     
     # def check_operator_further_approvals(operator_addr, current_timestamp, current_block):
     #     """
@@ -373,7 +376,7 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
         
     #     return secondary_approvals
 
-    def check_operator_approval_chain(operator_addr, current_timestamp, current_block, max_depth=5, current_depth=1):
+    def check_operator_approval_chain(operator_addr, current_timestamp, current_block, max_depth=2, current_depth=1):
         """
         Recursively check approval chains to multiple levels
         """
@@ -483,21 +486,29 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
                     
                     
                     
+                    
                     # Look for approval transactions where:
                     # 1. Owner is the caller
                     # 2. Operator is the caller
                     # 3. Approved is True
                     # 4. Timestamp/block is before current transaction
+                    
+                    
                     for owner, operator, approved, timestamp, block_num, tx_idx in approvals:
                         if (
-                            # owner == from_addr and 
-                            operator == from_addr and 
-                            approved and 
-                            (timestamp < current_timestamp or 
-                             (timestamp == current_timestamp and block_num < current_block))):
+                            (operator == from_addr or caller == operator) and 
+                            approved) :
+                            # and 
+                            # (timestamp < current_timestamp or 
+                            #  (timestamp == current_timestamp and block_num < current_block)))
+                            # :
+                            if(caller == operator):
+                                callerCount = callerCount + 1
+                            if(operator == from_addr):
+                                operatorCount = operatorCount + 1
                             is_approved = True
                             break
-                        
+                     
                    
                     
                     # If not approved, flag as unauthorized
@@ -516,7 +527,8 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
             except Exception as e:
                 print(f"Error decoding safeBatchTransferFrom for tx {row.get('hash', 'unknown')}: {e}")
                 continue
-    
+    print(f"callerCount is {callerCount}")
+    print(f"operatorCount is {operatorCount}")
     return df
 
 
