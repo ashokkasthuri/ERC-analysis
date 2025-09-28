@@ -228,8 +228,9 @@ if __name__ == "__main__":
     csv_files = [
         # "/home/ashok/data/binance_deduplicated_results.csv",
         # "/home/ashok/data/ethereum_deduplicated_results.csv", 
-        # "/home/ashok/data/deduplicated_avalanche.csv",
-        "/home/ashok/data/deduplicated_polygon.csv"
+        "/home/ashok/data/deduplicated_avalanche.csv"
+        # ,
+        # "/home/ashok/data/deduplicated_polygon.csv"
     ]
     
     # Process all files
