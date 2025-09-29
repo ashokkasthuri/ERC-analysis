@@ -98,7 +98,9 @@ def extract_addresses_from_csv(csv_path: str, max_addresses: int) -> List[str]:
     
     for idx, row in df.iterrows():
         original_bytecode_str = str(row.get("bytecode", ""))
-        if "2eb2c2d6" in original_bytecode_str:
+        erc_type = str(row.get("ERC", ""))
+        # if "2eb2c2d6" in original_bytecode_str:
+        if erc_type == "ERC-721" and "b88d4fde" in original_bytecode_str:
             address = row.get("address")
             if address:
                 addresses.append(address)
@@ -128,7 +130,8 @@ def get_safeBatchTransferFrom_and_setApprovalForAll_txs(address: str, api_key: s
         resp = requests.get(url, timeout=10)
         data = resp.json()
         if data.get("status") == "1" and data.get("result"):
-            target_functions = {"safeBatchTransferFrom", "setApprovalForAll"}
+            # target_functions = {"safeBatchTransferFrom", "setApprovalForAll"}
+            target_functions = {"safeTransferFrom"}
             return [
                 tx for tx in data["result"]
                 if tx.get("functionName", "").split("(")[0].strip() in target_functions
@@ -539,7 +542,7 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
 def fetch_txs(path: str,
                       max_addresses: int,
                       raw_csv: Optional[str],
-                      annotated_csv: Optional[str]) -> None:
+                      ) -> None:
     """
     Extract addresses, fetch their safeBatchTransferFrom transactions,
     save raw and annotated results, and print a summary.
@@ -713,27 +716,26 @@ def main():
     )
     # parser.add_argument('--json', required=True,
     #                     help='Path to the JSON file containing contract metadata')
-    # parser.add_argument('--csv', required=True,
-    #                     help='Path to the CSV file containing contract metadata')
-    # parser.add_argument('--num-addresses', type=int, default=10,
-    #                     help='Number of addresses to process (default 10)')
-    # parser.add_argument('--raw-csv', default=None,
+    parser.add_argument('--csv', required=True,
+                        help='Path to the CSV file containing contract metadata')
+    parser.add_argument('--num-addresses', type=int, default=10,
+                        help='Number of addresses to process (default 10)')
+    parser.add_argument('--raw-csv', default=None,
+                        help='Optional file path to save raw transaction data')
+
+    args = parser.parse_args()
+    
+    # fetch_and_analyse(args.json, args.num_addresses, args.raw_csv, args.annotated_csv)
+    fetch_txs(args.csv, args.num_addresses, args.raw_csv)
+    
+    
+    # parser.add_argument('--tx-csv', required=True,
     #                     help='Optional file path to save raw transaction data')
     # parser.add_argument('--annotated-csv', default=None,
     #                     help='Optional file path to save annotated results with flags')
     # args = parser.parse_args()
     
-    # fetch_and_analyse(args.json, args.num_addresses, args.raw_csv, args.annotated_csv)
-    # fetch_txs(args.csv, args.num_addresses, args.raw_csv, args.annotated_csv)
-    
-    
-    parser.add_argument('--tx-csv', required=True,
-                        help='Optional file path to save raw transaction data')
-    parser.add_argument('--annotated-csv', default=None,
-                        help='Optional file path to save annotated results with flags')
-    args = parser.parse_args()
-    
-    analyse_txs(args.tx_csv, args.annotated_csv)
+    # analyse_txs(args.tx_csv, args.annotated_csv)
     
     
     

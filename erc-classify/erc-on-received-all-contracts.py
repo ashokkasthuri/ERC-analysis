@@ -242,7 +242,7 @@ if __name__ == "__main__":
 
 # Avalanche: 
     
-#     ERC Standards Found:
+#  ERC Standards Found:
 #   ERC-721: 6307 contracts
 #   ERC-1155;ERC-1155: 949 contracts
 #   ERC-1363: 812 contracts
@@ -260,6 +260,88 @@ if __name__ == "__main__":
 #   ERC-1155;ERC-1363: 1 contracts
 
 
-# Polygone:
-# Binancnce:
+# Polygon:
+
+# ERC Standards Found:
+#   ERC-721: 60244 contracts
+#   ERC-1155;ERC-1155: 17336 contracts
+#   ERC-1155: 2646 contracts
+#   ERC-1363: 1471 contracts
+#   ERC-1155;ERC-721: 510 contracts
+#   ERC-721;ERC-1363: 194 contracts
+#   ERC-1363;ERC-1363: 120 contracts
+#   ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 111 contracts
+#   ERC-777;ERC-777: 86 contracts
+#   ERC-1155;ERC-1155;ERC-721: 46 contracts
+#   ERC-777: 41 contracts
+#   ERC-1155;ERC-1363: 26 contracts
+#   ERC-1155;ERC-1155;ERC-1363: 22 contracts
+#   ERC-223: 13 contracts
+#   ERC-721;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 11 contracts
+#   ERC-223;ERC-777: 7 contracts
+#   ERC-1155;ERC-721;ERC-1363: 6 contracts
+#   ERC-1155;ERC-777: 6 contracts
+#   ERC-777;ERC-721: 5 contracts
+#   ERC-721;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 1 contracts
+#   ERC-1155;ERC-777;ERC-777: 1 contracts
+#   ERC-1363;ERC-1363;ERC-1363: 1 contracts
+
+# Binance:
+
+# ERC Standards Found:
+#   ERC-1363: 77572 contracts
+#   ERC-721: 40180 contracts
+#   ERC-1155;ERC-1155: 6075 contracts
+#   ERC-1155: 5463 contracts
+#   ERC-1363;ERC-1363: 997 contracts
+#   ERC-1155;ERC-721: 497 contracts
+#   ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 422 contracts
+#   ERC-777;ERC-777: 322 contracts
+#   ERC-721;ERC-1363: 289 contracts
+#   ERC-777: 154 contracts
+#   ERC-1155;ERC-1155;ERC-721: 107 contracts
+#   ERC-223: 83 contracts
+#   ERC-1155;ERC-1363: 58 contracts
+#   ERC-1155;ERC-1155;ERC-1363: 22 contracts
+#   ERC-721;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 9 contracts
+#   ERC-777;ERC-777;ERC-1363: 5 contracts
+#   ERC-223;ERC-1363: 4 contracts
+#   ERC-1363;ERC-1363;ERC-1363: 4 contracts
+#   ERC-1155;ERC-721;ERC-1363: 4 contracts
+#   ERC-1155;ERC-777: 4 contracts
+#   ERC-1155;ERC-1155;ERC-777: 2 contracts
+#   ERC-1155;ERC-1363;ERC-1363: 1 contracts
+#   ERC-777;ERC-721: 1 contracts
+
 # Ethereum:
+
+# ERC Standards Found:
+#   ERC-721: 87124 contracts
+#   ERC-1363: 52781 contracts
+#   ERC-1155;ERC-1155: 9081 contracts
+#   ERC-1155: 4287 contracts
+#   ERC-223: 2100 contracts
+#   ERC-1155;ERC-721: 767 contracts
+#   ERC-1363;ERC-1363: 478 contracts
+#   ERC-721;ERC-1363: 398 contracts
+#   ERC-777;ERC-777: 376 contracts
+#   ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 330 contracts
+#   ERC-777: 303 contracts
+#   ERC-1155;ERC-1155;ERC-721: 205 contracts
+#   ERC-223;ERC-1363: 180 contracts
+#   ERC-1363;ERC-1363;ERC-1363: 74 contracts
+#   ERC-1155;ERC-1363: 25 contracts
+#   ERC-1155;ERC-1155;ERC-1363: 12 contracts
+#   ERC-777;ERC-777;ERC-1363: 10 contracts
+#   ERC-721;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 9 contracts
+#   ERC-223;ERC-1363;ERC-1363;ERC-1363: 7 contracts
+#   ERC-223;ERC-721: 6 contracts
+#   ERC-777;ERC-721: 4 contracts
+#   ERC-1155;ERC-777: 3 contracts
+#   ERC-223;ERC-1363;ERC-1363: 3 contracts
+#   ERC-1155;ERC-1155;ERC-777: 2 contracts
+#   ERC-777;ERC-777;ERC-721: 1 contracts
+#   ERC-1155;ERC-721;ERC-1363: 1 contracts
+#   ERC-721;ERC-1363;ERC-1363: 1 contracts
+#   ERC-1155;ERC-777;ERC-777: 1 contracts
+#   ERC-1155;ERC-223: 1 contracts
