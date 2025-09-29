@@ -209,7 +209,7 @@ def process_multiple_files(file_paths, output_dir="output", n_workers=None):
         
         # Generate output file name
         base_name = os.path.basename(file_path)
-        output_file = os.path.join(output_dir, f"processed_{base_name}")
+        output_file = os.path.join(output_dir, f"new_processed_{base_name}")
         
         # Process the file
         result_df = process_file_optimized(
@@ -228,10 +228,36 @@ if __name__ == "__main__":
     csv_files = [
         # "/home/ashok/data/binance_deduplicated_results.csv",
         # "/home/ashok/data/ethereum_deduplicated_results.csv", 
-        "/home/ashok/data/deduplicated_avalanche.csv"
+        # "/home/ashok/data/deduplicated_avalanche.csv"
         # ,
-        # "/home/ashok/data/deduplicated_polygon.csv"
+        "/home/ashok/data/deduplicated_polygon.csv"
     ]
     
     # Process all files
     results = process_multiple_files(csv_files, n_workers=4)
+    
+
+
+# Avalanche: 
+    
+#     ERC Standards Found:
+#   ERC-721: 6307 contracts
+#   ERC-1155;ERC-1155: 949 contracts
+#   ERC-1363: 812 contracts
+#   ERC-1155: 559 contracts
+#   ERC-1363;ERC-1363: 108 contracts
+#   ERC-1155;ERC-721: 92 contracts
+#   ERC-777: 25 contracts
+#   ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363;ERC-1363: 25 contracts
+#   ERC-1155;ERC-1155;ERC-721: 16 contracts
+#   ERC-777;ERC-777: 14 contracts
+#   ERC-721;ERC-1363: 14 contracts
+#   ERC-223: 6 contracts
+#   ERC-1155;ERC-777: 2 contracts
+#   ERC-1155;ERC-1155;ERC-1363: 1 contracts
+#   ERC-1155;ERC-1363: 1 contracts
+
+
+# Polygone:
+# Binancnce:
+# Ethereum:
