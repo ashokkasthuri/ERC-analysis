@@ -5,6 +5,96 @@ import multiprocessing as mp
 import os
 import re
 
+
+
+ERC_CONFIG = {
+    'ERC1155_safeTransferFrom': {
+        'selector': '0xf242432a',
+        'function': 'safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data)',
+        'erc': 'ERC-1155',
+        'receiverSpecs': {
+            'interface': 'IERC1155Receiver',
+            'method': 'onERC1155Received',
+            'magicValue': '0xf23a6e61',
+            'risk': 'SAFE',  # Reverts if not implemented
+            'tokenLossRisk': 'NO_RISK'
+        }
+    },
+    'ERC1155_safeBatchTransferFrom': {
+        'selector': '0x2eb2c2d6',
+        'function': 'safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data)',
+        'erc': 'ERC-1155',
+        'receiverSpecs': {
+            'interface': 'IERC1155Receiver',
+            'method': 'onERC1155BatchReceived',
+            'magicValue': '0xbc197c81',
+            'risk': 'SAFE',  # Reverts if not implemented
+            'tokenLossRisk': 'NO_RISK'
+        }
+    },
+    'ERC721_safeTransferFrom': {
+        'selector': '0xb88d4fde',
+        'function': 'safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes data)',
+        'erc': 'ERC-721',
+        'receiverSpecs': {
+            'interface': 'IERC721Receiver',
+            'method': 'onERC721Received',
+            'magicValue': '0x150b7a02',
+            'risk': 'SAFE',  # Reverts if not implemented
+            'tokenLossRisk': 'NO_RISK'
+        }
+    },
+    'ERC223_transfer': {
+        'selector': '0xbe45fd62',
+        'function': 'transfer(address _to, uint _value, bytes calldata _data) returns (bool)',
+        'erc': 'ERC-223',
+        'receiverSpecs': {
+            'interface': 'TokenReceiver',
+            'method': 'tokenFallback',
+            'magicValue': None,
+            'risk': 'HIGH_RISK',  # Continues even if not implemented
+            'tokenLossRisk': 'TOKENS_LOST'
+        }
+    },
+    'ERC777_send': {
+        'selector': '0x9bd9bbc6',
+        'function': 'send(address to, uint256 amount, bytes calldata data)',
+        'erc': 'ERC-777',
+        'receiverSpecs': {
+            'interface': 'IERC777Recipient',
+            'method': 'tokensReceived',
+            'magicValue': None,
+            'risk': 'MEDIUM_RISK',  # Continues but may have other checks
+            'tokenLossRisk': 'TOKENS_LOST'
+        }
+    },
+    'ERC777_operatorSend': {
+        'selector': '0x62ad1b83',
+        'function': 'operatorSend(address from, address to, uint256 amount, bytes calldata data, bytes calldata operatorData)',
+        'erc': 'ERC-777',
+        'receiverSpecs': {
+            'interface': 'IERC777Recipient',
+            'method': 'tokensReceived',
+            'magicValue': None,
+            'risk': 'MEDIUM_RISK',
+            'tokenLossRisk': 'TOKENS_LOST'
+        }
+    },
+    'ERC1363_transferAndCall1': {
+        'selector': '0x1296ee62',
+        'function': 'transferAndCall(address to, uint256 value)',
+        'erc': 'ERC-1363',
+        'receiverSpecs': {
+            'interface': 'ERC1363Receiver',
+            'method': 'onTransferReceived',
+            'magicValue': None,
+            'risk': 'HIGH_RISK',  # Tokens transfer then call fails
+            'tokenLossRisk': 'TOKENS_STUCK'
+        }
+    },
+    # ... similar for other ERC-1363 functions
+}
+
 # Define ERC function selectors and their metadata
 ERC_CONFIG = {
     'ERC1155_safeTransferFrom': {
@@ -312,6 +402,7 @@ if __name__ == "__main__":
 #   ERC-1155;ERC-1155;ERC-777: 2 contracts
 #   ERC-1155;ERC-1363;ERC-1363: 1 contracts
 #   ERC-777;ERC-721: 1 contracts
+# Total contracts with ERC standards: 132275/2308899
 
 # Ethereum:
 
@@ -345,3 +436,5 @@ if __name__ == "__main__":
 #   ERC-721;ERC-1363;ERC-1363: 1 contracts
 #   ERC-1155;ERC-777;ERC-777: 1 contracts
 #   ERC-1155;ERC-223: 1 contracts
+
+# Total contracts with ERC standards: 158570/1114861

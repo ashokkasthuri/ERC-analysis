@@ -33,8 +33,8 @@ def load_api_key() -> str:
     Load ETHERSCAN_API_KEY from .env or environment.
     Raises ValueError if the key isn't found.
     """
-    # load_dotenv()
-    load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+    load_dotenv()
+    # load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
     api_key = os.getenv("ETHERSCAN_API_KEY")
     if not api_key:
         raise ValueError("❌ API key not found. Please set ETHERSCAN_API_KEY in .env or environment.")
@@ -198,110 +198,6 @@ def decode_setApprovalForAll_input(input_hex: str) -> Tuple[str, bool]:
 
 
 
-# def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
-#     """
-#     Decode and flag each transaction:
-#     - For safeBatchTransferFrom: check unauthorized, zero_address, length_mismatch
-#     - For setApprovalForAll: decode operator and permission
-#     Returns a dataframe with extra columns.
-#     """
-#     df = pd.DataFrame(txs)
-#     df["decoded_from"] = None
-#     df["decoded_to"] = None
-#     df["decoded_ids"] = None
-#     df["decoded_amounts"] = None
-    
-#     df["unauthorized"] = False
-#     df["unauthorized_addr"] = None
-#     df["zero_address"] = False
-#     df["length_mismatch"] = False
-    
-#     df["decoded_operator"] = None
-#     df["operator_permission"] = False
-
-#     # Track all approval transactions with timestamps
-#     approvals = []  # List of (owner, operator, approved, timestamp, blockNumber)
-    
-#     # First pass: Process all setApprovalForAll transactions to build approval history
-#     for idx, row in df.iterrows():
-#         func_name = row.get("functionName", "").split("(")[0].strip()
-        
-#         if func_name == "setApprovalForAll":
-#             try:
-#                 operator_addr, perm_bool = decode_setApprovalForAll_input(row.get("input", ""))
-#                 owner_addr = row.get("from", "").lower()
-#                 operator_addr_lower = operator_addr.lower()
-#                 timestamp = int(row.get("timeStamp", 0))
-#                 block_number = int(row.get("blockNumber", 0))
-                
-#                 df.at[idx, "decoded_operator"] = operator_addr
-#                 df.at[idx, "operator_permission"] = perm_bool
-                
-#                 # Store approval for later reference
-#                 approvals.append((owner_addr, operator_addr_lower, perm_bool, timestamp, block_number))
-                
-#             except Exception as e:
-#                 print(f"Error decoding setApprovalForAll for tx {row.get('hash', 'unknown')}: {e}")
-#                 continue
-
-#     # Second pass: Process safeBatchTransferFrom transactions and check authorization
-#     for idx, row in df.iterrows():
-#         func_name = row.get("functionName", "").split("(")[0].strip()
-        
-#         if func_name == "safeBatchTransferFrom":
-#             try:
-#                 from_addr, to_addr, ids_list, amts_list = decode_safeBatchTransferFrom_input(row.get("input", ""))
-#                 df.at[idx, "decoded_from"] = from_addr
-#                 df.at[idx, "decoded_to"] = to_addr
-#                 df.at[idx, "decoded_ids"] = ids_list
-#                 df.at[idx, "decoded_amounts"] = amts_list
-                
-#                 # Check if caller is authorized
-#                 caller = row.get("from", "").lower()
-#                 from_addr = from_addr.lower()
-#                 current_timestamp = int(row.get("timeStamp", 0))
-#                 current_block = int(row.get("blockNumber", 0))
-                
-#                 if caller != from_addr:
-#                     # Check if caller was approved as operator by from_addr before this transaction
-#                     is_approved = False
-                    
-#                     # Look for approval transactions where:
-#                     # 1. Owner is the from_addr
-#                     # 2. Operator is the caller
-#                     # 3. Approved is True
-#                     # 4. Timestamp/block is before current transaction
-#                     for owner, operator, approved, timestamp, block_num in approvals:
-#                         if (
-#                             # owner == from_addr and 
-#                             operator == from_addr and 
-#                             approved and 
-#                             (timestamp < current_timestamp or 
-#                              (timestamp == current_timestamp and block_num < current_block))):
-#                             is_approved = True
-#                             break
-                    
-#                     # If not approved, flag as unauthorized
-#                     if not is_approved:
-#                         df.at[idx, "unauthorized"] = True
-#                         df.at[idx, "unauthorized_addr"] = from_addr
-                        
-#                         df.at[idx, "decoded_operator"] = operator
-#                         df.at[idx, "operator_permission"] = approved
-                
-#                 # zero address check
-#                 if to_addr == "0x0000000000000000000000000000000000000000" or to_addr == "0x000000":
-#                     df.at[idx, "zero_address"] = True
-                
-#                 # length mismatch check
-#                 if len(ids_list) != len(amts_list):
-#                     df.at[idx, "length_mismatch"] = True
-                    
-#             except Exception as e:
-#                 print(f"Error decoding safeBatchTransferFrom for tx {row.get('hash', 'unknown')}: {e}")
-#                 continue
-    
-#     return df
 
 def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     """
@@ -600,32 +496,74 @@ def analyse_txs(path: str,
         print(analysed_df.head())
         
     
-#     analysed_with_contracts = augment_with_contract_checks(analysed_df, api_key)
-    
-#    # Filter rows where either check is False
-#     false_rows = analysed_with_contracts[
-#         (~analysed_with_contracts['to_is_contract']) | 
-#         (~analysed_with_contracts['on_batch_received_impl'])
-#     ]
-    
-#     print(f"Number of false rows: {len(false_rows)}")
-#     # Display the filtered DataFrame
-#     print(false_rows[['decoded_to', 'to_is_contract', 'on_batch_received_impl']])
     
 
-#     # Save filtered results to CSV
-#     false_rows.to_csv("false_contract_checks.csv", index=False)
-#     print("✅ False results saved to false_contract_checks.csv")
 
 
-
-
+def analyse_OnReceived(path: str, annotated_csv: Optional[str]) -> None:
+    """
+    Analyze transactions for ERC1155 onERC1155BatchReceived implementation checks
+    
+    Args:
+        path: Path to CSV file containing transaction data with 'decoded_to' column
+        annotated_csv: Optional path to save annotated results
+    """
+    api_key = load_api_key()
+    
+    # Read CSV directly into DataFrame (more efficient than dict conversion)
+    df = pd.read_csv(path)
+    
+    # Check if required column exists
+    if 'decoded_to' not in df.columns:
+        print("❌ Error: 'decoded_to' column not found in the CSV file")
+        return
+    
+    print(f"📊 Loaded {len(df)} transactions from {path}")
+    
+    # Pass DataFrame directly to the analysis function
+    analysed_with_contracts = augment_with_contract_checks(df, api_key)
+    
+    # Filter rows where either check is False
+    false_rows = analysed_with_contracts[
+        (~analysed_with_contracts['to_is_contract']) | 
+        (~analysed_with_contracts['on_batch_received_impl'])
+    ]
+    
+    print(f"🔍 Number of problematic transactions: {len(false_rows)}")
+    
+    if len(false_rows) > 0:
+        # Display summary of problematic transactions
+        print("\n📋 Problematic Transactions Summary:")
+        print(false_rows[['decoded_to', 'to_is_contract', 'on_batch_received_impl']].head(10))
+        
+        if len(false_rows) > 10:
+            print(f"... and {len(false_rows) - 10} more")
+    
+    # Save results based on annotated_csv parameter
+    if annotated_csv:
+        # Save only the problematic rows to the specified annotated CSV
+        false_rows.to_csv(annotated_csv, index=False)
+        print(f"✅ Annotated results saved to {annotated_csv}")
+    else:
+        # Save to default location if no annotated_csv provided
+        false_rows.to_csv("false_contract_checks.csv", index=False)
+        print("✅ Results saved to false_contract_checks.csv")
+    
+    # Print final statistics
+    total_contracts = analysed_with_contracts['to_is_contract'].sum()
+    total_with_receiver = analysed_with_contracts['on_batch_received_impl'].sum()
+    
+    print(f"\n📈 Final Statistics:")
+    print(f"   Total transactions: {len(analysed_with_contracts)}")
+    print(f"   To contract addresses: {total_contracts}")
+    print(f"   Contracts with onERC1155BatchReceived: {total_with_receiver}")
+    print(f"   At-risk transactions: {len(false_rows)}")
 
 def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame:
     """
     For each row in a DataFrame of decoded safeBatchTransferFrom transactions,
     determine whether the 'to' address is a contract and whether it implements
-    the ERC-1155 onERC1155BatchReceived interface.  Two new boolean columns
+    the ERC-1155 onERC1155BatchReceived interface. Two new boolean columns
     are added: 'to_is_contract' and 'on_batch_received_impl'.
 
     This function uses the Etherscan API:
@@ -635,7 +573,7 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
 
     Args:
         df: A pandas DataFrame with at least a 'decoded_to' column (if present)
-            and a 'to' column (the destination address).  It may also have other
+            and a 'to' column (the destination address). It may also have other
             columns from analyse_transactions.
         api_key: Your Etherscan API key.
 
@@ -648,16 +586,19 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
 
     # Cache results per contract address to minimise API calls
     contract_cache: Dict[str, Tuple[bool, bool]] = {}
+    
+    print("🔍 Checking contract addresses via Etherscan API...")
 
     for idx, row in df.iterrows():
         # Prefer the decoded 'to' address if present; fall back to raw 'to'
-        to_addr = row.get('decoded_to') or row.get('to')
+        to_addr = row.get('decoded_to') 
+        # or row.get('to')
         if not isinstance(to_addr, str) or not to_addr.startswith('0x'):
             continue
         to_addr = to_addr.lower()
 
         # Skip the zero address
-        if to_addr == '0x0000000000000000000000000000000000000000':
+        if to_addr.startswith('0x00000000000000'):
             continue
 
         # Use cached results if we've already inspected this address
@@ -674,7 +615,8 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
             try:
                 code_resp = requests.get(code_url, timeout=10).json()
                 code_result = code_resp.get("result", "")
-            except Exception:
+            except Exception as e:
+                print(f"⚠️  Error checking code for {to_addr}: {e}")
                 code_result = ""
             is_contract = (code_result and code_result != "0x")
 
@@ -699,43 +641,50 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
                             ):
                                 has_receiver = True
                                 break
-                except Exception:
+                except Exception as e:
+                    print(f"⚠️  Error fetching ABI for {to_addr}: {e}")
                     has_receiver = False
 
             # Cache the result
             contract_cache[to_addr] = (is_contract, has_receiver)
+            
+            # Progress indicator for large datasets
+            if len(contract_cache) % 10 == 0:
+                print(f"   Checked {len(contract_cache)} unique addresses...")
 
         df.at[idx, 'to_is_contract'] = is_contract
         df.at[idx, 'on_batch_received_impl'] = has_receiver
 
+    print(f"✅ Completed checking {len(contract_cache)} unique contract addresses")
     return df
-
 def main():
     parser = argparse.ArgumentParser(
         description="Extract and analyse ERC‑1155 safeBatchTransferFrom transactions for possible exploits."
     )
     # parser.add_argument('--json', required=True,
     #                     help='Path to the JSON file containing contract metadata')
-    parser.add_argument('--csv', required=True,
-                        help='Path to the CSV file containing contract metadata')
-    parser.add_argument('--num-addresses', type=int, default=10,
-                        help='Number of addresses to process (default 10)')
-    parser.add_argument('--raw-csv', default=None,
-                        help='Optional file path to save raw transaction data')
-
-    args = parser.parse_args()
-    
-    # fetch_and_analyse(args.json, args.num_addresses, args.raw_csv, args.annotated_csv)
-    fetch_txs(args.csv, args.num_addresses, args.raw_csv)
-    
-    
-    # parser.add_argument('--tx-csv', required=True,
+    # parser.add_argument('--csv', required=True,
+    #                     help='Path to the CSV file containing contract metadata')
+    # parser.add_argument('--num-addresses', type=int, default=10,
+    #                     help='Number of addresses to process (default 10)')
+    # parser.add_argument('--raw-csv', default=None,
     #                     help='Optional file path to save raw transaction data')
-    # parser.add_argument('--annotated-csv', default=None,
-    #                     help='Optional file path to save annotated results with flags')
+
     # args = parser.parse_args()
     
+    
+    # fetch_txs(args.csv, args.num_addresses, args.raw_csv)
+    
+    
+    parser.add_argument('--tx-csv', required=True,
+                        help='Mandatory file path to save raw transaction data')
+    parser.add_argument('--annotated-csv', default=None,
+                        help='Optional file path to save annotated results with flags')
+    args = parser.parse_args()
+    
     # analyse_txs(args.tx_csv, args.annotated_csv)
+    
+    analyse_OnReceived(args.tx_csv, args.annotated_csv)
     
     
     
