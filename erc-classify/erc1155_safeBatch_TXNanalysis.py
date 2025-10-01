@@ -676,11 +676,11 @@ def main():
     # fetch_txs(args.csv, args.num_addresses, args.raw_csv)
     
     
-    parser.add_argument('--tx-csv', required=True,
-                        help='Mandatory file path to save raw transaction data')
-    parser.add_argument('--annotated-csv', default=None,
-                        help='Optional file path to save annotated results with flags')
-    args = parser.parse_args()
+    # parser.add_argument('--tx-csv', required=True,
+    #                     help='Mandatory file path to save raw transaction data')
+    # parser.add_argument('--annotated-csv', default=None,
+    #                     help='Optional file path to save annotated results with flags')
+    # args = parser.parse_args()
     
     # analyse_txs(args.tx_csv, args.annotated_csv)
     csv_OnReceived = '/home/ashok/all_bytecode_txs_analysis_V4.csv'
