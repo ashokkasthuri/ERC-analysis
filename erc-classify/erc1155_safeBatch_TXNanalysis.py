@@ -649,8 +649,8 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
             contract_cache[to_addr] = (is_contract, has_receiver)
             
             # Progress indicator for large datasets
-            if len(contract_cache) % 10 == 0:
-                print(f"   Checked {len(contract_cache)} unique addresses...")
+            # if len(contract_cache) % 10 == 0:
+            #     print(f"   Checked {len(contract_cache)} unique addresses...")
 
         df.at[idx, 'to_is_contract'] = is_contract
         df.at[idx, 'on_batch_received_impl'] = has_receiver
