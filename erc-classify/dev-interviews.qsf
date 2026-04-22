@@ -1,0 +1,1365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Survey xmlns="http://qualtrics.com/2.5/API" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="RootElement">
+  <SurveyID>SV_developer_survey</SurveyID>
+  <SurveyName>Developer Survey Questionnaire</SurveyName>
+  <SurveyDescription>Survey on developers' experiences, practices, and perspectives on ERC standards, dependencies, and security considerations in smart contract development.</SurveyDescription>
+  <SurveyEntry>
+    <Type>Root</Type>
+    <Flow>
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_background</BlockID>
+        <Description>Background and Practice</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID1</QuestionID>
+          <DataExportTag>years_experience</DataExportTag>
+          <QuestionText>How many years of experience do you have with smart contract development?</QuestionText>
+          <QuestionType>TE</QuestionType>
+          <Selector>SL</Selector>
+          <Configuration>
+            <QuestionTextOption>UseText</QuestionTextOption>
+          </Configuration>
+          <Validation>
+            <Settings>
+              <ForceResponse>ON</ForceResponse>
+              <Type>ContentType</Type>
+              <ContentType>ValidNumber</ContentType>
+            </Settings>
+          </Validation>
+        </BlockElements>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID2</QuestionID>
+          <DataExportTag>experience_rating</DataExportTag>
+          <QuestionText>On a scale of 1-5, how would you rate your experience with smart contract development?</QuestionText>
+          <QuestionType>MC</QuestionType>
+          <Selector>DL</Selector>
+          <SubSelector>TX</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>1 (Beginner)</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>2</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>3 (Intermediate)</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>4</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>5 (Expert)</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID3</QuestionID>
+          <DataExportTag>erc_frequency</DataExportTag>
+          <QuestionText>How frequently do you work with ERC standards in your projects?</QuestionText>
+          <QuestionType>MC</QuestionType>
+          <Selector>DL</Selector>
+          <SubSelector>TX</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Never</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Rarely</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Occasionally</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Frequently</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Always</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID4</QuestionID>
+          <DataExportTag>erc_standards_used</DataExportTag>
+          <QuestionText>Which ERC standards have you implemented or interacted with most frequently?</QuestionText>
+          <QuestionType>TE</QuestionType>
+          <Selector>ML</Selector>
+          <Configuration>
+            <QuestionTextOption>UseText</QuestionTextOption>
+          </Configuration>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Likert Scale Questions - Background and Practice -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_likert_background</BlockID>
+        <Description>Background and Practice (Likert Questions)</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID5</QuestionID>
+          <DataExportTag>specs_clear_doc_sufficient</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I find ERC standard specifications clear and easy to implement, and current documentation for ERC standards is sufficient for implementation.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+        
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID6</QuestionID>
+          <DataExportTag>verify_against_specs</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I regularly verify my implementations against official standard specifications.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+        
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID7</QuestionID>
+          <DataExportTag>compatibility_issues</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I encounter compatibility issues due to different interpretations or misunderstandings of ERC standards.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID8</QuestionID>
+          <DataExportTag>security_influences_choice</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;Security considerations highly influence my choice of which ERC standard to implement in a project.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID9</QuestionID>
+          <DataExportTag>security_implementations_frequency</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;How often do you use or encounter smart contract development with security-related implementations such as Signature (ECDSA), Nonce, Deadline, or DOMAIN_SEPARATOR?&lt;/div&gt;</QuestionText>
+          <QuestionType>MC</QuestionType>
+          <Selector>DL</Selector>
+          <SubSelector>TX</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Never</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Rarely</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Occasionally</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Frequently</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Always</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID10</QuestionID>
+          <DataExportTag>security_terms_difficult</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;It is very difficult to understand these security-related terms (Signature (ECDSA), Nonce, Deadline, DOMAIN_SEPARATOR) from the specification documents, and expert evaluation or automated auditing is often needed for correctness.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID11</QuestionID>
+          <DataExportTag>prefer_existing_contracts</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I prefer following an existing deployed contract when implementing ERC standards rather than re-implementing specifications manually from scratch.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID12</QuestionID>
+          <DataExportTag>targeted_analysis_important</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;It is important to conduct targeted function analysis for compliance and vulnerabilities (e.g., safeBatchTransferFrom, setApprovalForAll) instead of general smart contract issue studies.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Dependency Management and Interoperability -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_dependency_management</BlockID>
+        <Description>Dependency Management and Interoperability</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID13</QuestionID>
+          <DataExportTag>easy_discover_dependencies</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I find it easy to discover dependencies between different ERC standards considering their functional and event-level relationships.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID14</QuestionID>
+          <DataExportTag>encountered_interoperability_issues</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I have encountered interoperability issues due to missing ERC dependencies in deployed smart contracts.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID15</QuestionID>
+          <DataExportTag>test_cross_standard_compatibility</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I regularly test cross-standard compatibility in my projects.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID16</QuestionID>
+          <DataExportTag>tooling_supports_dependency_management</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;The current tooling (specification documents, utilities) adequately supports developers in ERC dependency management with clear organization of mandatory specifications.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Batch Transfer Security -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_batch_transfer_security</BlockID>
+        <Description>Batch Transfer Security</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID17</QuestionID>
+          <DataExportTag>aware_batch_transfer_risks</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I am aware that incorrect implementation of safeBatchTransferFrom may increase risks due to large token batches.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID18</QuestionID>
+          <DataExportTag>understand_batch_transfer_risks</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I understand that failing to correctly implement safeBatchTransferFrom (approval checks, array length checks, receiver interface validation) can result in tokens being locked or unrecoverable.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID19</QuestionID>
+          <DataExportTag>consider_delegated_approvals_valid</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;If an owner grants approval to an operator using setApprovalForAll, and that operator delegates secondary or tertiary approvals to others, I consider such approvals valid and authentic.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID20</QuestionID>
+          <DataExportTag>familiar_phishing_risks</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I am familiar with phishing risks associated with setApprovalForAll, where malicious actors can exploit broad approvals.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID21</QuestionID>
+          <DataExportTag>spec_should_address_approval_duration</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I believe the current setApprovalForAll specification in ERC-721/1155 should address approval duration and secondary approval validity at the protocol level.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID22</QuestionID>
+          <DataExportTag>expiry_mechanisms_effective</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;Introducing expiry mechanisms (e.g., approveForAll(operator, expiryTimestamp)) would effectively mitigate approval-related risks.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID23</QuestionID>
+          <DataExportTag>aware_receiver_hooks</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I am aware that to safely receive tokens, a contract must implement receiver hooks such as tokensReceived, onERC1155BatchReceived, or onTransferReceived.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID24</QuestionID>
+          <DataExportTag>aware_reentrancy_risks</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I am aware that receiver hooks can introduce reentrancy vulnerabilities and must follow the checks–effects–interactions pattern.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID25</QuestionID>
+          <DataExportTag>ensure_receiver_interface</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I ensure the required receiver interface is implemented before deployment.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID26</QuestionID>
+          <DataExportTag>test_receiver_hooks</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I test receiver hook implementations using fuzzers or invariants to simulate malicious behaviors.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID27</QuestionID>
+          <DataExportTag>developer_responsibility_safeguards</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;Smart contract developers (e.g., marketplaces, wallets) have a responsibility to include safeguards (reverts, safe callbacks) to protect users.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID28</QuestionID>
+          <DataExportTag>security_over_gas_optimization</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I prioritize security compliance over gas optimization in standard implementations.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Cross-Chain Security -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_cross_chain_security</BlockID>
+        <Description>Cross-Chain Security</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID29</QuestionID>
+          <DataExportTag>deployed_cross_chain</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I have deployed ERC-based smart contracts across multiple EVM-compatible chains (e.g., Ethereum, BSC, Polygon, Avalanche).&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID30</QuestionID>
+          <DataExportTag>erc_consistent_across_chains</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;ERC standards (e.g., ERC-20, ERC-721) behave consistently across EVM-compatible chains without requiring modifications.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID31</QuestionID>
+          <DataExportTag>consider_cross_chain_security</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I consider cross-chain security implications (e.g., chain ID inclusion in signatures, replay prevention) when designing ERC-based contracts.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Ranking Question -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_ranking</BlockID>
+        <Description>Tooling and Ecosystem</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID32</QuestionID>
+          <DataExportTag>improvements_ranking</DataExportTag>
+          <QuestionText>Please rank the following potential improvements by importance (1 = Most important, 5 = Least important):</QuestionText>
+          <QuestionType>RankOrder</QuestionType>
+          <Selector>DL</Selector>
+          <SubSelector>TX</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Better static code analysis tools</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Improved documentation</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Standardized test suites</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Dependency mapping tools</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Security auditing frameworks</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Tooling and Ecosystem Likert Questions -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_tooling_ecosystem</BlockID>
+        <Description>Tooling and Ecosystem (Continued)</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID33</QuestionID>
+          <DataExportTag>benefit_automated_compliance</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I would benefit from automated ERC compliance checking tools.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID34</QuestionID>
+          <DataExportTag>standardized_implementations_helpful</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;Standardized reference implementations would improve my development process.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID35</QuestionID>
+          <DataExportTag>need_better_dependency_tools</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I need better tools for managing ERC standard dependencies.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID36</QuestionID>
+          <DataExportTag>standardization_meets_needs</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;The current ERC standardization process meets developer needs.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID37</QuestionID>
+          <DataExportTag>growing_standards_difficult</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;The growing number of ERC standards makes smart contract development more difficult due to fragmentation.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID38</QuestionID>
+          <DataExportTag>niche_standards_valuable</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;Niche ERC standards (e.g., NFT rentals, royalty management) provide valuable functionality that justifies their complexity.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+
+      <!-- Future Outlook and Adaptation -->
+      <FlowElement>
+        <Type>Block</Type>
+        <BlockID>BL_future_outlook</BlockID>
+        <Description>Future Outlook and Adaptation</Description>
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID39</QuestionID>
+          <DataExportTag>confident_adopting_new_standards</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I am confident in adopting new ERC standards quickly.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID40</QuestionID>
+          <DataExportTag>pace_development_appropriate</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;The current pace of ERC standard development is appropriate.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID41</QuestionID>
+          <DataExportTag>value_specialized_standards</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;I see value in more specialized ERC standards for specific use cases.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+
+        <BlockElements>
+          <Type>Question</Type>
+          <QuestionID>QID42</QuestionID>
+          <DataExportTag>evolving_developer_friendly</DataExportTag>
+          <QuestionText>&lt;div style='text-align: left;'&gt;The ERC ecosystem is evolving in a developer-friendly direction.&lt;/div&gt;</QuestionText>
+          <QuestionType>Matrix</QuestionType>
+          <Selector>Likert</Selector>
+          <SubSelector>SingleAnswer</SubSelector>
+          <Choices>
+            <Choice>
+              <ChoiceID>1</ChoiceID>
+              <Description>Strongly Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>2</ChoiceID>
+              <Description>Disagree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>3</ChoiceID>
+              <Description>Neutral</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>4</ChoiceID>
+              <Description>Agree</Description>
+            </Choice>
+            <Choice>
+              <ChoiceID>5</ChoiceID>
+              <Description>Strongly Agree</Description>
+            </Choice>
+          </Choices>
+        </BlockElements>
+      </BlockElement>
+    </Flow>
+  </SurveyEntry>
+</Survey>

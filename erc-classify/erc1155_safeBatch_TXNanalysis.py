@@ -19,8 +19,14 @@ import json
 import argparse
 import requests
 import pandas as pd
+import time
 from dotenv import load_dotenv
 from typing import List, Tuple, Dict, Any, Optional
+import traceback
+# Add at top of file after imports
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 
@@ -33,8 +39,8 @@ def load_api_key() -> str:
     Load ETHERSCAN_API_KEY from .env or environment.
     Raises ValueError if the key isn't found.
     """
-    # load_dotenv()
-    load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+    load_dotenv()
+    # load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
     api_key = os.getenv("ETHERSCAN_API_KEY")
     if not api_key:
         raise ValueError("❌ API key not found. Please set ETHERSCAN_API_KEY in .env or environment.")
@@ -100,7 +106,17 @@ def extract_addresses_from_csv(csv_path: str, max_addresses: int) -> List[str]:
         original_bytecode_str = str(row.get("bytecode", ""))
         erc_type = str(row.get("ERC", ""))
         # if "2eb2c2d6" in original_bytecode_str:
-        if erc_type == "ERC-721" and "b88d4fde" in original_bytecode_str:
+        
+        # dd62ed3e-allowance
+        # 095ea7b3-approve
+        # 081812fc-getApproved
+        # a22cb465-setApprovalForAll
+        # e985e9c5-isApprovedForAll
+        # 2eb2c2d6-SafeBAtchTransferFrom
+        
+        
+        # if erc_type == "ERC-721" and "b88d4fde" in original_bytecode_str:
+        if  "dd62ed3e" and "095ea7b3" in  original_bytecode_str:
             address = row.get("address")
             if address:
                 addresses.append(address)
@@ -109,37 +125,30 @@ def extract_addresses_from_csv(csv_path: str, max_addresses: int) -> List[str]:
     
     return addresses
 
-def get_safeBatchTransferFrom_and_setApprovalForAll_txs(address: str, api_key: str,
-                                  start_block: int = 0,
-                                  end_block: int = 99999999,
-                                  sort: str = "asc") -> List[Dict[str, Any]]:
+def decode_transferFrom_input(input_hex: str) -> Tuple[str, str, int]:
     """
-    Fetch all transactions for a contract from Etherscan, then filter
-    to those whose functionName is 'safeBatchTransferFrom'.
+    Decode the calldata for transferFrom: (from, to, value).
+    Raises ValueError if the payload is malformed.
     """
-    url = (
-        "https://api.etherscan.io/api"
-        f"?module=account&action=txlist"
-        f"&address={address}"
-        f"&startblock={start_block}"
-        f"&endblock={end_block}"
-        f"&sort={sort}"
-        f"&apikey={api_key}"
-    )
-    try:
-        resp = requests.get(url, timeout=10)
-        data = resp.json()
-        if data.get("status") == "1" and data.get("result"):
-            # target_functions = {"safeBatchTransferFrom", "setApprovalForAll"}
-            target_functions = {"safeTransferFrom"}
-            return [
-                tx for tx in data["result"]
-                if tx.get("functionName", "").split("(")[0].strip() in target_functions
-            ]
-        return []
-    except Exception as e:
-        print(f"❌ Error fetching txs for {address}: {e}")
-        return []
+    data = input_hex[2:] if input_hex.startswith("0x") else input_hex
+    if len(data) < 8 + 64 * 3:  # 4 bytes selector + 3 parameters * 32 bytes
+        raise ValueError("Input too short")
+    
+    params_hex = data[8:]  # Skip the 4-byte function selector
+    
+    # Extract the three 32-byte (64 hex chars) parameters
+    from_word = params_hex[0:64]
+    to_word   = params_hex[64:128]
+    value_word = params_hex[128:192]
+    
+    # Convert to addresses (last 40 hex chars of each 32-byte word)
+    from_addr = "0x" + from_word[-40:]
+    to_addr   = "0x" + to_word[-40:]
+    
+    # Convert value from hex to integer
+    value = int(value_word, 16)
+    
+    return from_addr, to_addr, value
 
 def decode_safeBatchTransferFrom_input(input_hex: str) -> Tuple[str, str, List[int], List[int]]:
     """
@@ -197,7 +206,33 @@ def decode_setApprovalForAll_input(input_hex: str) -> Tuple[str, bool]:
     return operator_addr, approved_value
 
 
+def decode_approve_input(input_hex: str) -> Tuple[str, bool]:
+    """
+    Decode the calldata for approve: (spender, money).
+    Raises ValueError if the payload is malformed.
+    """
+    # Remove '0x' prefix if present
+    data = input_hex[2:] if input_hex.startswith("0x") else input_hex
+    
+    # Check minimum length (function selector + 2 parameters of 32 bytes each)
+    if len(data) < 8 + 64 * 2:
+        raise ValueError("Input too short")
+    
+    # Skip function selector (first 4 bytes/8 hex characters)
+    params_hex = data[8:]
+    
+    # Extract spender (address)
+    spender_word = params_hex[0:64]
+    spender_addr = "0x" + spender_word[-40:]
+    
+    # Extract approved (value)
+    money_value_word = params_hex[64:128]
+    approved_value = int(money_value_word, 16) != 0  # Convert to boolean
+    
+    return spender_addr, approved_value
 
+
+  
 
 def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
     """
@@ -426,79 +461,625 @@ def analyse_transactions(txs: List[Dict[str, Any]]) -> pd.DataFrame:
             except Exception as e:
                 print(f"Error decoding safeBatchTransferFrom for tx {row.get('hash', 'unknown')}: {e}")
                 continue
+    
+    
     print(f"callerCount is {callerCount}")
     print(f"operatorCount is {operatorCount}")
     return df
 
 
-# ---------------------------------------------------------------------
-# High‑level orchestration
-# ---------------------------------------------------------------------
+def analyse_approve_txs(txs: List[Dict[str, Any]]) -> pd.DataFrame:
+    df = pd.DataFrame(txs)
+    
+    df["decoded_spender"] = None
+    df["money_to_spend"] = None
+    df["spender_permission"] = False
+    df["spender_provides_further_approvals"] = False
+    df["secondary_approvals_count"] = 0
+    
+    approvals = [] # (owner, spender, money_to_spend, timestamp, block, idx)
+    
+    for idx, row in df.iterrows():
+        func_name = row.get("functionName", "").split("(")[0].strip()
+        
+        if func_name == "approve":
+            try:
+                spender_addr, money_to_spend = decode_approve_input(row.get("input", ""))
+                owner_addr = row.get("from", "").lower()
+                spender_addr_lower = spender_addr.lower()
+                timestamp = int(row.get("timeStamp", 0))
+                block_number = int(row.get("blockNumber", 0))
+                tx_hash = row.get("hash", "").lower()
+                
+                df.at[idx, "decoded_spender"] = spender_addr
+                df.at[idx, "money_to_spend"] = money_to_spend
+                df.at[idx, "tx_hash"] = tx_hash
+                
+                if owner_addr != spender_addr_lower :
+                    approvals.append((owner_addr, spender_addr_lower, money_to_spend, timestamp, block_number, idx))
+                
+            except Exception as e:
+                print(f"Error decoding approve for tx {row.get('hash', 'unknown')}: {e}")
+                continue
 
-def fetch_txs(path: str,
-                      max_addresses: int,
-                      raw_csv: Optional[str],
-                      ) -> None:
+    print(f"approvals total length : {len(approvals)}")
+    
+    def check_spender_approval_chain(spender_addr, current_timestamp, current_block, max_depth=2, current_depth=1):
+        if current_depth > max_depth:
+            return []
+        
+        chain_approvals = []
+        sorted_approvals = sorted(approvals, key=lambda x: (x[3], x[4]))
+        
+        # for owner, spender, approved, timestamp, block_num, tx_idx in sorted_approvals:
+        for owner, spender, money_to_spend, timestamp, block_num, tx_idx in sorted_approvals:
+            if (owner.lower() == spender_addr.lower() and 
+                (timestamp > current_timestamp or 
+                (timestamp == current_timestamp and block_num > current_block)) and
+                money_to_spend):
+                
+                chain_approvals.append((current_depth, spender, money_to_spend, timestamp, block_num, tx_idx))
+                
+                deeper_approvals = check_spender_approval_chain(
+                    spender, timestamp, block_num, max_depth, current_depth + 1
+                )
+                chain_approvals.extend(deeper_approvals)
+        
+        return chain_approvals
+
+    for owner_addr, spender_addr, money_to_spend, timestamp, block_number, tx_idx in approvals:
+        if money_to_spend:
+            approval_chain = check_spender_approval_chain(
+                spender_addr, timestamp, block_number, max_depth=5
+            )
+            
+            if approval_chain:
+                df.at[tx_idx, "spender_provides_further_approvals"] = True
+                df.at[tx_idx, "current_owner_was_spender"] = owner_addr
+                # df.at[tx_idx, "current_owner_was_spender"] = owner_addr
+                
+                level_counts = {}
+                for depth, spender, approved, ts, block_num, chain_tx_idx in approval_chain:
+                    level_counts[depth] = level_counts.get(depth, 0) + 1
+                
+                df.at[tx_idx, "secondary_approvals_count"] = len(approval_chain)
+                df.at[tx_idx, "total_chain_approvals"] = len(approval_chain)
+                df.at[tx_idx, "approval_chain_depth"] = max(level_counts.keys()) if level_counts else 0
+                
+                for depth in range(1, 6):
+                    df.at[tx_idx, f"level_{depth}_approvals"] = level_counts.get(depth, 0)
+                
+                chain_details = [f"L{depth}:{spender}@{ts}" for depth, spender, _, ts, _, _ in approval_chain]
+                df.at[tx_idx, "approval_chain_details"] = ";".join(chain_details)
+    
+    
+     # Second pass: Process safeBatchTransferFrom transactions and check authorization
+    
+    return df
+  
+def analyse_ownTransfer_by_caller(txs: List[Dict[str, Any]]) -> pd.DataFrame:
+    df = pd.DataFrame(txs)
+    df["own_transfer"] = None
+    
+    for idx, row in df.iterrows():
+        func_name = row.get("functionName", "").split("(")[0].strip()
+        
+        if func_name == "transferFrom":
+            try:
+                from_addr, to_addr, amts_list = decode_transferFrom_input(row.get("input", ""))
+                df.at[idx, "decoded_from"] = from_addr
+                df.at[idx, "decoded_to"] = to_addr
+                df.at[idx, "decoded_amounts"] = amts_list
+                
+                # Check if caller is authorized
+                caller = row.get("from", "").lower()
+                from_addr = from_addr.lower()
+                to_addr = to_addr.lower()
+                current_timestamp = int(row.get("timeStamp", 0))
+                current_block = int(row.get("blockNumber", 0))
+                
+                if caller == to_addr:
+                    df.at[idx, "own_transfer_caller_address"] = caller
+                    df.at[idx, "own_transfer_to_address"] = to_addr
+  
+            except Exception as e:
+                print(f"Error decoding transferFrom for tx {row.get('hash', 'unknown')}: {e}")
+                continue
+    return df
+
+
+
+def get_transferFrom_txs(address: str, api_key: str,
+                                # start_block: int = 0,
+                                start_block: int = 19000000,
+                                end_block: int = 99999999,
+                                sort: str = "asc",
+                                chainid: int = 1) -> tuple:
     """
-    Extract addresses, fetch their safeBatchTransferFrom transactions,
+    Fetch transactions AND events for a contract.
+    Returns (transactions, events)
+    """
+    # Get transactions
+    all_transactions = []
+    page = 1
+    offset = 10000
+    target_functions = {"approve"}
+    function_method_id="0x95EA7B3"
+    
+    # Create session BEFORE while loops (in get_transactions_and_events function)
+    session = requests.Session()
+    retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+    
+    while True:
+        url = (
+            "https://api.etherscan.io/v2/api"
+            f"?chainid={chainid}"
+            f"&module=account&action=txlist"
+            f"&address={address}"
+            f"&startblock={start_block}"
+            f"&endblock={end_block}"
+            
+            # f"&startblock={14716956}"
+            # f"&endblock={24718534}"
+            f"&page={page}"
+            f"&offset={offset}"
+            f"&sort={sort}"
+            f"&apikey={api_key}"
+        )
+        
+        try:
+            # resp = session.get(url, timeout=30)
+            resp = requests.get(url, timeout=30)
+            data = resp.json()
+            # print(f"DEBUG: data keys: {data.keys()}")
+            # print(f"DEBUG: data status: {data.get('status')}")
+            # print(f"DEBUG: data result type: {type(data.get('result'))}")
+            # print(f"DEBUG: data result value: {data.get('result')}")
+            
+            if data.get("status") == "0":
+                error_msg = data.get("result", "Unknown error")
+                if error_msg and "No transactions found" in error_msg:
+                    break
+                print(f"⚠️ Tx API Error: {error_msg}")
+                break
+            
+            result = data.get("result")
+            if result is None:
+                print("DEBUG: result is None, breaking")
+                break
+                
+            if not isinstance(result, list):
+                print(f"DEBUG: result is not a list, it's {type(result)}")
+                break
+                
+            
+            filtered = []
+            for idx, tx in enumerate(result):
+                # print(f"DEBUG: tx {idx} type: {type(tx)}")
+                if tx is None:
+                    print(f"DEBUG: tx {idx} is None, skipping")
+                    continue
+                method_id = tx.get("methodId", "")
+                # print(f"DEBUG: tx {idx} methodId='{method_id}'")
+                # if method_id.lower() == "0x095ea7b3":
+                if method_id.lower() == "0x23b872dd":
+                    filtered.append(tx)
+            
+            all_transactions.extend(filtered)
+                
+            if len(data["result"]) < offset:
+                break
+            page += 1
+            time.sleep(0.2)
+            # else:
+            #     break
+        except requests.exceptions.Timeout:
+            print(f"⚠️ Timeout, retrying...")
+            time.sleep(2)
+            continue
+        except Exception as e:
+            print(f"❌ Error fetching txs: {e}")
+            traceback.print_exc()
+            break
+    return all_transactions
+
+def get_transactions_and_events(address: str, api_key: str,
+                                # start_block: int = 0,
+                                start_block: int = 19000000,
+                                end_block: int = 99999999,
+                                sort: str = "asc",
+                                chainid: int = 1) -> tuple:
+    """
+    Fetch transactions AND events for a contract.
+    Returns (transactions, events)
+    """
+    # Get transactions
+    all_transactions = []
+    page = 1
+    offset = 10000
+    target_functions = {"approve"}
+    function_method_id="0x95EA7B3"
+    
+    # Create session BEFORE while loops (in get_transactions_and_events function)
+    session = requests.Session()
+    retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+    
+    while True:
+        url = (
+            "https://api.etherscan.io/v2/api"
+            f"?chainid={chainid}"
+            f"&module=account&action=txlist"
+            f"&address={address}"
+            f"&startblock={start_block}"
+            f"&endblock={end_block}"
+            
+            # f"&startblock={14716956}"
+            # f"&endblock={24718534}"
+            f"&page={page}"
+            f"&offset={offset}"
+            f"&sort={sort}"
+            f"&apikey={api_key}"
+        )
+        
+        try:
+            # resp = session.get(url, timeout=30)
+            resp = requests.get(url, timeout=30)
+            data = resp.json()
+            # print(f"DEBUG: data keys: {data.keys()}")
+            # print(f"DEBUG: data status: {data.get('status')}")
+            # print(f"DEBUG: data result type: {type(data.get('result'))}")
+            # print(f"DEBUG: data result value: {data.get('result')}")
+            
+            if data.get("status") == "0":
+                error_msg = data.get("result", "Unknown error")
+                if error_msg and "No transactions found" in error_msg:
+                    break
+                print(f"⚠️ Tx API Error: {error_msg}")
+                break
+            
+            result = data.get("result")
+            if result is None:
+                print("DEBUG: result is None, breaking")
+                break
+                
+            if not isinstance(result, list):
+                print(f"DEBUG: result is not a list, it's {type(result)}")
+                break
+                
+            # print(f"DEBUG: result length: {len(result)}")
+            
+            
+                
+            # if data.get("result") is not None and isinstance(data["result"], list):
+            
+            # filtered = [
+            #     tx for tx in data["result"]
+            #     if (tx.get("functionName", "").split("(")[0].strip() in target_functions)  # ✅ Fixed
+            # ]
+            # all_transactions.extend(filtered)
+            
+            filtered = []
+            for idx, tx in enumerate(result):
+                # print(f"DEBUG: tx {idx} type: {type(tx)}")
+                if tx is None:
+                    print(f"DEBUG: tx {idx} is None, skipping")
+                    continue
+                method_id = tx.get("methodId", "")
+                # print(f"DEBUG: tx {idx} methodId='{method_id}'")
+                if method_id.lower() == "0x095ea7b3":
+                    filtered.append(tx)
+            
+            all_transactions.extend(filtered)
+                
+            if len(data["result"]) < offset:
+                break
+            page += 1
+            time.sleep(0.2)
+            # else:
+            #     break
+        except requests.exceptions.Timeout:
+            print(f"⚠️ Timeout, retrying...")
+            time.sleep(2)
+            continue
+        except Exception as e:
+            print(f"❌ Error fetching txs: {e}")
+            traceback.print_exc()
+            break
+    
+    # Get events (separate call, not in same loop)
+    all_events = []
+    page = 1
+    offset = 1000
+    
+    # Topic hash for Approval event: keccak256("Approval(address,address,uint256)")
+    approval_topic = "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+    
+    while True:
+        events_url = (
+            "https://api.etherscan.io/v2/api"
+            f"?chainid={chainid}"
+            f"&module=logs&action=getLogs"
+            f"&address={address}"
+            f"&fromBlock={start_block}"
+            f"&toBlock={end_block}"
+            # f"&startblock={14716956}"
+            # f"&endblock={24718534}"
+            f"&topic0={approval_topic}"  # Filter by Approval event signature
+            f"&page={page}"
+            f"&offset={offset}"
+            f"&apikey={api_key}"
+        )
+        
+        try:
+            # resp = session.get(url, timeout=30)
+            resp = requests.get(events_url, timeout=30)
+            data = resp.json()
+            
+            if data.get("status") == "0":
+                error_msg = data.get("result", "Unknown error")
+                if error_msg and "No transactions found" in error_msg:
+                    break
+                print(f"⚠️ Events API Error: {error_msg}")
+                break
+            
+            result = data.get("result")
+            if result is None:
+                print("DEBUG: result is None, breaking")
+                break
+                
+            if not isinstance(result, list):
+                print(f"DEBUG: result is not a list, it's {type(result)}")
+                break
+            
+            # if data.get("result") is not None and isinstance(data["result"], list):
+                # All events returned are already Approval events due to topic0 filter
+            all_events.extend(result)
+            
+            if len(result) < offset:
+                break
+            page += 1
+            time.sleep(0.2)
+            # else:
+            #     break
+        except requests.exceptions.Timeout:
+            print(f"⚠️ Timeout, retrying...")
+            time.sleep(2)
+            continue
+        except Exception as e:
+            print(f"❌ Error fetching events: {e}")
+            break
+    
+    # print(f"Found {len(all_transactions)} matching transactions")
+    # print(f"Found {len(all_events)} matching Approval events")
+    if len(all_transactions) != len(all_events):
+        print(f"Found {len(all_transactions)} txs and {len(all_events)} events - Risky contracts here :{address}")
+    
+    return all_transactions, all_events
+
+
+def fetch_txs_temp(path: str, max_addresses: int, raw_csv: Optional[str] = None) -> None:
+    api_key = load_api_key()
+    addresses = extract_addresses_from_csv(path, max_addresses)
+    print(f"📄 Extracted {len(addresses)} addresses with approve/allowance patterns from {path}")
+    
+    all_txs = []
+    all_events = []
+    risky_txs = []
+    
+    # Add ThreadPoolExecutor
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+    def fetch_one_address(addr):
+        txs, events = get_transactions_and_events(addr, api_key)
+        return addr, txs, events
+    
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(fetch_one_address, addr): addr for addr in addresses}
+        
+        for future in as_completed(futures):
+            addr, txs, events = future.result()
+            
+            if txs and events:
+                event_tx_hashes = {event.get("transactionHash") for event in events if event.get("transactionHash")}
+            else:
+                event_tx_hashes = set()
+            
+            for tx in txs:
+                tx["contract_address"] = addr
+                tx["record_type"] = "transaction"
+                tx["total_approval_calls"] = len(txs)
+                tx["total_event_calls"] = len(events)
+                
+                tx_hash = tx.get("hash")
+                if tx_hash not in event_tx_hashes:
+                    tx["risky_contract_address"] = addr
+                    tx["is_risky"] = True
+                    risky_txs.append(tx)
+                else:
+                    tx["is_risky"] = False
+            
+            all_txs.extend(txs)
+            all_events.extend(events)
+            
+            print(f"  {addr}: {len(txs)} approve txs, {len(events)} Approval events, "
+                  f"{len([tx for tx in txs if tx.get('hash') not in event_tx_hashes])} risky")
+    
+    # Save to CSV
+    if raw_csv and all_txs:
+        pd.DataFrame(all_txs).to_csv(raw_csv, index=False)
+        print(f"💾 Saved {len(all_txs)} transactions to {raw_csv}")
+        print(f"⚠️ Found {len(risky_txs)} risky transactions")
+
+def fetch_transferFrom_txs(path: str,
+              max_addresses: int,
+              raw_csv: Optional[str] = None,
+              ) -> None:
+    """
+    Extract addresses, fetch their transactions and Approval events,
     save raw and annotated results, and print a summary.
     """
+    
     api_key = load_api_key()
-    # addresses = extract_addresses_from_json(json_path, max_addresses)
-    addresses = extract_addresses_from_csv(path, max_addresses)
-    print(f"📄 Extracted {len(addresses)} addresses from {path}")
+    df = pd.read_csv(path)
+    addresses = []
+    
+    for idx, row in df.iterrows():
+        
+        address = row.get("contract_address")
+        
+        if address:
+            addresses.append(address)
+            if len(addresses) >= max_addresses:
+                break
+    
+    
+    # addresses = extract_addresses_from_csv(path, max_addresses)
+    print(f"📄 Extracted {len(addresses)} addresses with transferFrom patterns from {path}")
 
     all_txs = []
+    risky_txs = []  # Transactions without matching events
+    
+    
+    # for addr in addresses:
     for addr in addresses:
-        # print(f"🔍 Fetching safeBatchTransferFrom transactions for {addr}…")
-        txs = get_safeBatchTransferFrom_and_setApprovalForAll_txs(addr, api_key)
+        txs = get_transferFrom_txs(addr, api_key)
+        
+        all_txs.extend(txs)
+        
+        print(f"  {addr}: {len(txs)} transferFrom txs")
+
+    # Combine all data into one DataFrame
+    combined_data = []
+    combined_data.extend(all_txs)
+    # combined_data.extend(all_events)
+    
+    
+    # Save to single CSV
+    if raw_csv and combined_data:
+        pd.DataFrame(combined_data).to_csv(raw_csv, index=False)
+        print(f"💾 Saved {len(all_txs)} transactions and events to {raw_csv}")
+        
+
+
+def fetch_txs(path: str,
+              max_addresses: int,
+              raw_csv: Optional[str] = None,
+              ) -> None:
+    """
+    Extract addresses, fetch their transactions and Approval events,
+    save raw and annotated results, and print a summary.
+    """
+    
+    api_key = load_api_key()
+    addresses = extract_addresses_from_csv(path, max_addresses)
+    print(f"📄 Extracted {len(addresses)} addresses with approve/allowance patterns from {path}")
+    
+    high_risk_spenders = [
+    "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",  # Uniswap V2
+    "0xdef1c0ded9bec7f1a1670819833240f027b25eff",  # 0x Exchange
+    "0x000000000022d473030f116ddee9f6b43ac78ba3"   # Multisig
+    ]
+
+    all_txs = []
+    all_events = []
+    risky_txs = []  # Transactions without matching events
+    
+    
+    # for addr in addresses:
+    for addr in addresses:
+        txs, events = get_transactions_and_events(addr, api_key)
+        txs, events = get_transactions_and_events(addr, api_key)
+        
+        # Create a set of transaction hashes that have Approval events
+        # event_tx_hashes = {event.get("transactionHash") for event in events if event.get("transactionHash")}
+        if txs and events:  # Add this check before creating event_tx_hashes
+            event_tx_hashes = {event.get("transactionHash") for event in events if event.get("transactionHash")}
+        else:
+            event_tx_hashes = set()
+        
+        # Add contract address and check if transaction has matching event
         for tx in txs:
             tx["contract_address"] = addr
-        all_txs.extend(txs)
-
-    print(f"✅ Fetched {len(all_txs)} transactions across all addresses")
-
-    if raw_csv:
-        pd.DataFrame(all_txs).to_csv(raw_csv, index=False)
-        print(f"💾 Raw transactions saved to {raw_csv}")
-
-def analyse_txs(path: str,
-                      annotated_csv: Optional[str]) -> None:
-    # analysed_df = analyse_transactions(all_txs)
-    df = pd.read_csv(path)
-    
-    # Convert to list of dictionaries (same format as original all_txs)
-    all_txs = df.to_dict('records')
-    
-    analysed_df = analyse_transactions(all_txs)
-    # Summarise issues
-    summary = analysed_df[['unauthorized', 'zero_address', 'length_mismatch']].sum()
-    print("\nSummary of flagged issues:")
-    print(summary)
-
-    # Print contract addresses for each flag
-    if analysed_df['unauthorized'].any():
-        unauthorized_contracts = analysed_df.loc[analysed_df['unauthorized'], 'contract_address'].unique()
-        print("Contracts with unauthorized transfers:", len(list(unauthorized_contracts)))
-        print("Contracts with unauthorized transfers:", list(unauthorized_contracts))
-    if analysed_df['zero_address'].any():
-        zero_addr_contracts = analysed_df.loc[analysed_df['zero_address'], 'contract_address'].unique()
-        print("Contracts with zero‑address transfers:", list(zero_addr_contracts))
-    if analysed_df['length_mismatch'].any():
-        mismatch_contracts = analysed_df.loc[analysed_df['length_mismatch'], 'contract_address'].unique()
-        print("Contracts with length‑mismatch issues:", list(mismatch_contracts))
-
-    if annotated_csv:
-        analysed_df.to_csv(annotated_csv, index=False)
-        print(f"💾 Annotated results saved to {annotated_csv}")
-    else:
-        print("\nPreview of annotated data (first 5 rows):")
-        print(analysed_df.head())
+            tx["record_type"] = "transaction"  # Mark as transaction
+            tx["total_approval_calls"] = len(txs)
+            tx["total_event_calls"] = len(events)
+            
+            # Check if this transaction has an Approval event
+            tx_hash = tx.get("hash")
+            if tx_hash not in event_tx_hashes:
+                tx["risky_contract_address"] = addr  # Mark as risky
+                tx["is_risky"] = True
+                risky_txs.append(tx)
+            else:
+                tx["is_risky"] = False
         
+        all_txs.extend(txs)
+        
+        # Add contract address to events
+        # for event in events:
+            # event["events_contract_address"] = addr
+            # event["record_type"] = "event"  # Mark as event
+        
+        
+        all_events.extend(events)
+        
+        print(f"  {addr}: {len(txs)} approve txs, {len(events)} Approval events, "
+              f"{len([tx for tx in txs if tx.get('hash') not in event_tx_hashes])} risky")
+
+    # Combine all data into one DataFrame
+    combined_data = []
+    combined_data.extend(all_txs)
+    # combined_data.extend(all_events)
     
     
-
-
+    # Save to single CSV
+    if raw_csv and combined_data:
+        pd.DataFrame(combined_data).to_csv(raw_csv, index=False)
+        print(f"💾 Saved {len(all_txs)} transactions and {len(all_events)} events to {raw_csv}")
+        print(f"⚠️ Found {len(risky_txs)} risky transactions (included in file)")
+    
+def check_csv_columns(csv_path: str):
+    """Add ERC type columns based on bytecode signatures"""
+    df = pd.read_csv(csv_path)
+    
+    # dd62ed3e-allowance
+        # 095ea7b3-approve
+        # 081812fc-getApproved
+        # a22cb465-setApprovalForAll
+        # e985e9c5-isApprovedForAll
+        # 2eb2c2d6-SafeBAtchTransferFrom
+        # b88d4fde-SafeTransferFrom with data
+        # 42842e0e-SafeTransferFrom
+    
+    # Initialize new columns
+    df['ERC-20'] = False
+    df['ERC-721'] = False
+    df['ERC-1155'] = False
+    
+    for idx, row in df.iterrows():
+        bytecode = str(row.get("bytecode", ""))
+        
+        # ERC-20: has approve and allowance
+        if "095ea7b3" in bytecode and "dd62ed3e" in bytecode:
+            df.at[idx, 'ERC-20'] = True
+        
+        # ERC-721: has setApprovalForAll and safeTransferFrom variants
+        if "a22cb465" in bytecode and "b88d4fde" in bytecode and "42842e0e" in bytecode:
+            df.at[idx, 'ERC-721'] = True
+        
+        # ERC-1155: has setApprovalForAll and safeBatchTransferFrom
+        if "a22cb465" in bytecode and "2eb2c2d6" in bytecode:
+            df.at[idx, 'ERC-1155'] = True
+    
+    # Print counts
+    print(f"📊 Total rows: {len(df)}")
+    print(f"  ERC-20: {df['ERC-20'].sum()}")
+    print(f"  ERC-721: {df['ERC-721'].sum()}")
+    print(f"  ERC-1155: {df['ERC-1155'].sum()}")
+    
+    return df
 
 def analyse_OnReceived(path: str, annotated_csv: Optional[str]) -> None:
     """
@@ -522,6 +1103,21 @@ def analyse_OnReceived(path: str, annotated_csv: Optional[str]) -> None:
     
     # Pass DataFrame directly to the analysis function
     analysed_with_contracts = augment_with_contract_checks(df, api_key)
+    
+    if analysed_with_contracts['to_is_contract'].dtype == 'object':
+        analysed_with_contracts['to_is_contract'] = analysed_with_contracts['to_is_contract'].astype(bool)
+    if analysed_with_contracts['on_batch_received_impl'].dtype == 'object':
+        analysed_with_contracts['on_batch_received_impl'] = analysed_with_contracts['on_batch_received_impl'].astype(bool)
+    
+    # Debug: Check what's in your columns
+    # print("Column dtypes:")
+    # print(analysed_with_contracts.dtypes)
+
+    print("Sample values:")
+    print(analysed_with_contracts[['to_is_contract', 'on_batch_received_impl']].head())
+
+    print("Unique values in to_is_contract:")
+    print(analysed_with_contracts['to_is_contract'].unique())
     
     # Filter rows where either check is False
     false_rows = analysed_with_contracts[
@@ -583,6 +1179,7 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
     # Prepare new columns
     df['to_is_contract'] = False
     df['on_batch_received_impl'] = False
+    df['to_address_zero'] = False
 
     # Cache results per contract address to minimise API calls
     contract_cache: Dict[str, Tuple[bool, bool]] = {}
@@ -591,14 +1188,14 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
 
     for idx, row in df.iterrows():
         # Prefer the decoded 'to' address if present; fall back to raw 'to'
-        to_addr = row.get('decoded_to') 
-        # or row.get('to')
+        to_addr = row.get('decoded_to') or row.get('to')
         if not isinstance(to_addr, str) or not to_addr.startswith('0x'):
             continue
         to_addr = to_addr.lower()
 
         # Skip the zero address
         if to_addr.startswith('0x00000000000000'):
+            df['to_address_zero'] = True
             continue
 
         # Use cached results if we've already inspected this address
@@ -657,6 +1254,8 @@ def augment_with_contract_checks(df: pd.DataFrame, api_key: str) -> pd.DataFrame
 
     print(f"✅ Completed checking {len(contract_cache)} unique contract addresses")
     return df
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Extract and analyse ERC‑1155 safeBatchTransferFrom transactions for possible exploits."
@@ -670,24 +1269,63 @@ def main():
     # parser.add_argument('--raw-csv', default=None,
     #                     help='Optional file path to save raw transaction data')
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
+    eth_bytecode_contracts = '/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv'
+    eth_erc20_txs = '/Users/ashokk/Downloads/evm_data/output_ethereum_txs_60k.csv' 
+    eth_erc20_txs_secondary_approvals = '/Users/ashokk/Downloads/evm_data/output_ethereum_txs_secondary_approvals_60k.csv' 
+    
+    eth_erc20_txs_ownTranfer_check = '/Users/ashokk/Downloads/evm_data/output_ethereum_txs_ownTranfer_check.csv' 
+    
+    # eth_erc20_txs_test = '/Users/ashokk/Downloads/evm_data/output_ethereum_txs_test.csv' 
+    
+    # columns = check_csv_columns(eth_bytecode_contracts)
+    # print(f"\nTotal columns: {len(columns)}")
+    
+    # fetch_txs(eth_bytecode_contracts, 6000 , eth_erc20_txs)
+    fetch_transferFrom_txs(eth_erc20_txs_secondary_approvals, 56 , eth_erc20_txs_ownTranfer_check)
+    
+    df = pd.read_csv(eth_erc20_txs_ownTranfer_check, low_memory=False)
+    df['functionName'] = df['functionName'].fillna('')  # Replace NaN with empty string
+    txs_list = df.to_dict('records')
+    # df_analyzed = analyse_approve_txs(txs_list)
     
     
-    # fetch_txs(args.csv, args.num_addresses, args.raw_csv)
+    df_analyzed = analyse_ownTransfer_by_caller(txs_list)
+    for col in ['own_transfer_caller_address', 'own_transfer_to_address']:
+        if col in df_analyzed.columns:
+            df[col] = df_analyzed[col]
+
+    # Save with new columns
+    df.to_csv(eth_erc20_txs_ownTranfer_check, index=False)
     
     
-    # parser.add_argument('--tx-csv', required=True,
-    #                     help='Mandatory file path to save raw transaction data')
-    # parser.add_argument('--annotated-csv', default=None,
-    #                     help='Optional file path to save annotated results with flags')
-    # args = parser.parse_args()
     
-    # analyse_txs(args.tx_csv, args.annotated_csv)
-    csv_OnReceived = '/home/ashok/all_bytecode_txs_analysis_V4.csv'
-    csv_results_OnReceived = '/home/ashok/erc1155_results_OnReceived.csv'
     
-    # analyse_OnReceived(args.tx_csv, args.annotated_csv)
-    analyse_OnReceived(csv_OnReceived, csv_results_OnReceived)
+    # # Merge analyzed columns back to original DataFrame
+    # for col in ['decoded_spender', 'money_to_spend', 'spender_provides_further_approvals', 
+    #             'secondary_approvals_count', 'approval_chain_depth', 'approval_chain_details']:
+    #     if col in df_analyzed.columns:
+    #         df[col] = df_analyzed[col]
+
+    # # Save with new columns
+    # df.to_csv(eth_erc20_txs_ownTranfer_check, index=False)
+    
+    # # ========== FILTER: Keep only secondary approvals ==========
+    # secondary_approvals = df[df["spender_provides_further_approvals"] == True]
+    
+    # # Save filtered results
+    # secondary_approvals.to_csv(eth_erc20_txs_secondary_approvals, index=False)
+    
+    # print(f"🔗 Found {len(secondary_approvals)} secondary approval transactions")
+    # print(f"💾 Saved to {eth_erc20_txs}")
+    
+    
+    #     # Print summary of secondary approvals
+    # secondary_approvals = df_analyzed[df_analyzed["spender_provides_further_approvals"] == True]
+    # print(f"🔗 Found {len(secondary_approvals)} transactions where spender provides further approvals")
+    
+    
+
     
     
     

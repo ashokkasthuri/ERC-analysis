@@ -845,86 +845,6 @@ def get_eth_price():
     return response.json()["ethereum"]["usd"]
 
 
-# # Base URL for Etherscan Verified Contracts (Adjust for ERC Type)
-# ETHERSCAN_VERIFIED_CONTRACTS_URL = "https://etherscan.io/contractsVerified"
-
-# # Number of contracts to fetch per ERC type
-# NUM_CONTRACTS = 10
-
-# # Output folder for saving contract details
-# OUTPUT_DIR = "ERC_Contracts"
-
-# # Function to scrape contract addresses from Etherscan
-# def scrape_contract_addresses(erc_type):
-#     """Scrapes verified contract addresses for a given ERC type from Etherscan"""
-#     response = requests.get(ETHERSCAN_VERIFIED_CONTRACTS_URL)
-#     soup = BeautifulSoup(response.text, "html.parser")
-
-#     # Find all contract address links
-#     contract_links = soup.find_all("a", href=True)
-
-#     # Extract contract addresses
-#     contract_addresses = []
-#     for link in contract_links:
-#         href = link["href"]
-#         if href.startswith("/address/"):
-#             contract_address = href.split("/")[-1]
-#             contract_addresses.append(contract_address)
-
-#         if len(contract_addresses) >= NUM_CONTRACTS:
-#             break  # Stop after fetching required contracts
-
-#     return contract_addresses
-
-# # Function to fetch contract details from Etherscan API
-# def fetch_contract_details(contract_address):
-#     """Fetches ABI, Bytecode, and Source Code from Etherscan API"""
-#     api_endpoints = {
-#         "abi": f"https://api.etherscan.io/api?module=contract&action=getabi&address={contract_address}&apikey={ETHERSCAN_API_KEY}",
-#         "bytecode": f"https://api.etherscan.io/api?module=proxy&action=eth_getCode&address={contract_address}&apikey={ETHERSCAN_API_KEY}",
-#         "source_code": f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={contract_address}&apikey={ETHERSCAN_API_KEY}"
-#     }
-
-#     contract_data = {}
-#     for key, url in api_endpoints.items():
-#         response = requests.get(url)
-#         data = response.json()
-#         if data["status"] == "1":
-#             contract_data[key] = data["result"]
-#         else:
-#             contract_data[key] = None
-
-#         time.sleep(1)  # To avoid rate limits
-
-#     return contract_data
-
-# # Function to save contract details
-# def save_contract_details(erc_type, contract_address, contract_data):
-#     """Saves ABI, Bytecode, and Source Code to respective files"""
-#     erc_dir = os.path.join(OUTPUT_DIR, erc_type)
-#     os.makedirs(erc_dir, exist_ok=True)
-
-#     # Save ABI
-#     abi_path = os.path.join(erc_dir, f"{contract_address}_abi.json")
-#     with open(abi_path, "w", encoding="utf-8") as f:
-#         json.dump(contract_data["abi"], f, indent=4)
-
-#     # Save Bytecode
-#     bytecode_path = os.path.join(erc_dir, f"{contract_address}_bytecode.txt")
-#     with open(bytecode_path, "w", encoding="utf-8") as f:
-#         f.write(contract_data["bytecode"])
-
-#     # Save Solidity Source Code
-#     if contract_data["source_code"]:
-#         source_code = json.loads(contract_data["source_code"][0]["SourceCode"])
-#         solidity_code = "\n".join(file_data.get("content", "") for file_data in source_code["sources"].values())
-
-#         solidity_path = os.path.join(erc_dir, f"{contract_address}.sol")
-#         with open(solidity_path, "w", encoding="utf-8") as f:
-#             f.write(solidity_code)
-
-#     print(f"✅ Saved contract data for {contract_address} in {erc_dir}")
-
 # Main execution function
 def main():
     folder_path = "/home/ashok/output/"
@@ -963,23 +883,23 @@ def main():
     csv_files = glob.glob(os.path.join(csv_dir, "ERC-1155_safeBatchTransferFrom_deduplicated_avalanche.csv"))
     
     
-    # if not csv_files:
-    #     print(f"No CSV files starting with  found in {csv_dir}")
-    #     return
+    if not csv_files:
+        print(f"No CSV files starting with  found in {csv_dir}")
+        return
     
-    # for csv_file_path in csv_files:
-    #     print(f"\nProcessing file: {csv_file_path}")
-    #     try:
-    #         # csv_address_source_fetch(base_dir_ethereum, csv_file_path, download_limit=9914, max_workers=10)
-    #         # Fetch BSC contracts
-    #         csv_address_source_fetch(
-    #             base_dir_binance,
-    #             csv_file_path,
-    #             chain="avalanche",
-    #             max_workers=10
-    #         )
-    #     except Exception as e:
-    #         print(f"Error processing {csv_file_path}: {str(e)}")
+    for csv_file_path in csv_files:
+        print(f"\nProcessing file: {csv_file_path}")
+        try:
+            # csv_address_source_fetch(base_dir_ethereum, csv_file_path, download_limit=9914, max_workers=10)
+            # Fetch BSC contracts
+            csv_address_source_fetch(
+                base_dir_binance,
+                csv_file_path,
+                chain="avalanche",
+                max_workers=10
+            )
+        except Exception as e:
+            print(f"Error processing {csv_file_path}: {str(e)}")
     
     
     

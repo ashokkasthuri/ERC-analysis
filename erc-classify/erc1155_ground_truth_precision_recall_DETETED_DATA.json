@@ -1,0 +1,590 @@
+{
+  "ERC1155_0x9e4799ff2023819b1272eee430eadf510edf85f0.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- failed_requirements: to_isContract_check, on_received_check",
+    "TRUE POSITIVE": true
+  },
+  "ERC1155_0xc57cf77281d0a615f38fb6a7fea44cd51ee66351.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- interface_check_failed",
+    "TRUE POSITIVE": true
+  },
+  "ERC1155_0x993f59d7a2fa542e47d2150b7c9d11ff67359520.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- zero_address_check is missing",
+    "TRUE POSITIVE": true
+  },
+  "ERC1155_0x4bfba79cf232361a53eddd17c67c6c77a6f00379.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- length_matching_check",
+    "TRUE POSITIVE": true
+  },
+  "ERC1155_0xa257fd7658c9f2d9ccc3edacec1678e8713cdd8a.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- zero_address_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0x6c61fe68ed47bcb6b6ec1b9dc6fd49e393e713be.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+  
+  "ERC1155_0xe57519da3a99f7e56f48fbffcb8fb604da3d0c67.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": false,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- sender_check, approval_check, zero_address_check, to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+
+  
+  
+  "ERC1155_0xc1d655562c6bca2ef787f142255397d196f0f40a.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0xfb29834f2d8dbb7b8cf06cb115b75b2a36b1640d.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- zero_address_check is missing",
+    "TRUE POSITIVE" : true
+  },
+
+  
+
+  
+
+  "ERC1155_0xeefae4451aa33d9b58577ab09c06917c73063d44.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)-  length_matching_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0x157b76888dfa2abe34c7f1b8bab3745442a9971d.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)-  length_matching_check is missing",
+    "TRUE POSITIVE" : true
+  },
+
+  
+  "ERC1155_0xadde60a843e9290377aa054eaaa77cdfd9db9757.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)-  length_matching_check is missing",
+    "TRUE POSITIVE" : true
+  },
+
+
+ 
+  
+  
+  "ERC1155_0xa18b21239b10d557bba025318812c7954ea2f9a1.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- compliant, zero_address_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  
+
+  
+  "ERC1155_0xe242300ada476825a2fd39c9f8bf4d3376db20b1.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- compliant, zero_address_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0xae51c192e73fbeafa0e2b9e9cc6c0d009b8f799e.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- compliant, zero_address_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0x9537aa96b8e1cedea6508645ac7d0f1bc28348e3.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+
+  "ERC1155_0x22b619b0c9e2e9d77df6a779015d6a3277fed687.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+
+  
+  "ERC1155_0xd820a4625832602e9b934e8b7378d33ef5a6f780.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+
+  "ERC1155_0x15007880a8db5a77bc53d7e6259ff045ed57b761.sol": {
+    "ground_truth_label:is_contract_compliant": true,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "non-compliant, TOOL is wrong. this is a false positive (FP)- sender_check,approval_check are present",
+    "FALSE POSITIVE": true
+  },
+  "ERC1155_0x5b2935e055d532906c3e68e319266a5b5e8079ee.sol": {
+    "ground_truth_label:is_contract_compliant": true,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "non-compliant, TOOL is wrong. this is a false positive (FP)- sender_check,approval_check, to_isContract_check, on_received_check are present",
+    "FALSE POSITIVE": true
+  },
+  "ERC1155_0xc24c27c63cec3e0b5b278088957e1f3f7a5e1c82.sol": {
+    "ground_truth_label:is_contract_compliant": true,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "non-compliant, TOOL is wrong. this is a false positive (FP)- All checks are present",
+    "FALSE POSITIVE": true
+  },
+  "ERC1155_0x1c57a5ee9c5a90c9a5e31b5265175e0642b943b1.sol": {
+    "ground_truth_label:is_contract_compliant": true,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "non-compliant, TOOL is wrong. this is a false positive (FP)- All checks are present",
+    "FALSE POSITIVE": true
+  },
+  "ERC1155_0xb36698c7f5147aac7f68b58ebbe905381b523c6f.sol": {
+    "ground_truth_label:is_contract_compliant": true,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": false
+    },
+    "manual_evaluation": "non-compliant, TOOL is wrong. this is a false positive (FP)- All checks are present",
+    "FALSE POSITIVE": true
+  },
+  "ERC1155_0xbd924dadd50b8af6fa0d0d53c069dc9d889f194e.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+
+   
+  "ERC1155_0xf43e3aa57191abbda595396ffee1e5b50d92d955.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0xc57938f4de6d51c6405765da4df1d87f9c64f5ee.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- length_matching_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0x402cbc00cdd4dcab60243a43e490de264c9e7fd3.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)-sender_check_failed",
+    "TRUE POSITIVE" : true
+  },
+
+  "ERC1155_0xbf9ee579783702b9f7e5f508a7aa15c41c63cafb.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": false,
+      "length_matching_check": false,
+      "event_emission_before_transfers": false,
+      "transfer_batch_event_found": false,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)-sender_check_failed",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0xe72ae839938bc3d3521520e343686f8d98a8d0a8.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)-sender_check_failed",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0x49b05d29e316a7d5cf5600b5225eafea5e1d6f33.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- failed_requirements: length_matching_check; failed_requirements: length_matching_check",
+    "TRUE POSITIVE" : true
+  },
+  
+
+  "ERC1155_0xda6db0b34fade1d568712337ff6bad897e5a95a8.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- failed_requirements: to_isContract_check, on_received_check",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0xdb25b48de6f3702363e5560f44d8cf4a2e4b6330.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- sender_check_failed",
+    "TRUE POSITIVE" : true
+  },
+  "ERC1155_0xf6d7549a7b67cecefd9206a43b5653a97f81e811.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": false,
+      "approval_check": false,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- sender_check_failed",
+    "TRUE POSITIVE" : true
+  },
+  
+  "ERC1155_0x3e88f8ce760be645be761f0ffa7021551785b75b.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- to_isContract_check and on_received_check are missing",
+    "TRUE POSITIVE" : true
+  },
+
+  "ERC1155_0x6f10251649c3d0b545506a5f374b63ccdf18ceaf.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- length_matching_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  
+  "ERC1155_0xe32b9a0b799d895c89fe62da6e76b8a7e678b1ac.sol": {
+    "ground_truth_label:is_contract_compliant": false,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": true,
+      "length_matching_check": false,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": true,
+      "on_received_check": true
+    },
+    "manual_evaluation": "compliant, TOOL checked, identified correctly. This is true posotive (TP)- length_matching_check is missing",
+    "TRUE POSITIVE" : true
+  },
+  
+  "ERC1155_0x067c5714f9c034fda974f909591c75a710c8f6eb.sol": {
+    "ground_truth_label:is_contract_compliant": true,
+    "tool_results": {
+      "sender_check": true,
+      "approval_check": true,
+      "zero_address_check": false,
+      "length_matching_check": true,
+      "event_emission_before_transfers": true,
+      "transfer_batch_event_found": true,
+      "to_isContract_check": false,
+      "on_received_check": false
+    },
+    "manual_evaluation": "non-compliant, TOOL is wrong. this is a false positive (FP)- zero_address_check, to_isContract_check, on_received_check are present",
+    "FALSE POSITIVE": true
+  }
+
+}

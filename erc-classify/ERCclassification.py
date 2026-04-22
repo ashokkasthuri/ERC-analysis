@@ -519,14 +519,16 @@ if __name__ == "__main__":
 
 
 # Processed 'BASIC_config_binance_deduplicated_results.csv' - Number of rows: 1602251
+# Processed 'BASIC_config_ethereum_deduplicated_results.csv.csv' - Number of rows: 630846
 # Processed 'BASIC_config__deduplicated_polygon.csv' - Number of rows: 123017
 # Processed 'BASIC_config__deduplicated_avalanche.csv' - Number of rows: 43777
-# Processed 'BASIC_config_ethereum_deduplicated_results.csv.csv' - Number of rows: 630846
 
-# Processed 'FULL_config_deduplicated_avalanche.csv' - Number of rows: 43805
+
+
+# Processed 'FULL_config_binance_deduplicated_results.csv' - Number of rows: 1602719
 # Processed 'FULL_config_ethereum_deduplicated_results.csv' - Number of rows: 631220
 # Processed 'FULL_config_deduplicated_polygon.csv' - Number of rows: 123127
-# Processed 'FULL_config_binance_deduplicated_results.csv' - Number of rows: 1602719
+# Processed 'FULL_config_deduplicated_avalanche.csv' - Number of rows: 43805
 
 
 

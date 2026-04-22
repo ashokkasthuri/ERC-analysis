@@ -5,12 +5,33 @@ from typing import List, Dict, Optional, Set, Tuple
 from eth_utils import keccak
 import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import requests
+import time
+from pathlib import Path
+
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
+
+
+def load_api_key() -> str:
+    """
+    Load ETHERSCAN_API_KEY from .env or environment.
+    Raises ValueError if the key isn't found.
+    """
+    load_dotenv()
+    # load_env = load_dotenv("/home/ashok/ERC-analysis/.env")
+    api_key = os.getenv("ETHERSCAN_API_KEY")
+    if not api_key:
+        raise ValueError("❌ API key not found. Please set ETHERSCAN_API_KEY in .env or environment.")
+    return api_key
 
 def find_functions_by_signature(functions: List[Dict], target_signature: str) -> List[Dict]:
     """Find all functions matching the normalized signature with parameter types."""
-    print(f"target_signature:{target_signature}")
+    # print(f"target_signature:{target_signature}")
     target_normalized = normalize_signature(target_signature)
-    print(f"target_normalized:{target_normalized}")
+    # print(f"target_normalized:{target_normalized}")
     target_normalized_hash = keccak(text=target_normalized).hex()
     # print(f"target_normalized_hash:{target_normalized_hash}")
     matching_functions = []
@@ -287,7 +308,7 @@ def verify_erc1155_requirements(target_func: Dict, internal_functions: List[Dict
         'transfer_batch_event_found': False,
         'to_isContract_check':False,
         'on_received_check': False, 
-        'gas_family_errors': False, 
+        # 'gas_family_errors': False, 
         
         
     }
@@ -1330,8 +1351,7 @@ def check_on_received_implementation(code: str, params, isContract) -> bool:
     operator_var = None
     operator_assignment = re.search(
         r'(address\s+(\w+)\s*=\s*(?:msg\.sender|_msgSender\(\))\s*;)',
-        code
-    )
+        code)
     
     if operator_assignment:
         operator_var = operator_assignment.group(2)
@@ -1460,7 +1480,7 @@ def check_on_received_implementation(code: str, params, isContract) -> bool:
                 re.escape(retval_name) + 
                 r'\s*(==|!=)\s*[^)]+' +
                 r'\s*\)'
-)
+    )
             if re.search(retval_check_pattern, normalized_code):
                 return_valid = True
     
@@ -1518,59 +1538,60 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
                 print(f"assembly in internal_calls:")
                 break
         # Skip analysis if we got None (self-recursive call detected)
-        # if internal_calls is None:
-        #     continue
+        if internal_calls is None:
+            continue
             
-        print(f"\nAnalyzing function implementation: {target_func['name']}")
-        print("Found internal calls:", [f['name'] for f in internal_calls])
+        # print(f"\nAnalyzing function implementation: {target_func['name']}")
+        # print("Found internal calls:", [f['name'] for f in internal_calls])
         # if "safeBatchTransferFrom" in target_sig:
-        # requirements = verify_erc1155_requirements(target_func, internal_calls)
+        requirements = verify_erc1155_requirements(target_func, internal_calls)
         
         
         # if "batchTransfer" in target_sig:
-        requirements = verify_erc3643_batchTransfer_requirements(target_func, internal_calls)
+        # requirements = verify_erc3643_batchTransfer_requirements(target_func, internal_calls)
         
         # if "setApprovalForAll" in target_sig:
         #     requirements = verify_setApprovalForAll_requirements(target_func, internal_calls)
         
         
         
-        # requirements = furtherERC1155Checks(internal_calls, requirements)
+        requirements = furtherERC1155Checks(internal_calls, requirements)
     
-        # all_reqs = [
-        #         'sender_check',
-        #         'approval_check',
-        #         'zero_address_check',
-        #         'length_matching_check',
-        #         'event_emission_order',
-        #         'transfer_batch_event_found',
-        #         'to_isContract_check',
-        #         'on_received_check', 
-        # ]
-        # all_met = all(requirements.get(req, False) for req in all_reqs)
-        # some_met = any(requirements.get(req, False) for req in all_reqs)
+        all_reqs = [
+                'sender_check',
+                'approval_check',
+                'zero_address_check',
+                'length_matching_check',
+                'event_emission_order',
+                'transfer_batch_event_found',
+                'to_isContract_check',
+                'on_received_check', 
+                # 'gas_family_errors',
+        ]
+        all_met = all(requirements.get(req, False) for req in all_reqs)
+        some_met = any(requirements.get(req, False) for req in all_reqs)
         
         results.append({
-                # "function": target_func['name'],
-                # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
-                # "parameters": target_func.get('parameters', {}),
+                "function": target_func['name'],
+                "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+                "parameters": target_func.get('parameters', {}),
                 "requirements": requirements,
                 "internal_calls": [f['name'] for f in internal_calls],
                 # "gas_family_errors": requirements.get('gas_family_errors', False),
-                # "on_received_check_found": requirements.get('on_received_check', False),
-                # "all_requirements_met": all_met,
-                # "some_requirements_met": some_met
+                "on_received_check_found": requirements.get('on_received_check', False),
+                "all_requirements_met": all_met,
+                "some_requirements_met": some_met
             })
     
     # Return consolidated results
     if results:
         return {
             "all_implementations": results,
-            # "summary": {
-            #     "total_implementations": len(results),
-            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
-            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
-            # }
+            "summary": {
+                "total_implementations": len(results),
+                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
 
@@ -1599,8 +1620,8 @@ def furtherERC1155Checks(internal_calls, requirements) -> List[Dict]:
             if "isSameLength" in f.get('name', ''):
                 requirements["length_matching_check"] = True 
                 
-            if f.get('name', '') == "safeTransferFrom":
-                requirements["gas_family_errors"] = True 
+            # if f.get('name', '') == "safeTransferFrom":
+            #     requirements["gas_family_errors"] = True 
                 
     return requirements
     
@@ -1610,8 +1631,8 @@ def analyze_directory(directory_path: str, output_file, target_sig) -> List[Dict
     
     for root, _, files in os.walk(directory_path):
         for file in files:
-            if file.startswith("ERC3643_0x6e534da0cbfeed25fad935d213615001fe7a71be.sol") and file.endswith('.sol'):
-            # if file.endswith('.sol'):
+            # if file.startswith("ERC3643_0x6e534da0cbfeed25fad935d213615001fe7a71be.sol") and file.endswith('.sol'):
+            if file.endswith('.sol'):
                 # file.startswith("avalanche_ERC1155_0x3bef4ce67588beb59d37f47ee2e6de7065c7f4f8.sol") and
                 
                 file_path = os.path.join(root, file)
@@ -1878,6 +1899,330 @@ def calculate_metrics(analysis_results: list, ground_truth: dict) -> dict:
     }
 
 
+def analyze_transferFrom_interprocedural_analysis(solidity_code: str, target_sig: str = "transferFrom(address,address,uint256)") -> Dict:
+    """Main analysis function for transferFrom compliance with allowance check."""
+    all_functions = find_all_functions(solidity_code)
+    
+    target_funcs = find_functions_by_signature(all_functions, target_sig)
+    
+    if not target_funcs:
+        return {"error": "transferFrom function not found"}
+    
+    results = []
+    for target_func in target_funcs:
+        if contains_assembly(target_func['body']):
+            print(f"assembly in target_func: {target_func['name']}")
+            break
+        
+        internal_calls = get_all_internal_calls(target_func['body'], all_functions)
+        for f in internal_calls:
+            if contains_assembly(f['body']):
+                print(f"assembly in internal_calls: {f['name']}")
+                break
+        
+        if internal_calls is None:
+            continue
+            
+        requirements = verify_transferFrom_requirements(target_func, internal_calls)
+        
+        all_reqs = [
+            'sender_check',
+            'allowance_check',
+            'balance_check',
+            'zero_address_check',
+            'approval_event_found'
+        ]
+        
+        all_met = all(requirements.get(req, False) for req in all_reqs)
+        some_met = any(requirements.get(req, False) for req in all_reqs)
+        
+        results.append({
+            "function": target_func['name'],
+            "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+            "parameters": target_func.get('parameters', {}),
+            "requirements": requirements,
+            "internal_calls": [f['name'] for f in internal_calls],
+            "allowance_check_found": requirements.get('allowance_check', False),
+            "all_requirements_met": all_met,
+            "some_requirements_met": some_met
+        })
+    
+    if results:
+        return {
+            "all_implementations": results,
+            "summary": {
+                "total_implementations": len(results),
+                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            }
+        }
+    return {"error": "No valid implementations found (possibly due to recursive calls)"}
+
+
+def verify_transferFrom_requirements(target_func: Dict, internal_functions: List[Dict]) -> Dict:
+    """
+    Verify if transferFrom function meets ERC20 requirements:
+    1. allowance check (msg.sender must have allowance)
+    2. sender != zero address
+    3. recipient != zero address
+    4. sufficient balance
+    5. Approval event emitted
+    """
+    requirements = {
+        'sender_check': False,
+        'allowance_check': False,
+        'balance_check': False,
+        'zero_address_check': False,
+        'approval_event_found': False
+    }
+    
+    # Extract parameters
+    params = extract_parameters_data_flow_analysis(target_func)
+    from_param = params.get('from_param', 'from')
+    to_param = params.get('to_param', 'to')
+    amount_param = params.get('amount_param', 'amount')
+    
+    # Combine all code for analysis
+    all_code = [(target_func['body'], "main function")]
+    for func in internal_functions:
+        all_code.append((func['body'], f"internal function {func['name']}"))
+    
+    sender_reprs = ['msg.sender', '_msgSender()']
+    
+    # Analyze all conditions
+    for code, source in all_code:
+        # Find require statements
+        require_pattern = r'require\s*\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)'
+        require_matches = re.finditer(require_pattern, code, re.DOTALL)
+        
+        for match in require_matches:
+            req_content = re.sub(r'\s+', ' ', match.group(1).strip())
+            
+            # 1. SENDER CHECK: from == msg.sender
+            if not requirements['sender_check']:
+                for sender in sender_reprs:
+                    pattern = rf'{from_param}\s*==\s*{re.escape(sender)}'
+                    if re.search(pattern, req_content):
+                        requirements['sender_check'] = True
+                        break
+            
+            # 2. ALLOWANCE CHECK: allowance[from][msg.sender] >= amount
+            if not requirements['allowance_check']:
+                allowance_patterns = [
+                    rf'allowance\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
+                    rf'_allowances\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
+                    rf'allowance\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)\s*>=\s*{amount_param}',
+                    rf'require\s*\(\s*allowance\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
+                    rf'require\s*\(\s*_allowances\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
+                ]
+                for pattern in allowance_patterns:
+                    if re.search(pattern, req_content):
+                        requirements['allowance_check'] = True
+                        break
+            
+            # 3. BALANCE CHECK: balanceOf[from] >= amount
+            if not requirements['balance_check']:
+                balance_patterns = [
+                    rf'balanceOf\[{from_param}\]\s*>=\s*{amount_param}',
+                    rf'balanceOf\(\s*{from_param}\s*\)\s*>=\s*{amount_param}',
+                    rf'require\s*\(\s*balanceOf\[{from_param}\]\s*>=\s*{amount_param}',
+                    rf'require\s*\(\s*balanceOf\(\s*{from_param}\s*\)\s*>=\s*{amount_param}',
+                ]
+                for pattern in balance_patterns:
+                    if re.search(pattern, req_content):
+                        requirements['balance_check'] = True
+                        break
+            
+            # 4. ZERO ADDRESS CHECK: from != 0 and to != 0
+            if not requirements['zero_address_check']:
+                zero_patterns = [
+                    rf'{from_param}\s*!=\s*address\(0\)',
+                    rf'address\(0\)\s*!=\s*{from_param}',
+                    rf'{to_param}\s*!=\s*address\(0\)',
+                    rf'address\(0\)\s*!=\s*{to_param}',
+                    rf'{from_param}\s*!=\s*address\(0x0\)',
+                    rf'{to_param}\s*!=\s*address\(0x0\)',
+                ]
+                for pattern in zero_patterns:
+                    if re.search(pattern, req_content):
+                        requirements['zero_address_check'] = True
+                        break
+        
+        # 5. APPROVAL EVENT: emit Approval(from, msg.sender, newAllowance)
+        if not requirements['approval_event_found']:
+            event_patterns = [
+                r'emit\s+Approval\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]+\s*\)',
+                r'_approve\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]+\s*\)',
+                r'approve\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]+\s*\)',
+            ]
+            for pattern in event_patterns:
+                if re.search(pattern, code):
+                    requirements['approval_event_found'] = True
+                    break
+    
+    return requirements
+
+
+def extract_parameters_data_flow_analysis(target_func: Dict) -> Dict:
+    """Extract parameter names from transferFrom function."""
+    params = target_func.get('parameters', {})
+    param_names = params.get('names', [])
+    
+    result = {
+        'from_param': param_names[0] if len(param_names) > 0 else 'from',
+        'to_param': param_names[1] if len(param_names) > 1 else 'to',
+        'amount_param': param_names[2] if len(param_names) > 2 else 'amount'
+    }
+    return result
+
+
+def analyze_directory_transferFrom(directory_path: str, output_file: str, target_sig: str = "transferFrom(address,address,uint256)") -> List[Dict]:
+    """
+    Analyze all Solidity files in a directory for transferFrom compliance.
+    
+    Args:
+        directory_path: Path to directory containing .sol files
+        output_file: Path to save JSON results
+        target_sig: Function signature to analyze (default: transferFrom)
+    
+    Returns:
+        List of analysis results for each file
+    """
+    results = []
+    files_processed = 0
+    files_with_errors = 0
+    
+    print(f"📁 Scanning directory: {directory_path}")
+    print(f"🎯 Target signature: {target_sig}")
+    print(f"💾 Output file: {output_file}")
+    print("-" * 60)
+    
+    for root, _, files in os.walk(directory_path):
+        for file in files:
+            if file.endswith('.sol'):
+                file_path = os.path.join(root, file)
+                files_processed += 1
+                
+                print(f"📄 Processing: {file_path}")
+                
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        solidity_code = f.read()
+                    
+                    # Skip empty files
+                    if not solidity_code.strip():
+                        print(f"   ⚠️ Empty file, skipping")
+                        results.append({
+                            'file': file_path,
+                            'error': 'Empty file'
+                        })
+                        continue
+                    
+                    # Analyze the file
+                    result = analyze_transferFrom_interprocedural_analysis(solidity_code, target_sig)
+                    result['file'] = file_path
+                    
+                    # Print summary for this file
+                    if 'summary' in result:
+                        summary = result['summary']
+                        print(f"   ✅ Total implementations: {summary['total_implementations']}")
+                        print(f"   ✅ Fully compliant: {summary['fully_compliant']}")
+                        print(f"   ⚠️ Partially compliant: {summary['partially_compliant']}")
+                    elif 'error' in result:
+                        files_with_errors += 1
+                        print(f"   ❌ Error: {result['error']}")
+                    else:
+                        print(f"   ⚠️ No implementations found")
+                    
+                    results.append(result)
+                    
+                    # Save results incrementally (in case of crash)
+                    with open(output_file, 'w', encoding='utf-8') as f:
+                        json.dump(results, f, indent=2)
+                    
+                except Exception as e:
+                    files_with_errors += 1
+                    error_msg = f"Error processing file: {str(e)}"
+                    print(f"   ❌ {error_msg}")
+                    results.append({
+                        'file': file_path,
+                        'error': error_msg
+                    })
+    
+    # Final summary
+    print("-" * 60)
+    print(f"📊 ANALYSIS COMPLETE")
+    print(f"   Total files processed: {files_processed}")
+    print(f"   Files with errors: {files_with_errors}")
+    print(f"   Results saved to: {output_file}")
+    
+    return results
+
+
+def analyze_single_file_transferFrom(file_path: str, target_sig: str = "transferFrom(address,address,uint256)") -> Dict:
+    """
+    Analyze a single Solidity file for transferFrom compliance.
+    
+    Args:
+        file_path: Path to .sol file
+        target_sig: Function signature to analyze
+    
+    Returns:
+        Analysis result dictionary
+    """
+    print(f"📄 Analyzing single file: {file_path}")
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            solidity_code = f.read()
+        
+        result = analyze_transferFrom_interprocedural_analysis(solidity_code, target_sig)
+        result['file'] = file_path
+        
+        if 'summary' in result:
+            summary = result['summary']
+            print(f"   ✅ Total implementations: {summary['total_implementations']}")
+            print(f"   ✅ Fully compliant: {summary['fully_compliant']}")
+            print(f"   ⚠️ Partially compliant: {summary['partially_compliant']}")
+        elif 'error' in result:
+            print(f"   ❌ Error: {result['error']}")
+        
+        return result
+        
+    except Exception as e:
+        error_msg = f"Error processing file: {str(e)}"
+        print(f"   ❌ {error_msg}")
+        return {'file': file_path, 'error': error_msg}
+
+
+def print_vulnerable_contracts(results_file: str):
+    """
+    Print only vulnerable contracts (where allowance_check is False)
+    """
+    with open(results_file, 'r', encoding='utf-8') as f:
+        results = json.load(f)
+    
+    print("\n" + "=" * 80)
+    print("🔴 VULNERABLE CONTRACTS (Missing Allowance Check)")
+    print("=" * 80)
+    
+    vulnerable_count = 0
+    for result in results:
+        if 'all_implementations' in result:
+            for impl in result['all_implementations']:
+                if not impl.get('requirements', {}).get('allowance_check', False):
+                    vulnerable_count += 1
+                    print(f"\n📁 File: {result.get('file', 'Unknown')}")
+                    print(f"   Function: {impl.get('function', 'transferFrom')}")
+                    print(f"   Lines: {impl.get('implementation_location', 'Unknown')}")
+                    print(f"   Missing: allowance_check")
+                    print(f"   All requirements met: {impl.get('all_requirements_met', False)}")
+    
+    if vulnerable_count == 0:
+        print("\n✅ No vulnerable contracts found!")
+    else:
+        print(f"\n⚠️ Total vulnerable implementations found: {vulnerable_count}")
+
 
 
 
@@ -1979,6 +2324,7 @@ def plot_vulnerability_distribution(file_path, sheet_name):
 
 
 if __name__ == "__main__":
+
     
     # erc1155_directory = "/home/ashok/ERC-analysis/erc-classify/ERC1155-ethereum/ERC1155"
     # erc1155_output_file = "/home/ashok/ERC-analysis/erc-classify/erc1155_TEST_TEST_analysis_results.json"
@@ -1986,19 +2332,26 @@ if __name__ == "__main__":
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155_Solidity_SourceCode/ERC1155"
     # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-avalanche"
     
+    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset4"
+    
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_TEST_TEST_analysis_results.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_ethereum1_analysis_results.json"
-    erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-polygon/polygon_ERC1155"
-    erc3643_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC3643"
+    # erc1155_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC1155-polygon/polygon_ERC1155"
+    # erc3643_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/ERC_Solidity_Source/ERC3643"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_avalanche_assembly_delete.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_bsc_assembly_delete.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_polygon_assembly_delete.json"
     # erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_SafeBatch_ethereum_assembly_delete.json"
     
-    erc3643_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc3643_batchTransfer_TEST_ONE.json"
+    erc1155_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc1155_Recall_Results4.json"
     
-    erc1155_target_sig = "batchTransfer(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
-    erc3643_target_sig = "batchTransfer(address[] calldata _toList, uint256[] calldata _amounts)"
+    # erc3643_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc3643_batchTransfer_TEST_ONE.json"
+    
+    erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
+    erc20_transferFrom = "transferFrom(address from, address to, uint256 value)"
+    
+    
+    # erc3643_target_sig = "batchTransfer(address[] calldata _toList, uint256[] calldata _amounts)"
     
     # # BatchMetadataUpdate(uint256,uint256) : 6bd5c950
     #ERC3443
@@ -2020,7 +2373,8 @@ if __name__ == "__main__":
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
-    analysis_results = analyze_directory(erc3643_directory,erc3643_output_file, erc3643_target_sig)
+    analysis_results = analyze_directory(erc1155_directory,erc1155_output_file, erc20_transferFrom)
+    analyze_directory_transferFrom(erc1155_directory,erc1155_output_file, erc20_transferFrom)
     
     # compliant_files = [r for r in analysis_results if not r.get('error')]
     # print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")

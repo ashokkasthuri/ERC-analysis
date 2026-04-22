@@ -1,8 +1,8 @@
 '''
 Author: ashokkasthuri ashokk@smu.edu.sg
 Date: 2025-03-09 18:53:43
-LastEditors: ashokkasthuri ashokk@smu.edu.sg
-LastEditTime: 2025-03-23 18:44:38
+LastEditors: ashokkasthuri ashokraj.kasthuri@gmail.com
+LastEditTime: 2025-10-19 19:06:18
 FilePath: /ERC-analysis-master/erc-classify/erc_results_analysis.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -126,6 +126,26 @@ def visualize_erc_data(output_combined_file):
     plt.show()
 
 
+def erc_match_count():
+
+    erc_match_counts_basic = {
+        "Ethereum": {'ERC20': 508173, 'ERC173': 432867, 'ERC165': 118678, 'ERC721': 87046, 'ERC2612': 10029},
+        "Binance":  {'ERC20': 1501163, 'ERC173': 1180861, 'ERC165': 88820, 'ERC721': 40071, 'ERC2612': 18499},
+        "Polygon":  {'ERC173': 120221, 'ERC165': 95783, 'ERC721': 60443, 'ERC20': 39265},
+        "Avalanche":{'ERC20': 32002, 'ERC173': 42786, 'ERC165': 12564, 'ERC721': 6227}
+    }
+
+    fig, ax = plt.subplots(figsize=(8,4))
+    for chain, data in erc_match_counts_basic.items():
+        df = pd.DataFrame.from_dict(data, orient='index', columns=['count'])
+        df.sort_values('count', ascending=False).plot(kind='bar', ax=ax, label=chain)
+    plt.ylabel("Contract Count")
+    plt.title("Top ERC Implementations per Chain (Basic Config)")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
 def main():
 #     folder_path = "/home/ashok/output" 
 #     if not os.path.exists(folder_path):
@@ -138,8 +158,10 @@ def main():
 
     # combine_csv_results(csv_files, output_combined_file)
     
-    local_output_combined_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/results_partial_match_config_FULL.csv"
-    visualize_erc_data(local_output_combined_file)
+    # local_output_combined_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/results_partial_match_config_FULL.csv"
+    # visualize_erc_data(local_output_combined_file)
+    
+    erc_match_count()
 
 
 if __name__ == "__main__":

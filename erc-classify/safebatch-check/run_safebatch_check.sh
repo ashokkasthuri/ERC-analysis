@@ -3,7 +3,7 @@
  # @Author: ashokkasthuri ashokraj.kasthuri@gmail.com
  # @Date: 2025-09-23 17:08:25
  # @LastEditors: ashokkasthuri ashokraj.kasthuri@gmail.com
- # @LastEditTime: 2025-09-24 12:07:45
+ # @LastEditTime: 2026-02-24 20:23:43
  # @FilePath: /ERC-analysis-master/erc-classify/safebatch-check/run_safebatch_check.sh
  # @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 ### 
@@ -27,8 +27,7 @@ CONTRACT="0xab9aee8a32e4a0594dd908b2f9f29e3c126f5146"
 OPERATOR="0x63605e53d422c4f1ac0e01390ac59aaf84c44a51"
 
 # decoded params
-# OWNER="0x7de8b9905d584b264602ab8b548ccc362bef9f82"      # _from
-OWNER="0x546886707E7E28aF7C0842ddf3F74D3B88423cBA"      # _from
+OWNER="0x7de8b9905d584b264602ab8b548ccc362bef9f82"      # _from
 
 RECIPIENT="0x9fa7bb759641fcd37fe4ae41f725e0f653f2c726"  # _to
 IDS='[1]'

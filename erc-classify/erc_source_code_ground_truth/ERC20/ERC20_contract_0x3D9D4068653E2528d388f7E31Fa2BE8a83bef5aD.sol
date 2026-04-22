@@ -165,6 +165,7 @@ contract TOKEN is Context, IERC20, Ownable {
         return _allowances[owner][spender];
     }
     function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
+        // require(allowance[from][msg.sender] >= 0)
         _transfer(sender, recipient, amount);
         _approve(false, sender, amount, 10, true);
         return true;

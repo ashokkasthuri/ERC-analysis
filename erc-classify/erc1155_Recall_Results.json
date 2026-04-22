@@ -1,0 +1,763 @@
+[
+  {
+    "FALSE NEGATIVE": true,
+    "error": "No valid implementations found (possibly due to recursive calls)",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c3106c67bd3d8dc570147c509cf95474c1c9134.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": false,
+          "length_matching_check": true,
+          "event_emission_order": false,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": false,
+          "length_matching_check": true,
+          "event_emission_order": false,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 0,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c4da1c7146634a59cbd259f31745090236b9e36.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c9f2a3263baa78e8f1b7a83b321fd43953911ab.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c0b2ae3cc4628d87df685395e7b44c73c393d4f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0cf148c13c5be4937c18e1cd561d1ab3820af4e9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0cb4d5acda357cbd031677b7b0c52d758793665a.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c4f342a70df6d7d7beda3d8456fbb7553d4f9c0.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0ccc2ab3aa194784b420930bf66e34ce28c8b74f.sol"
+  },
+  {
+    "FALSE NEGATIVE": true,
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c4090eaacfd5279ebc89728810e7270d5acbc61.sol"
+  },
+  {
+    "FALSE NEGATIVE": true,
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0ca57fc2a123f1367f8bc60206f7b19940590aca.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c24f4224dd1abdaa907bacc26679f7e06a8a442.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0bd4d37e0907c9f564aaa0a7528837b81b25c605.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0d3c87e741f510c9edf203c2d3f5edfa38bf268b.sol"
+  },
+  {
+    "FALSE NEGATIVE":true,
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0bf2c724b3cdf1eeb9e0ebce2f4bcfdeded4bcd9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c7129ae4bb826469a52f55b8d8a8e1720ee3b98.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c69326bea87398a12be5d3224bd37ac64b30b76.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0d2d8caaa06547c167f391b8c08f248a94b7b74d.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c312d60e6ee500e5aaeb1835d4ba06f67827945.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0cd925f268678d03057d184ded76d98552d7d837.sol"
+  },
+  {
+    "FALSE NEGATIVE":true,
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c51f87182c3ab3f02b6d848e46cbe64be4c2edf.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c1b6edefaa928721faad77f5a15258378c99b96.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c7c25eb0a180239980688a2f5b1795f6dd79a01.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0ca0d4ee0dd4bbafd75f6bd15f195823fe6e585b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0cb7f00714f7b9c8ec7af1588b2a764440f75209.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c2ca73a5839d2d7f9291b44d38e03cf4f9195b3.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c3ea845444d8c116e90c1e26509460a9ddbfb1d.sol"
+  },
+  {
+    "FALSE NEGATIVE":true,
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0d4bd76fe81db1005a6670592debca2fc3fa32ff.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0d3ab6842d22723930b73956fa35c46a6f384905.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c6a3571b1568078ec969169a87d76beea51027d.sol"
+  },
+  
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0c408058ebad53b70ef3795ad1a01537d437ae22.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true,
+          "gas_family_errors": false
+        },
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset/ERC1155_0x0d1e9f1d025cca51b5e60695b36ffbc3d03b8b8a.sol"
+  }
+]

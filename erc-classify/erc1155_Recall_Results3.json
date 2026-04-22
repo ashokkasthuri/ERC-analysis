@@ -1,0 +1,5225 @@
+[
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfd83174beba9eb582eb67e11df7a234b25612dda.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x6897751c691fed8334b43b185a2cc554c2faae73.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 28273-28703",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x26f49363a0228aff98e3390a99746ad48854ad2c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 8921-9351",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "balanceOf",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "contains",
+          "_contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xcc6c3660d7d9e59136834b66a64220400f9a82e5.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 14312-14741",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "values": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_getERC1155Storage",
+          "_safeBatchTransferFrom",
+          "_updateWithAcceptanceCheck",
+          "_update",
+          "unsafeMemoryAccess",
+          "unsafeMemoryAccess",
+          "_doSafeTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x063c8286c0f23d53c2c92b05447f884a3d2d0a23.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 107846-108224",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_updateAccountSnapshot",
+          "_updateSnapshot",
+          "_getCurrentSnapshotId",
+          "current",
+          "_lastSnapshotId",
+          "_updateTotalSupplySnapshot",
+          "totalSupply",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa25605634031642e7fe7661d9c62335b3ce3e367.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf17825054bb41ed421646ee9857791e3ac16b565.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 37974-38404",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x785bd50713accd391d335eb83f53be5bb574890e.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa53951727de469a89dfba08cf04085203989360b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 15110-15537",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x33174db98548ef366b8e156e02422731ede18b9d.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x359872f232788bc8e3c41fced848f46d9cb528df.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23132-23558",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xe69ec1233bb8d4f409e11b3622e0a36d566dcc98.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 44898-45610",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "_tokenIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "transferBalance",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x029af177a478bc81e1f344ea4634df581869c1f4.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf758731e6a5f3dc8d407fda26371f1f5678877d2.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xbe061aabbee68eaf37ac48d364a92aa9107ed8c8.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23132-23558",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 299480-299838",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "nftIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x9327133d9d873894afb7f2278657d1044224bc71.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xbe28b64f915b55f6acec51eda70f98fab3b02238.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 45891-46349",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x7f5fad5512b8d52b678dcadae1968d05ca830d3b.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x572b16a2b6e91b53ed56817aa0289235be98f5e8.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 24932-25358",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x871832d8c04dece15e87f1b04acca01dc1066ec7.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9399-9829",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd04655fa20209a5b134b2a6182b20b7cdae0f24a.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa25a197d26cad659a8fff7f268ca4f9e0283de03.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xefacdd72800324b3e5ff35edaa3de629d30412c9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 10776-11206",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x3af869dbb5c8ef55e5758ec8d15eabe32d6329b1.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfc23f958c86d944418d7965a5f6582d1e96db1be.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 28774-29204",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xa1e53e174b61f87a5c0a857bd190ff73e60bbc78.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 13338-13519",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 30331-30761",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd2a7f42a9336249ff2c5ebe31509ac9f129d8d66.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 16827-18077",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "tokenIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x749f444faea338e367791f714f4e3d08c0df4faa.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 22250-22680",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 45799-46157",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "nftIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": false,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 1,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd4385fbe9a8334162742254947858381edcefdce.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 13109-13415",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 25408-25835",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd11c97dd5f5546b5bbd630d7d1d7327481b0b92c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 46244-46670",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_updateAccountSnapshot",
+          "_updateSnapshot",
+          "_getCurrentSnapshotId",
+          "current",
+          "_lastSnapshotId",
+          "_updateTotalSupplySnapshot",
+          "totalSupply",
+          "_beforeTokenTransfer",
+          "enforceValidTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "authorizeReceiptTransfer",
+          "authorizeReceiptTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf1a14e96977e8de295ba9612691d127b157d1371.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfc5c0e5d0ba6386fbb7d921e5073fd04082a5b49.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x96753d29f077b4823a7cd9a792c34a12e64f6001.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9219-9522",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 15204-15564",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xedffe79d5ed138952fe2383b313861a46af06a5b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 34029-34455",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x604dbcc702b546c451a275492667a8dbfd5778e0.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23132-23558",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd1c9fa13c6828a24de26c92adcc097780b285020.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xb5d44386bc182338e4babb896e8f861fb93c7e17.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x81d22905127632c6747c8a71abc7a4ddee3e0b8b.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x114b1ed69a8802d5a4003a3573ced7c2fb10b969.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 24697-25127",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xdca0ee3a9fe1b68fec005d3b5d1ac16ff1d1a1c4.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xcbe0b90bfe99f827b8bcb5c5ac4b17107caea814.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xd5fe1c1f216b775dfd30638fa7164d41321ef79b.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xbf91f1e7685a34b1113d0f8f17a6944f00c41eed.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9046-9476",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd31ada53d8059a793f5b124dbdabb127c5908c58.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 21440-21870",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xed95fb27d335033c982921ccd39bcda3f995974b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 42512-42938",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xbec0b55eee1f805e3c95e44cf3e6edaf03ed76ef.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 19202-19628",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 87345-87678",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd9f9bdbb39d2a60c01d1a91c4884833e1c7cd2b8.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 24886-26113",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] calldata",
+          "amounts": "uint256[] calldata",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": false,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": false,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "s",
+          "s",
+          "s",
+          "s",
+          "s",
+          "_beforeBatchTokenTransfer",
+          "_beforeBatchTokenTransfer",
+          "state",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 42931-43359",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] calldata",
+          "amounts": "uint256[] calldata",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": false,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": false,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "s",
+          "s",
+          "s",
+          "s",
+          "s",
+          "_beforeBatchTokenTransfer",
+          "_beforeBatchTokenTransfer",
+          "state",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 0,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xd93336235ca49861f66ea6b16afdf606c286d716.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xec504e4c52c62c627560b56e56ce80e9d87268fc.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 16213-16639",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x95134ff803dfbff966c8aa833c0d7bee4da0a27c.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf422944394f2a7f263951338c592394786c36858.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 25109-25535",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x941030586a512197f7108a49d722e6554250aefb.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 34029-34455",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_inc",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "onERC1155BatchReceived",
+          "_validateReceive",
+          "_not",
+          "contains",
+          "_contains",
+          "contains",
+          "contains",
+          "_supply1155",
+          "toInfo",
+          "_supplyNFT",
+          "amountPerUnit",
+          "units",
+          "_supply1155",
+          "isEmpty"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xffe01353cc959dd17efa25cb6c3b257747785dea.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 25297-25727",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xe83e139b47a240b34e4f069418c5cb8d34b576c4.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xe64cfd54f87c7a6251e39f31e3502cba74284347.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 26085-26511",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x31527f4b4adf34e6e465358b4418f4f68aa4bffa.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 25861-26287",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xbc950901fd393ba3fa24092415d260ebc0d692a0.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 28482-28912",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x01ff4d922966f4faaa5701307e28bbb4f5cb36a7.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf945789d494fbb3c859478dcb7c86493f31a5dd4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9399-9829",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xa146e5358213c53ea28f37a1242a3029532662ed.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 27446-27873",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "balanceOf",
+          "_burn",
+          "_asSingletonArray",
+          "_afterTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xeed78852387f7d1f565daf4f74878456c1588db4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 32915-33345",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xfe8b33f9a696b5d8e2c23e8a56287c4d69c38df9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 27872-29076",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x73d7a7a3b831329aeb3f669b0f2fab639ac31e0a.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x2f804fb5f14a35cca829bd19fb2f254be000802c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 25753-26183",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xe145592eaf96bd343403b8ccdf4d1ec16a377d0a.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 91706-92136",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "msgSender",
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf06b509ebb73c691499a80c26b2f9a0eeadedd90.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd9700b643b6170cd5737278af336c1a041a67859.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 55159-55585",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xc09043ac7fc88d4e93660d99ff3ceaeead1fb72d.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x88888dd82a91f0406ed42bf750baf881e64894f6.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf174ec24d297f3a00022ae8c85eaa780a8030676.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 35762-37284",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa8e67efd3ddad234947d8bc80f36aa8f9eb35df0.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x68d56803166a56d15cce74d143cf2c8bf8913904.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfffc0dda29671ea3847503e5e38dfeaf1d48bf35.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x0d6e498141f4ebef78f4413f96c8df083983408e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 27335-27762",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "balanceOf",
+          "_burn",
+          "_asSingletonArray",
+          "_afterTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x4540f922887ba87cda0b60dcfb9ace2a95a09584.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23206-23636",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "owner",
+          "balanceOf",
+          "_burn",
+          "_asSingletonArray",
+          "_afterTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xbb068b5b4d740408b914a70616df407507a4eec4.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x8c781a21fc4881c04fa73bbcbfb8a4a4a7aa3061.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9219-9522",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 15204-15564",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xdd37f62b17adad7fd7aded0cb084076b4fce609e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 34739-35166",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x7683e91334e5a8df0ab642902b0fb89b3e46f04f.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x0603b336cc1bcec72a640ca6a15d32f2db8440d1.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xc2751c85e4b096ebd077f1f602ce1e898ee287bc.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 7808-9012",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xed9e2b88feb7a94a682e7e3a59631e15e8442711.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x0e97c887b61ccd952a53578b04763e7134429e05.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x6cc13eeb5567a0a71194034b42a23901ccf0f435.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23132-23558",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 309256-309623",
+        "parameters": {
+          "account": "address",
+          "to": "address",
+          "nftIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xa59be80eaf127f5a250991b12c931b6b6da80aab.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 33925-35109",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xed085ab1e4432ad6c6742dab0e88af88647f89d9.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 8921-9351",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "balanceOf",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "contains",
+          "_contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x521460d672b346b7e8cf2d72a4102c32c6cd7ed3.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xec0ba7955e239ee80a3a013fe184e9c9271fd87e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 28844-29274",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x07206365ca1886c64161c7b5f60b32b04f08878b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 31847-32274",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xfcb9ebd6c8abc26ddf0755236d990fc555c1b73f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 20594-21024",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "hasRole",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xeefe7de9e81ca0441d02af31a6c236c2e3860253.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa4eb36f580498f4a75ed1cb97557ccb9672e519e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 5030-5460",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xda635ca13321b7cf2d57320ca53a2f6695cc6d36.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9399-9829",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd81c73f35a4a59c6363239ff2cff48262fa0b7d3.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x14133745c3168e585d7df9164d6c55f64836e283.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x6ae020d89a7ec2a4867c84f72882fada245c9080.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xfe5c0c66986be8fb16a5186fd047eb035468db74.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xc6b642f03ad32a45a4cda52246783affe210991b.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x809fda361ff02927e25c1d00a9449a5f865b578f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 3641-3896",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9494-10678",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf33832763144ea7c35f7c34c4d48cca34f816ec8.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 10930-11360",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x9b0a29e23d4f1c0fa692c5fc73e05debe60579d2.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 46420-46858",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] calldata",
+          "amounts": "uint256[] calldata",
+          "data": "bytes calldata"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": false,
+          "on_received_check": false
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "SubtractBalance",
+          "toBalanceKey",
+          "getPosition",
+          "subtract",
+          "Amount",
+          "setPosition",
+          "AddBalance",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": false,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 0,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x1c57a5ee9c5a90c9a5e31b5265175e0642b943b1.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 17787-18114",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 50199-50626",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x5680933221b752eb443654a014f88b101f868d50.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfdeac529f484e66a922963b034ca693fc1c7de7a.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf65bceee9c9ba19e1b88ab901f66a0b4a4a99669.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xd12d12aacad77d54421a2c2ad723e259bf390488.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 5130-5560",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf32461f8093c3bfdaf76746f58492f50a8b86eb1.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9665-10091",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_validateTransfer",
+          "_msgSender",
+          "isApprovedForAll",
+          "getTokenValue",
+          "_swapIfNeeded",
+          "increaseAllowance",
+          "_approve",
+          "_burnBatch",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "decreaseBalanceSupply",
+          "safeTransfer",
+          "_mintHeroNFTIfNeeded",
+          "_safeBatchTransferFrom",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 105757-106989",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_validateTransfer",
+          "getTokenValue",
+          "_swapIfNeeded",
+          "increaseAllowance",
+          "_approve",
+          "_burnBatch",
+          "decreaseBalanceSupply",
+          "safeTransfer",
+          "_mintHeroNFTIfNeeded"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x200898584f14c4213787556d40693c163cc677af.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 5225-5655",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xc9ba3e7e596b74ab482da7ea7b3c40fd69ff61cb.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 83948-84378",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "totalSupply",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_afterTokenTransfer"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x85403f882a57d61b4528e5c6faa39f0d9ee9756c.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xe8646eca81934d20fd72b1a14d7cfa25798b9948.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x76ce2cb1ae48fa067f4fb8c5f803111ae0b24bea.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 28918-29345",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x1aaef591092d9e8aeab1e63a977f33fcd1de645f.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x5f90fc33d7a4b768fe12d6f954fde2f790c593ff.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 10254-11438",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 27222-28406",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x71bb62f6fb0e99da309df648106ebb0b40b52d14.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x9f69c2a06c97fcaac1e586b30ea681c43975f052.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 15323-15749",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x1385210371ba7ecb0d5cc2dee570a073f3b66be2.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 24184-24614",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x89a1a8644463917fae1b5125a03450b5f7fcfe0a.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x8f1df4765681d09d2ee5ff5a9265331a49268d31.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 12794-13220",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa40bc33fbdb63a21562696b25827d9b0fb6f4c0c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 36722-38500",
+        "parameters": {
+          "_from": "address",
+          "_to": "address",
+          "_ids": "uint256[] calldata",
+          "_values": "uint256[] calldata",
+          "_data": "bytes calldata"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_doSafeBatchTransferAcceptanceCheck",
+          "supportsInterface"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x1065f5922a336c75623b55d22c4a0c760efce947.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x28b1331ee56505751067474ec9c2ce290db96076.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 8921-9351",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "balanceOf",
+          "balanceOf",
+          "remove",
+          "_remove",
+          "contains",
+          "_contains",
+          "_contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "contains",
+          "_remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "remove",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x201786901a23056353abf6dcc3366d44e243fd6e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 29155-29582",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x8f4b5393febc72027b58fa97c49cb90763f48cfc.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 7598-8024",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x39a7736380e2f865519fdfe54257e1dfdd86082b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 14543-14973",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xfbd3738e5760847328ddb50a5b2c8c2a958e7fe3.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 12866-13296",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xc3670f6c31b7a198e5c40ad6ea9fd4c121910630.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfea560db29afe75f24e1da8bb9db35a585577ca8.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x93401e673226e59a98ae55e8adcb06d5dcf55856.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 4101-4527",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfb82b5fccba1b9dabfe72ea3528bfbc6a59fd05d.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x028a7c6873dfa8357c9dcf9c9d76ef2abb66256e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 44435-44865",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "layout",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "totalSupply",
+          "totalSupply",
+          "totalSupply",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x482c8998d8a2194cdfe92e616dbb906035fdae9e.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x868b6443966b7c832b13060e58dc450cb0d597b9.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xed6c381378284de4b00ce7ed8a03f13f1ec21f98.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 7449-7879",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xdbd2bace25998f67781aa087ceaf8f2a45b5f9b4.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xd23bf1d92483996478befde4325bc27570cd4963.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xdf8b44456690bad9341df9bb69fd06a7283e6e6f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9524-9827",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 17030-17390",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x960ec704896a7da7c2fb5d4c6455f7c5f974ee9a.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 7710-8140",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "msgSender",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfba1f4708ef20b9f58ad797bc8fe4e7651ffc95e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 19023-19453",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "paused",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa8ab3f6d436bf6eeb15a304052486bd81e96182b.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 11980-12406",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xbad5d3fe40808dbaa51064d80eb1b192b2a5c25e.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xec793d33749c412abfbbc5b2921ac7b2ee4abe9c.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xfc53afd133b071ae8a6e49761e8bcda55e419a82.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 32402-32828",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xc6b394d3e6f3f6469ae1486c8f10cdac072d4ab4.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xc67d3756221ce16efd4b1e0301bffb462ab4d9bf.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 21833-22259",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x26569e92c82b474a5e492d8b47a3aa4ceeb36bcc.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xe9e6e990807f492aab129379e02b3680f870fa91.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xa7e6a229b2b1937ab0d05cae44cb9c38e03d728a.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x4c2aefdfc13ed12a2543a1a494c3f01bf114feaf.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x53b217e1f76925b3afd4a0d3ce0dd8e11a822846.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xbe8df35ecc0177bc06a360a876a76436b8c62567.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 32806-33236",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "_msgSender",
+          "isTrustedForwarder",
+          "_msgSender",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "hasRole",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd598d0c3680fc54647ab397581dc077da76a563e.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 38002-38432",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xa3aa968e351619a7cb3e406492f807d73ae18603.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 7411-7841",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xdbd2bace25998f67781aa087ceaf8f2a45b5f9b4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 54971-55398",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 81728-82086",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "nftIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": false,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": false,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 1,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x37063eb3a923f31dc7093c9537941c3a6674ff1f.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 9524-9827",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 17030-17390",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xc95a5725583e7f7e8fc6e1029cac4bcce0ec6f63.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23674-24100",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xee51f5d78cc1f22b37db2b64342397f7bddc625d.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xe4000d746eb135420f79d30d5df249f57d6352a6.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xeac529cf2a2e6a67234b30a2d306fab7d7b74946.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 26730-27160",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x821ae72fc3a62ee37681c883fbd37010fe184da2.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0xf31698ddad0d11160fe85c500397a470cd3d492e.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x059ffafdc6ef594230de44f824e2bd0a51ca5ded.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 32324-32754",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x6594a539aed311cd148c7c224a5f20540899e504.sol"
+  },
+  {
+    "error": "safeBatchTransferFrom function not found",
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x9059c56612dd459f2bf61c4a3526a6c23b4de005.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 44855-45284",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "values": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_updateWithAcceptanceCheck",
+          "_update",
+          "unsafeMemoryAccess",
+          "unsafeMemoryAccess",
+          "_doSafeTransferAcceptanceCheck",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xd2582ecfe1e44000c5718cb6f4d8c02fab53240c.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 23197-23623",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/ERC1155_0x905eefd68cc16e727dd798b677c83fb8789098e4.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 27213-27639",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      },
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 169123-169481",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "nftIds": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "safeBatchTransferFrom",
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_beforeTokenTransfer",
+          "_afterTokenTransfer",
+          "_afterTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck",
+          "onERC1155BatchReceived",
+          "_pushBurnBatch",
+          "_pushBurn",
+          "_pushMintBatch",
+          "_pushMint"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 2,
+      "fully_compliant": 2,
+      "partially_compliant": 2
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0xc8c54156f8e3872bee13cc4b0ba1ebe8775b6034.sol"
+  },
+  {
+    "all_implementations": [
+      {
+        "function": "safeBatchTransferFrom",
+        "implementation_location": "Line 21065-21495",
+        "parameters": {
+          "from": "address",
+          "to": "address",
+          "ids": "uint256[] memory",
+          "amounts": "uint256[] memory",
+          "data": "bytes memory"
+        },
+        "requirements": {
+          "sender_check": true,
+          "approval_check": true,
+          "zero_address_check": true,
+          "length_matching_check": true,
+          "event_emission_order": true,
+          "transfer_batch_event_found": true,
+          "to_isContract_check": true,
+          "on_received_check": true
+        },
+        "internal_calls": [
+          "_msgSender",
+          "isApprovedForAll",
+          "_safeBatchTransferFrom",
+          "_beforeTokenTransfer",
+          "_doSafeBatchTransferAcceptanceCheck"
+        ],
+        "on_received_check_found": true,
+        "all_requirements_met": true,
+        "some_requirements_met": true
+      }
+    ],
+    "summary": {
+      "total_implementations": 1,
+      "fully_compliant": 1,
+      "partially_compliant": 1
+    },
+    "file": "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/Recall_dataset3/avalanche_ERC1155_0x53286ef8714796d1bbed9a459a1ea6fa77de4389.sol"
+  }
+]

@@ -100,6 +100,9 @@ erc_dependencies = {
     "ERC7401": ["ERC165", "ERC721"],
     "ERC7409": ["ERC165"]
 }
+
+
+
 def get_erc_file_name(erc):
     return f"I{erc}.sol"
 
