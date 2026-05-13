@@ -33,11 +33,14 @@ from typing import Optional, Tuple
 # Config
 # ============================================================
 
-CSV_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"
+# CSV_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"
+CSV_PATH = "/home/ashok/ashokTests/smart-contract-data-source/ethereum_deduplicated_results.csv"
 
-OUT_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results_with_timestamps.csv"
+# OUT_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results_with_timestamps.csv"
+OUT_PATH = "/home/ashok/ashokTests/smart-contract-data-source/ethereum_deduplicated_results_with_timestamps.csv"
 
-CACHE_PATH = "/Users/ashokk/Downloads/evm_data/etherscan_contract_timestamp_cache.csv"
+# CACHE_PATH = "/Users/ashokk/Downloads/evm_data/etherscan_contract_timestamp_cache.csv"
+CACHE_PATH = "/home/ashok/ashokTests/smart-contract-data-source/etherscan_contract_timestamp_cache.csv"
 
 ETHERSCAN_URL = "https://api.etherscan.io/v2/api"
 CHAIN_ID = 1
