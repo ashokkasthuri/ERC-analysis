@@ -24,7 +24,7 @@ import requests
 import pandas as pd
 
 from pathlib import Path
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from tqdm import tqdm
 from typing import Optional, Tuple
 
@@ -67,7 +67,7 @@ MAX_RETRIES = 6
 def load_api_keys() -> list[str]:
     """Load multiple Etherscan API keys from .env file."""
     # load_dotenv()
-    load_dotenv("/home/ashok/ashokTests/ERC-analysis/.env")
+    load_dotenv = load_dotenv("/home/ashok/ashokTests/ERC-analysis/.env")
 
     api_keys = []
     i = 1
