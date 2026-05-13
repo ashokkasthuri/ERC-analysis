@@ -12,7 +12,8 @@ from dotenv import load_dotenv
 
 def load_api_keys() -> list:
     """Load multiple Etherscan API keys from .env file"""
-    load_dotenv()
+    # load_dotenv()
+    load_dotenv("/home/ashok/ashokTests/ERC-analysis/.env")
     
     api_keys = []
     i = 1
@@ -32,20 +33,29 @@ def load_api_keys() -> list:
 API_KEYS = load_api_keys()
 
 # Configuration
-CSV_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"
+# CSV_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"
+CSV_PATH = "/home/ashok/ashokTests/ERC-analysis/erc-classify/ERC-5267_eip712Domain_ethereum_deduplicated_results.csv"
+
+
 # OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc20-transferFrom1"
-OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc2612-permit"
-LIMIT = 200  # Set to None for all, or number for testing
+# OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc2612-permit"
+OUTPUT_DIR = "/home/ashok/ashokTests/ERC-analysis/erc-classify/erc5267"
+LIMIT = None  # Set to None for all, or number for testing
 
 CHAIN_ID = 1
-# TARGET_SELECTOR = "23b872dd"
-TARGET_SELECTOR = "d505accf"
+# TARGET_SELECTOR = "23b872dd" # transferFrom
+# TARGET_SELECTOR = "d505accf" # permit
+
+TARGET_SELECTOR = "84b0196e" # ERC5267 eip712Domain() 
+
 MAX_WORKERS = 20  # Adjust based on API keys
 RATE_LIMIT_PER_KEY = 5  # Calls per second per API key
 SAVE_INTERVAL = 100  # Save progress every N contracts
 
 # ========== FIX: Set PROGRESS_FILE based on selector BEFORE creating tracker ==========
-if TARGET_SELECTOR == "d505accf":  # permit
+if TARGET_SELECTOR == "84b0196e":  # 
+    PROGRESS_FILE = "/home/ashok/ashokTests/ERC-analysis/erc-classify/download_progress_ERC5267_eip712Domain.json"
+elif TARGET_SELECTOR == "d505accf": #permit
     PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_permit.json"
 else:
     PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_transferfrom.json"
