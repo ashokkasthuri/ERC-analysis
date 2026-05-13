@@ -24,7 +24,7 @@ import requests
 import pandas as pd
 
 from pathlib import Path
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from tqdm import tqdm
 from typing import Optional, Tuple
 
