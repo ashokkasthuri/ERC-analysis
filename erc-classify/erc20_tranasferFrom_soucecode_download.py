@@ -33,15 +33,23 @@ API_KEYS = load_api_keys()
 
 # Configuration
 CSV_PATH = "/Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv"
-OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc20-transferFrom1"
-PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress.json"
-LIMIT = None  # Set to None for all, or number for testing
+# OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc20-transferFrom1"
+OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc2612-permit"
+LIMIT = 200  # Set to None for all, or number for testing
 
 CHAIN_ID = 1
-TARGET_SELECTOR = "23b872dd"
+# TARGET_SELECTOR = "23b872dd"
+TARGET_SELECTOR = "d505accf"
 MAX_WORKERS = 20  # Adjust based on API keys
 RATE_LIMIT_PER_KEY = 5  # Calls per second per API key
 SAVE_INTERVAL = 100  # Save progress every N contracts
+
+# ========== FIX: Set PROGRESS_FILE based on selector BEFORE creating tracker ==========
+if TARGET_SELECTOR == "d505accf":  # permit
+    PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_permit.json"
+else:
+    PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_transferfrom.json"
+
 
 class APIKeyManager:
     """Manages API key rotation for rate limiting"""
@@ -169,36 +177,6 @@ def bytecode_contains_selector(bytecode, selector):
         return False
     return selector.lower() in bytecode.lower().replace('0x', '')
 
-def process_contract(address, output_dir, chain_id):
-    """Process a single contract with resume support"""
-    # Skip if already processed
-    if progress_tracker.is_completed(address):
-        return address, "skipped", 0, None
-    
-    try:
-        source_code, contract_name = get_contract_source_code(address, chain_id)
-        
-        if source_code:
-            safe_name = contract_name.replace(" ", "_").replace("/", "_").replace(":", "_")
-            filename = f"{address}_{safe_name}.sol" if safe_name != "Unknown" else f"{address}.sol"
-            filepath = os.path.join(output_dir, filename)
-            
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(f"// SPDX-License-Identifier: Unknown\n")
-                f.write(f"// Source: {address}\n")
-                f.write(f"// Contract Name: {contract_name}\n\n")
-                f.write(source_code)
-            
-            progress_tracker.mark_completed(address)
-            return address, "success", len(source_code), contract_name
-        else:
-            progress_tracker.mark_failed(address)
-            return address, "failed", 0, None
-            
-    except Exception as e:
-        progress_tracker.mark_failed(address)
-        return address, "error", 0, None
-
 def run_long_running_job(matching_addresses, output_dir, chain_id):
     """Run the download job with progress tracking and auto-resume"""
     print(f"\n{'='*60}")
@@ -280,7 +258,114 @@ def run_long_running_job(matching_addresses, output_dir, chain_id):
     for key, count in api_manager.key_usage_count.items():
         print(f"  {key[:10]}...: {count} calls")
 
+def flatten_solidity_sources(source_code: str, contract_name: str, address: str) -> str:
+    """
+    Flatten multi-file Solidity contract into a single file.
+    Merges all source files with clear separators.
+    """
+    import re
+    
+    # Clean the source code (remove comments and fix double braces)
+    if source_code.startswith('// SPDX-License-Identifier'):
+        lines = source_code.split('\n')
+        json_start = 0
+        for i, line in enumerate(lines):
+            if line.strip().startswith('{'):
+                json_start = i
+                break
+        source_code = '\n'.join(lines[json_start:])
+    
+    # Fix double braces and quotes
+    source_code = re.sub(r'{{', '{', source_code)
+    source_code = re.sub(r'}}', '}', source_code)
+    source_code = re.sub(r'""', '"', source_code)
+    
+    flattened_code = []
+    flattened_code.append(f"// SPDX-License-Identifier: UNLICENSED")
+    flattened_code.append(f"// Source: {address}")
+    flattened_code.append(f"// Contract Name: {contract_name}")
+    flattened_code.append(f"// This is a flattened version of all source files")
+    flattened_code.append(f"// Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    flattened_code.append("")
+    
+    try:
+        # Try to parse as JSON
+        data = json.loads(source_code)
+        
+        if 'sources' in data:
+            # Standard JSON Input format - extract all files
+            for file_path, file_info in data['sources'].items():
+                if 'content' in file_info:
+                    content = file_info['content']
+                    
+                    # Add file separator with original path
+                    flattened_code.append(f"\n{'='*80}")
+                    flattened_code.append(f"// FILE: {file_path}")
+                    flattened_code.append(f"{'='*80}\n")
+                    flattened_code.append(content)
+            return '\n'.join(flattened_code)
+        
+        elif isinstance(data, dict):
+            # Alternative format: direct mapping of filenames to content
+            for name, content in data.items():
+                if isinstance(content, str) and ('pragma solidity' in content.lower() or 'contract' in content.lower()):
+                    flattened_code.append(f"\n{'='*80}")
+                    flattened_code.append(f"// FILE: {name}")
+                    flattened_code.append(f"{'='*80}\n")
+                    flattened_code.append(content)
+            return '\n'.join(flattened_code)
+            
+    except json.JSONDecodeError:
+        # Not JSON, treat as single file
+        pass
+    
+    # Single file contract
+    return source_code
+
+
+def process_contract(address, output_dir, chain_id):
+    """Process a single contract and save as flattened single file"""
+    # Skip if already processed
+    if progress_tracker.is_completed(address):
+        return address, "skipped", 0, None
+    
+    try:
+        source_code, contract_name = get_contract_source_code(address, chain_id)
+        
+        if source_code:
+            # Create safe filename
+            safe_name = contract_name.replace(" ", "_").replace("/", "_").replace(":", "_").replace("\\", "_")
+            if safe_name == "Unknown" or not safe_name:
+                filename = f"{address}.sol"
+            else:
+                filename = f"{address}_{safe_name}.sol"
+            
+            filepath = os.path.join(output_dir, filename)
+            
+            # Flatten all sources into one file
+            flattened_source = flatten_solidity_sources(source_code, contract_name, address)
+            
+            # Write flattened file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(flattened_source)
+            
+            # Count lines for stats
+            line_count = len(flattened_source.split('\n'))
+            
+            progress_tracker.mark_completed(address)
+            return address, "success", len(source_code), f"{contract_name} ({line_count} lines)"
+        else:
+            progress_tracker.mark_failed(address)
+            return address, "failed", 0, None
+            
+    except Exception as e:
+        print(f"   ❌ Error: {str(e)[:100]}")
+        progress_tracker.mark_failed(address)
+        return address, "error", 0, None
+
 def main():
+    
+    
     # Create output directory
     Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
     
@@ -314,9 +399,18 @@ def main():
 
 if __name__ == "__main__":
     print(f"⚠️  This will download contracts for {LIMIT if LIMIT else 'ALL'} matching addresses")
-    print(f"⚠️  Estimated time: {len(matching_addresses) if 'matching_addresses' in dir() else 'calculating...'}")
-    response = input("Continue? (yes/no): ")
-    if response.lower() == 'yes':
-        main()
-    else:
-        print("Cancelled.")
+    
+    # Reset progress if this is a new permit job and user confirms
+    if TARGET_SELECTOR == "d505accf":
+        print(f"\n📁 Progress file: {PROGRESS_FILE}")
+        if os.path.exists(PROGRESS_FILE):
+            reset = input("New permit job. Reset progress? (yes/no): ")
+            if reset.lower() == 'yes':
+                os.remove(PROGRESS_FILE)
+                print("✓ Progress file reset")
+            else:
+                print("Continuing with existing progress file")
+        else:
+            print("✓ No existing progress file found. Starting fresh.")
+    
+    main()

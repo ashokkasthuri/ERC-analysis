@@ -1521,7 +1521,8 @@ def analyze_safeBatchTransfer_interprocedural_analysis(solidity_code: str, targe
     all_functions = find_all_functions(solidity_code)
     
     target_funcs = find_functions_by_signature(all_functions, target_sig)
-    # print(f"target_funcs:{target_funcs}")
+    
+    
     
     if not target_funcs:
         return {"error": "safeBatchTransferFrom function not found"}
@@ -1903,58 +1904,65 @@ def analyze_transferFrom_interprocedural_analysis(solidity_code: str, target_sig
     """Main analysis function for transferFrom compliance with allowance check."""
     all_functions = find_all_functions(solidity_code)
     
+    
     target_funcs = find_functions_by_signature(all_functions, target_sig)
+    print(f"len of target_funcs count: {len(target_funcs)}")
+    
     
     if not target_funcs:
         return {"error": "transferFrom function not found"}
     
     results = []
     for target_func in target_funcs:
-        if contains_assembly(target_func['body']):
-            print(f"assembly in target_func: {target_func['name']}")
-            break
+        # if contains_assembly(target_func['body']):
+        #     print(f"assembly in target_func: {target_func['name']}")
+        #     break
         
         internal_calls = get_all_internal_calls(target_func['body'], all_functions)
-        for f in internal_calls:
-            if contains_assembly(f['body']):
-                print(f"assembly in internal_calls: {f['name']}")
-                break
+        # for f in internal_calls:
+        #     if contains_assembly(f['body']):
+        #         print(f"assembly in internal_calls: {f['name']}")
+        #         break
         
         if internal_calls is None:
-            continue
+            print(f"internal_calls is None")
+            # continue
             
         requirements = verify_transferFrom_requirements(target_func, internal_calls)
+        # print(f"requirements:{requirements}")
+        
         
         all_reqs = [
-            'sender_check',
+            # 'sender_check',
             'allowance_check',
-            'balance_check',
-            'zero_address_check',
-            'approval_event_found'
+            'conditional_allowance_check'
+            # 'balance_check',
+            # 'zero_address_check',
+            # 'approval_event_found'
         ]
         
         all_met = all(requirements.get(req, False) for req in all_reqs)
         some_met = any(requirements.get(req, False) for req in all_reqs)
         
         results.append({
-            "function": target_func['name'],
-            "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
-            "parameters": target_func.get('parameters', {}),
+            # "function": target_func['name'],
+            # "implementation_location": f"Line {target_func['start']}-{target_func['end']}",
+            # "parameters": target_func.get('parameters', {}),
             "requirements": requirements,
-            "internal_calls": [f['name'] for f in internal_calls],
-            "allowance_check_found": requirements.get('allowance_check', False),
-            "all_requirements_met": all_met,
-            "some_requirements_met": some_met
+            # "internal_calls": [f['name'] for f in internal_calls],
+            # "allowance_check_found": requirements.get('allowance_check', False),
+            # "all_requirements_met": all_met,
+            # "some_requirements_met": some_met
         })
     
     if results:
         return {
             "all_implementations": results,
-            "summary": {
-                "total_implementations": len(results),
-                "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
-                "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
-            }
+            # "summary": {
+            #     "total_implementations": len(results),
+            #     "fully_compliant": sum(1 for r in results if r.get('all_requirements_met', False)),
+            #     "partially_compliant": sum(1 for r in results if r.get('some_requirements_met', False))
+            # }
         }
     return {"error": "No valid implementations found (possibly due to recursive calls)"}
 
@@ -1969,11 +1977,12 @@ def verify_transferFrom_requirements(target_func: Dict, internal_functions: List
     5. Approval event emitted
     """
     requirements = {
-        'sender_check': False,
+        # 'sender_check': False,
         'allowance_check': False,
-        'balance_check': False,
-        'zero_address_check': False,
-        'approval_event_found': False
+        'conditional_allowance_check': False,
+        # 'balance_check': False,
+        # 'zero_address_check': False,
+        # 'approval_event_found': False
     }
     
     # Extract parameters
@@ -1984,81 +1993,198 @@ def verify_transferFrom_requirements(target_func: Dict, internal_functions: List
     
     # Combine all code for analysis
     all_code = [(target_func['body'], "main function")]
-    for func in internal_functions:
-        all_code.append((func['body'], f"internal function {func['name']}"))
-    
+    print(f"Searching in all_code: {all_code}")
+    if(internal_functions is not None):
+        for func in internal_functions:
+            all_code.append((func['body'], f"internal function {func['name']}"))
+
     sender_reprs = ['msg.sender', '_msgSender()']
     
     # Analyze all conditions
     for code, source in all_code:
+        
+        # Remove multi-line and single-line comments
+        code = re.sub(r'/\*.*?\*/', '', code, flags=re.DOTALL)
+        code = re.sub(r'//.*$', '', code, flags=re.MULTILINE)
         # Find require statements
         require_pattern = r'require\s*\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)'
         require_matches = re.finditer(require_pattern, code, re.DOTALL)
         
-        for match in require_matches:
-            req_content = re.sub(r'\s+', ' ', match.group(1).strip())
+        # for match in require_matches:
+        # req_content = re.sub(r'\s+', ' ', match.group(1).strip())
+        
+        # Pattern for allowance check inside if condition
+        
+        sub_pattern3 = r'_?a?pprove\s*\([^,]+,\s*[^,]+,\s*_?_?allowances?\[[^\]]+\]\[[^\]]+\]\s*-?\s*[^,)]+\)'
+        if re.search(sub_pattern3, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        
+        sub_pattern5 = r'_?a?pprove\s*\([^;]+_?_?allowances?\[[^\]]+\]\[[^\]]+\]\.sub\s*\('
+        if re.search(sub_pattern5, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        
+        sub_pattern6 = r'if\s*\([^;]*_*_*allowances?\[[^\]]+\]\[[^\]]+\]\s*>=\s*[^;]*\)'
+        if re.search(sub_pattern6, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        
+        sub_pattern7 = r'require\s*\([^;]*_*_*allowances?\[[^\]]+\]\[[^\]]+\]\s*>=\s*[^;]*\)'
+        if re.search(sub_pattern7, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        sub_pattern8 = r'require\s*\([^;]*_*_*allowances?\[[^\]]+\]\[[^\]]+\]\s*[<>=]+\s*[^,]+,\s*["\'][^"\']*["\']\s*\)'
+        if re.search(sub_pattern8, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        
+        sub_pattern9 = r'require\s*\([^;]*_*_*allowances?\[[^\]]+\]\[[^\]]+\]\s*[<>=]+\s*[^,]+,\s*["\'][^"\']*["\']\s*\)'
+        if re.search(sub_pattern9, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        
+        var_match = re.search(r'uint256\s+(\w+)\s*=\s*_?_?allowances?\[[^\]]+\]\[[^\]]+\]', code)
+        if var_match:
+            var_name = var_match.group(1)  # Captures "allowed"
+            print(f"var_name:{var_name}")
             
-            # 1. SENDER CHECK: from == msg.sender
-            if not requirements['sender_check']:
-                for sender in sender_reprs:
-                    pattern = rf'{from_param}\s*==\s*{re.escape(sender)}'
-                    if re.search(pattern, req_content):
-                        requirements['sender_check'] = True
-                        break
+            # Step 2: Check if that variable appears in an if condition
+            if_var_pattern = rf'if\s*\(\s*{var_name}\s*!=\s*type\(uint256\)\.max\s*\)'
+            if re.search(if_var_pattern, code):
+                requirements['allowance_check'] = True
+                # requirements['conditional_allowance_check'] = False
+                # print(f"variable appears in an if condition")
+                break
+            if_var_pattern1 = rf'if\s*\(\s*{var_name}\s*!=\s*[^)]+\)'
+            if re.search(if_var_pattern1, code):
+                requirements['allowance_check'] = True
+                # requirements['conditional_allowance_check'] = False
+                # print(f"variable appears in an if condition")
+                break
+        
+        sub_pattern10 = r'if\s*\([^{]*!=[^{]*\)\s*\{[^{}]*_*_*allowances?\[[^\]]+\]\[[^\]]+\]'
+        if re.search(sub_pattern10, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        
+        # sub_pattern2 = r'if\s*\([^;]*\)\s*\{?[^;]*?_?_?allowances?\[[^\]]+\]\[[^\]]+\]'
+        sub_pattern2 = r'if\s*\((?![^)]*_?_?allowances?\[)[^)]*\)\s*\{?[^;]*?_?_?allowances?\[[^\]]+\]\[[^\]]+\]'
+        # sub_pattern2 = r'if\s*\((?![^)]*_?_?allowances?\[[^\]]+\]\[[^\]]+\)[^)]*\)\s*\{?[^;]*?_?_?allowances?\[[^\]]+\]\[[^\]]+\]'
+        if re.search(sub_pattern2, code, re.DOTALL): 
+            requirements['conditional_allowance_check'] = True
+            print(f"✅ allowance_check inside the if condition block in {source}")
+            break
+        
+       
             
-            # 2. ALLOWANCE CHECK: allowance[from][msg.sender] >= amount
-            if not requirements['allowance_check']:
+            
+        
+        # # Debug: Print the code when '_allowances' is found
+        # if '_allowances' in code:
+            print(f"\n🔍 Found '_allowances' in {source}")
+            print(f"   Looking for if pattern...")
+            
+            # Test the pattern
+            match = re.search(sub_pattern2, code, re.DOTALL)
+            if match:
+                print(f"   ✅ PATTERN MATCHED")
+                print(f"   Matched text: {match.group(0)[:200]}")
+            else:
+                print(f"   ❌ PATTERN DID NOT MATCH")
+                
+                # Check condition separately
+                if_pattern = r'if\s*\([^;]*?\)'
+                if_match = re.search(if_pattern, code, re.DOTALL)
+                if if_match:
+                    print(f"   Found if statement: {if_match.group(0)}")
+                    
+                    # Check if condition contains _allowances
+                    condition = if_match.group(0)
+                    if '_allowances' in condition:
+                        print(f"   → Condition contains _allowances (should NOT match)")
+                    else:
+                        print(f"   → Condition does NOT contain _allowances")
+                        
+                        # Check if body contains _allowances after the if
+                        after_if = code[if_match.end():]
+                        if '_allowances' in after_if:
+                            print(f"   → Body contains _allowances (SHOULD match!)")
+                            print(f"   Body snippet: {after_if[:200]}")
+        
+        
+        
+        
+        sub_pattern4 = r'require\s*\(\s*_*allowances?\[[^\]]+\]\[[^\]]+\]\s*>=\s*[^,]+,\s*["\'][^"\']*["\']\s*\)'
+        if re.search(sub_pattern4, code, re.DOTALL): 
+            requirements['allowance_check'] = True
+            break
+        # Debug for _allowances presence
+        # if '_allowances' in code:
+        #     print(f"   ✅ Found '_allowances' in {source}")
+        #     # Print the actual line
+        #     for line in code.split('\n'):
+        #         if '_allowances' in line:
+        #             print(f"      Line: {line.strip()[:150]}")
+        #             break
+        
+        # 2. ALLOWANCE CHECK - MODIFIED FOR .sub() DETECTION
+        if not requirements['allowance_check']:
+            # First, check the entire code (not just require conditions) for .sub() pattern
+            for check_sender in sender_reprs:
+                # .sub() pattern - captures allowance subtraction regardless of require wrapper
+                sub_pattern = rf'_?allowances?\[{from_param}\]\[{re.escape(check_sender)}\]\.sub\s*\(\s*{amount_param}\s*,'
+                
+                if re.search(sub_pattern, code, re.DOTALL):
+                    requirements['allowance_check'] = True
+                    break
+                
+                # Also check for allowance[from][msg.sender].sub pattern
+                sub_pattern2 = rf'_?allowances?\[{from_param}\]\[{re.escape(check_sender)}\]\.sub\s*\(\s*{amount_param}\s*,'
+                if re.search(sub_pattern2, code, re.DOTALL):
+                    requirements['allowance_check'] = True
+                    break
+                # Pattern matches: _allowances[anything][anything].sub(anything, "error")
+                sub_pattern = r'_?allowances?\[[^\]]+\]\[[^\]]+\]\.sub\s*\([^,]+,\s*["\'][^"\']*["\']\s*\)'
+
+                # DEBUG: Print the code being searched
+                # print(f"Searching in: {source}")
+                # print(f"Code snippet: {code[:2000]}")  # First 500 chars
+                # print(f"Looking for pattern: {sub_pattern}")
+                
+                if re.search(sub_pattern, code, re.DOTALL): 
+                    requirements['allowance_check'] = True
+                    break
+                
+                # Pattern matches: _allowances[anything][anything]
+                sub_pattern1 = r'return\s+_?allowances?\[[^\]]+\]\[[^\]]+\]'
+                if re.search(sub_pattern1, code, re.DOTALL): 
+                    requirements['allowance_check'] = True
+                    break
+                
+
+                if '.sub(' in code:
+                    requirements['allowance_check'] = True
+                    print(f"✅ Found .sub() in {source}")
+                    break
+            
+                # Also check in require conditions
                 allowance_patterns = [
-                    rf'allowance\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
-                    rf'_allowances\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
-                    rf'allowance\(\s*{from_param}\s*,\s*{re.escape(sender)}\s*\)\s*>=\s*{amount_param}',
-                    rf'require\s*\(\s*allowance\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
-                    rf'require\s*\(\s*_allowances\[{from_param}\]\[{re.escape(sender)}\]\s*>=\s*{amount_param}',
+                    rf'_?allowances?\[{from_param}\]\[{re.escape(s)}\]\s*>=\s*{amount_param}' for s in sender_reprs
+                ] + [
+                    rf'_?allowances?\[{from_param}\]\[{re.escape(s)}\]\s*>=\s*{amount_param}' for s in sender_reprs
+                ] + [
+                    rf'_?allowances?\(\s*{from_param}\s*,\s*{re.escape(s)}\s*\)\s*>=\s*{amount_param}' for s in sender_reprs
+                ] + [
+                    rf'require\s*\(\s*_?allowances?\[{from_param}\]\[{re.escape(s)}\]\.sub\s*\(\s*{amount_param}\s*,' for s in sender_reprs
                 ]
+                
                 for pattern in allowance_patterns:
-                    if re.search(pattern, req_content):
+                    if re.search(pattern, code, re.DOTALL):
                         requirements['allowance_check'] = True
                         break
-            
-            # 3. BALANCE CHECK: balanceOf[from] >= amount
-            if not requirements['balance_check']:
-                balance_patterns = [
-                    rf'balanceOf\[{from_param}\]\s*>=\s*{amount_param}',
-                    rf'balanceOf\(\s*{from_param}\s*\)\s*>=\s*{amount_param}',
-                    rf'require\s*\(\s*balanceOf\[{from_param}\]\s*>=\s*{amount_param}',
-                    rf'require\s*\(\s*balanceOf\(\s*{from_param}\s*\)\s*>=\s*{amount_param}',
-                ]
-                for pattern in balance_patterns:
-                    if re.search(pattern, req_content):
-                        requirements['balance_check'] = True
-                        break
-            
-            # 4. ZERO ADDRESS CHECK: from != 0 and to != 0
-            if not requirements['zero_address_check']:
-                zero_patterns = [
-                    rf'{from_param}\s*!=\s*address\(0\)',
-                    rf'address\(0\)\s*!=\s*{from_param}',
-                    rf'{to_param}\s*!=\s*address\(0\)',
-                    rf'address\(0\)\s*!=\s*{to_param}',
-                    rf'{from_param}\s*!=\s*address\(0x0\)',
-                    rf'{to_param}\s*!=\s*address\(0x0\)',
-                ]
-                for pattern in zero_patterns:
-                    if re.search(pattern, req_content):
-                        requirements['zero_address_check'] = True
-                        break
         
-        # 5. APPROVAL EVENT: emit Approval(from, msg.sender, newAllowance)
-        if not requirements['approval_event_found']:
-            event_patterns = [
-                r'emit\s+Approval\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]+\s*\)',
-                r'_approve\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]+\s*\)',
-                r'approve\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]+\s*\)',
-            ]
-            for pattern in event_patterns:
-                if re.search(pattern, code):
-                    requirements['approval_event_found'] = True
-                    break
+       
     
     return requirements
 
@@ -2076,7 +2202,45 @@ def extract_parameters_data_flow_analysis(target_func: Dict) -> Dict:
     return result
 
 
-def analyze_directory_transferFrom(directory_path: str, output_file: str, target_sig: str = "transferFrom(address,address,uint256)") -> List[Dict]:
+
+
+def parse_solidity_file(file_path: str) -> str:
+    """Parse files with comments and double braces before JSON content."""
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        data = f.read()
+    
+    # Remove leading comments (lines starting with //)
+    lines = data.split('\n')
+    json_start_index = 0
+    for i, line in enumerate(lines):
+        if line.strip().startswith('{'):
+            json_start_index = i
+            break
+    
+    # Extract JSON part (from first '{' onwards)
+    json_part = '\n'.join(lines[json_start_index:])
+    
+    # Fix double braces: replace {{ with { and }} with }
+    json_part = re.sub(r'{{', '{', json_part)
+    json_part = re.sub(r'}}', '}', json_part)
+    
+    # Try to parse as JSON
+    try:
+        json_data = json.loads(json_part)
+        print(f"   ✅ Successfully parsed JSON after cleaning")
+        
+        if 'sources' in json_data:
+            sources = []
+            for source_name, source_info in json_data['sources'].items():
+                if 'content' in source_info:
+                    sources.append(f"// File: {source_name}\n{source_info['content']}")
+            return '\n\n'.join(sources)
+        return json_part
+    except json.JSONDecodeError as e:
+        print(f"   ⚠️ JSON parse failed: {e}")
+        return data
+
+def analyze_directory_transferFrom(directory_path: str, output_file: str, target_sig: str = "transferFrom(address,address,uint256)", max_files: int = None) -> List[Dict]:
     """
     Analyze all Solidity files in a directory for transferFrom compliance.
     
@@ -2084,6 +2248,7 @@ def analyze_directory_transferFrom(directory_path: str, output_file: str, target
         directory_path: Path to directory containing .sol files
         output_file: Path to save JSON results
         target_sig: Function signature to analyze (default: transferFrom)
+        max_files: Maximum number of files to process (None = unlimited)
     
     Returns:
         List of analysis results for each file
@@ -2095,34 +2260,33 @@ def analyze_directory_transferFrom(directory_path: str, output_file: str, target
     print(f"📁 Scanning directory: {directory_path}")
     print(f"🎯 Target signature: {target_sig}")
     print(f"💾 Output file: {output_file}")
+    if max_files:
+        print(f"🔢 Max files to process: {max_files}")
     print("-" * 60)
     
     for root, _, files in os.walk(directory_path):
         for file in files:
+            # Stop if max_files limit reached
+            if max_files and files_processed >= max_files:
+                print(f"🛑 Reached max files limit ({max_files}). Stopping.")
+                break
+            
             if file.endswith('.sol'):
                 file_path = os.path.join(root, file)
                 files_processed += 1
                 
-                print(f"📄 Processing: {file_path}")
+                print(f"📄 Processing ({files_processed}): {file_path}")
                 
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        solidity_code = f.read()
+                    solidity_code = parse_solidity_file(file_path)
                     
-                    # Skip empty files
                     if not solidity_code.strip():
                         print(f"   ⚠️ Empty file, skipping")
-                        results.append({
-                            'file': file_path,
-                            'error': 'Empty file'
-                        })
                         continue
                     
-                    # Analyze the file
                     result = analyze_transferFrom_interprocedural_analysis(solidity_code, target_sig)
                     result['file'] = file_path
                     
-                    # Print summary for this file
                     if 'summary' in result:
                         summary = result['summary']
                         print(f"   ✅ Total implementations: {summary['total_implementations']}")
@@ -2136,7 +2300,6 @@ def analyze_directory_transferFrom(directory_path: str, output_file: str, target
                     
                     results.append(result)
                     
-                    # Save results incrementally (in case of crash)
                     with open(output_file, 'w', encoding='utf-8') as f:
                         json.dump(results, f, indent=2)
                     
@@ -2148,8 +2311,11 @@ def analyze_directory_transferFrom(directory_path: str, output_file: str, target
                         'file': file_path,
                         'error': error_msg
                     })
+        
+        # Break outer loop if limit reached
+        if max_files and files_processed >= max_files:
+            break
     
-    # Final summary
     print("-" * 60)
     print(f"📊 ANALYSIS COMPLETE")
     print(f"   Total files processed: {files_processed}")
@@ -2157,7 +2323,6 @@ def analyze_directory_transferFrom(directory_path: str, output_file: str, target
     print(f"   Results saved to: {output_file}")
     
     return results
-
 
 def analyze_single_file_transferFrom(file_path: str, target_sig: str = "transferFrom(address,address,uint256)") -> Dict:
     """
@@ -2348,7 +2513,13 @@ if __name__ == "__main__":
     # erc3643_output_file = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc3643_batchTransfer_TEST_ONE.json"
     
     erc1155_target_sig = "safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)"
-    erc20_transferFrom = "transferFrom(address from, address to, uint256 value)"
+
+    erc20_transferFrom_sig = "transferFrom(address from, address to, uint256 value)"
+
+    # erc20_transferFrom_directory = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc20-transferFrom"
+    erc20_transferFrom_directory = "/Users/ashokk/Downloads/evm_data/erc20-transferFrom1"
+    # erc20_output = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc20-transferFrom/erc20-output"
+    erc20_output_20k_files = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/erc20-transferFrom/erc20-output_20k_files"
     
     
     # erc3643_target_sig = "batchTransfer(address[] calldata _toList, uint256[] calldata _amounts)"
@@ -2373,8 +2544,8 @@ if __name__ == "__main__":
     # erc1155_target_sig_setApprovalForAll = "setApprovalForAll(address operator, bool approved)"
     
     # analysis_results = analyze_directory(erc1155_directory, erc1155_output_file, erc1155_target_sig)
-    analysis_results = analyze_directory(erc1155_directory,erc1155_output_file, erc20_transferFrom)
-    analyze_directory_transferFrom(erc1155_directory,erc1155_output_file, erc20_transferFrom)
+    # analysis_results = analyze_directory(erc1155_directory,erc1155_output_file, erc20_transferFrom)
+    analyze_directory_transferFrom(erc20_transferFrom_directory,erc20_output_20k_files, erc20_transferFrom_sig, max_files=20000)
     
     # compliant_files = [r for r in analysis_results if not r.get('error')]
     # print(f"\nFiles with safeBatchTransferFrom implementation: {len(compliant_files)}")
