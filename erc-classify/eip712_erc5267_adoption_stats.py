@@ -418,7 +418,7 @@ def main():
     print("Output CSV:", OUT_PATH)
     print("Cache CSV:", CACHE_PATH)
 
-    addresses = collect_unique_addresses_from_csv()[:20]
+    addresses = collect_unique_addresses_from_csv()
 
     print("Total unique valid addresses:", len(addresses))
 
