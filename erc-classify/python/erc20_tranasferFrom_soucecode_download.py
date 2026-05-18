@@ -39,17 +39,18 @@ CSV_PATH = "/home/ashok/ashokTests/smart-contract-data-source/ethereum_deduplica
 
 
 
-OUTPUT_DIR = "/home/ashok/ashokTests/smart-contract-data-source/erc5267-source_code"
+# OUTPUT_DIR = "/home/ashok/ashokTests/smart-contract-data-source/erc5267-source_code"
+OUTPUT_DIR = "/home/ashok/ashokTests/smart-contract-data-source/erc2612_permit_source_code"
 # OUTPUT_DIR = "/Users/ashokk/Downloads/evm_data/erc2612-permit"
 # OUTPUT_DIR = "/home/ashok/ashokTests/ERC-analysis/erc-classify/erc5267"
 # OUTPUT_DIR = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/erc5267-source_code"
-LIMIT = None  # Set to None for all, or number for testing
+LIMIT = 40000  # Set to None for all, or number for testing
 
 CHAIN_ID = 1
 # TARGET_SELECTOR = "23b872dd" # transferFrom
-# TARGET_SELECTOR = "d505accf" # permit
+TARGET_SELECTOR = "d505accf" # permit
 
-TARGET_SELECTOR = "84b0196e" # ERC5267 eip712Domain() 
+# TARGET_SELECTOR = "84b0196e" # ERC5267 eip712Domain() 
 
 MAX_WORKERS = 20  # Adjust based on API keys
 RATE_LIMIT_PER_KEY = 5  # Calls per second per API key
@@ -60,7 +61,8 @@ if TARGET_SELECTOR == "84b0196e":  #
     PROGRESS_FILE = "/home/ashok/ashokTests/smart-contract-data-source/download_progress_ERC5267_eip712Domain.json"
     # PROGRESS_FILE = "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/download_progress_ERC5267_eip712Domain.json"
 elif TARGET_SELECTOR == "d505accf": #permit
-    PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_permit.json"
+    # PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_permit.json"
+    PROGRESS_FILE = "/home/ashok/ashokTests/smart-contract-data-source/download_progress_ERC2612_permit.json"
 # else:
 #     PROGRESS_FILE = "/Users/ashokk/Downloads/evm_data/download_progress_transferfrom.json"
 
