@@ -6,17 +6,16 @@ import json
 import os
 import time
 from collections import Counter, deque
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import requests
 from dotenv import load_dotenv
 from tqdm import tqdm
-  
-
 
 EIP_PATTERNS = {
     "EIP2612": ["d505accf"],
@@ -39,11 +38,11 @@ class APIKeyManager:
         self.min_interval = 1.0 / calls_per_second_per_key
         self.last_call = {k: 0.0 for k in api_keys}
         self.usage = Counter()
-        self.lock = Lock()
+        self.rotate_lock = Lock()
         self.key_locks = {k: Lock() for k in api_keys}
 
     def get_key(self) -> str:
-        with self.lock:
+        with self.rotate_lock:
             self.api_keys.rotate(-1)
             return self.api_keys[0]
 
@@ -104,7 +103,6 @@ def detect_features_from_bytecode(bytecode: Any) -> Dict[str, bool]:
         eip: any(p.lower().replace("0x", "") in b for p in patterns)
         for eip, patterns in EIP_PATTERNS.items()
     }
-    # ERC-2612 permit uses EIP-712 typed-data domain separation by definition.
     if features["EIP2612"]:
         features["EIP712"] = True
     return features
@@ -131,50 +129,50 @@ def classify_eip_family(features: Dict[str, bool]) -> str:
 
 
 class EtherscanV2Client:
-    def __init__(self, api_keys: List[str], chainid: int = 1, calls_per_second_per_key: float = 4.5):
+    def __init__(
+        self,
+        api_keys: List[str],
+        chainid: int = 1,
+        calls_per_second_per_key: float = 4.5,
+        timeout: int = 30,
+    ):
         self.chainid = str(chainid)
+        self.timeout = timeout
         self.key_manager = APIKeyManager(api_keys, calls_per_second_per_key)
-        self.session = requests.Session()
 
     def get_json(self, params: Dict[str, Any], max_retries: int = 5) -> Dict[str, Any]:
         last_error = None
         for attempt in range(max_retries):
             key = self.key_manager.get_key()
             self.key_manager.wait(key)
-
             p = dict(params)
             p["chainid"] = self.chainid
             p["apikey"] = key
 
             try:
-                r = self.session.get(ETHERSCAN_V2_URL, params=p, timeout=30)
+                r = requests.get(ETHERSCAN_V2_URL, params=p, timeout=self.timeout)
                 r.raise_for_status()
                 data = r.json()
-                data_text = json.dumps(data).lower()
-                if "rate limit" in data_text or "too many requests" in data_text:
+                text = json.dumps(data).lower()
+                if "rate limit" in text or "max rate limit" in text or "too many requests" in text:
                     time.sleep(1.5 * (attempt + 1))
                     continue
                 return data
             except Exception as exc:
                 last_error = exc
                 time.sleep(1.0 * (attempt + 1))
+
         raise RuntimeError(f"Etherscan request failed after retries: {last_error}")
 
-    def get_contract_creation_batch(self, addresses: List[str]) -> Dict[str, Dict[str, Any]]:
-        addresses = [normalize_address(a) for a in addresses if a]
+    def get_contract_creation(self, address: str) -> Optional[Dict[str, Any]]:
         data = self.get_json({
             "module": "contract",
             "action": "getcontractcreation",
-            "contractaddresses": ",".join(addresses),
+            "contractaddresses": normalize_address(address),
         })
-
-        out = {}
-        if data.get("status") == "1" and isinstance(data.get("result"), list):
-            for item in data["result"]:
-                addr = normalize_address(item.get("contractAddress", ""))
-                if addr:
-                    out[addr] = item
-        return out
+        if data.get("status") == "1" and isinstance(data.get("result"), list) and data["result"]:
+            return data["result"][0]
+        return None
 
     def get_transaction_by_hash(self, txhash: str) -> Optional[Dict[str, Any]]:
         data = self.get_json({
@@ -195,6 +193,57 @@ class EtherscanV2Client:
         result = data.get("result")
         return result if isinstance(result, dict) else None
 
+    def fetch_deployment_metadata(self, address: str) -> Dict[str, Any]:
+        address = normalize_address(address)
+        try:
+            creation = self.get_contract_creation(address)
+            if not creation:
+                return {"address": address, "creation_status": "creation_not_found"}
+
+            txhash = creation.get("txHash") or creation.get("hash")
+            creator = creation.get("contractCreator")
+
+            if not txhash:
+                return {"address": address, "contract_creator": creator, "creation_status": "txhash_missing"}
+
+            tx = self.get_transaction_by_hash(txhash)
+            if not tx or not tx.get("blockNumber"):
+                return {
+                    "address": address,
+                    "contract_creator": creator,
+                    "creation_txhash": txhash,
+                    "creation_status": "tx_not_found",
+                }
+
+            block_hex = tx["blockNumber"]
+            block_number = int(block_hex, 16)
+            block = self.get_block_by_number(block_hex)
+
+            if not block or not block.get("timestamp"):
+                return {
+                    "address": address,
+                    "contract_creator": creator,
+                    "creation_txhash": txhash,
+                    "block_number": block_number,
+                    "creation_status": "block_not_found",
+                }
+
+            timestamp = int(block["timestamp"], 16)
+            dt = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+
+            return {
+                "address": address,
+                "contract_creator": creator,
+                "creation_txhash": txhash,
+                "block_number": block_number,
+                "timestamp": timestamp,
+                "datetime_utc": dt.isoformat(),
+                "year": dt.year,
+                "creation_status": "ok",
+            }
+        except Exception as exc:
+            return {"address": address, "creation_status": f"error: {str(exc)[:180]}"}
+
 
 def load_cache(path: Path) -> Dict[str, Dict[str, Any]]:
     if not path.exists():
@@ -214,18 +263,13 @@ def save_cache(path: Path, cache: Dict[str, Dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
-def chunks(xs: List[str], n: int) -> Iterable[List[str]]:
-    for i in range(0, len(xs), n):
-        yield xs[i:i + n]
-
-
 def run_pipeline(
     input_csv: str,
     outdir: str,
     env_path: Optional[str],
     chainid: int,
     limit: Optional[int],
-    batch_size: int,
+    workers: int,
     calls_per_second_per_key: float,
     save_every: int,
 ) -> None:
@@ -261,11 +305,9 @@ def run_pipeline(
             "eip_combo": make_combo(features),
             "eip_family": classify_eip_family(features),
         }
-
         for c in ["is_erc20", "is_erc721", "function_sighashes"]:
             if c in df.columns:
                 rec[c] = row[c]
-
         records.append(rec)
 
     local_df = pd.DataFrame(records)
@@ -300,75 +342,27 @@ def run_pipeline(
     addresses = matched_df["address"].dropna().drop_duplicates().tolist()
     remaining = [a for a in addresses if a not in cache]
     print(f"Remaining addresses to enrich: {len(remaining)}")
+    print(f"Workers: {workers}")
+    print(f"Calls/sec/key cap: {calls_per_second_per_key}")
 
-    processed = 0
-
-    for batch in tqdm(list(chunks(remaining, batch_size)), desc="Fetching deployment metadata"):
-        creation_map = client.get_contract_creation_batch(batch)
-
-        if not creation_map:
-            creation_map = {}
-            for a in batch:
+    completed = 0
+    if remaining:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            future_to_addr = {
+                executor.submit(client.fetch_deployment_metadata, addr): addr
+                for addr in remaining
+            }
+            for future in tqdm(as_completed(future_to_addr), total=len(future_to_addr), desc="Fetching deployment metadata"):
+                addr = future_to_addr[future]
                 try:
-                    creation_map.update(client.get_contract_creation_batch([a]))
+                    result = future.result()
                 except Exception as exc:
-                    cache[a] = {"address": a, "creation_status": f"creation_error: {str(exc)[:160]}"}
+                    result = {"address": addr, "creation_status": f"worker_error: {str(exc)[:180]}"}
 
-        for a in batch:
-            if a in cache:
-                continue
-
-            try:
-                creation = creation_map.get(a)
-                if not creation:
-                    cache[a] = {"address": a, "creation_status": "creation_not_found"}
-                else:
-                    txhash = creation.get("txHash") or creation.get("hash")
-                    creator = creation.get("contractCreator")
-
-                    if not txhash:
-                        cache[a] = {"address": a, "contract_creator": creator, "creation_status": "txhash_missing"}
-                    else:
-                        tx = client.get_transaction_by_hash(txhash)
-                        if not tx or not tx.get("blockNumber"):
-                            cache[a] = {
-                                "address": a,
-                                "contract_creator": creator,
-                                "creation_txhash": txhash,
-                                "creation_status": "tx_not_found",
-                            }
-                        else:
-                            block_hex = tx["blockNumber"]
-                            block_number = int(block_hex, 16)
-                            block = client.get_block_by_number(block_hex)
-
-                            if not block or not block.get("timestamp"):
-                                cache[a] = {
-                                    "address": a,
-                                    "contract_creator": creator,
-                                    "creation_txhash": txhash,
-                                    "block_number": block_number,
-                                    "creation_status": "block_not_found",
-                                }
-                            else:
-                                timestamp = int(block["timestamp"], 16)
-                                dt = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-                                cache[a] = {
-                                    "address": a,
-                                    "contract_creator": creator,
-                                    "creation_txhash": txhash,
-                                    "block_number": block_number,
-                                    "timestamp": timestamp,
-                                    "datetime_utc": dt.isoformat(),
-                                    "year": dt.year,
-                                    "creation_status": "ok",
-                                }
-            except Exception as exc:
-                cache[a] = {"address": a, "creation_status": f"error: {str(exc)[:160]}"}
-
-            processed += 1
-            if processed % save_every == 0:
-                save_cache(cache_path, cache)
+                cache[addr] = result
+                completed += 1
+                if completed % save_every == 0:
+                    save_cache(cache_path, cache)
 
     save_cache(cache_path, cache)
     print(f"Saved deployment cache: {cache_path}")
@@ -381,6 +375,7 @@ def run_pipeline(
     ok_df = final_df[final_df["creation_status"] == "ok"].copy()
     if ok_df.empty:
         print("No contracts had successful deployment metadata. Check API keys/rate limits.")
+        print(final_df["creation_status"].value_counts(dropna=False).head(30))
         return
 
     yearly_rows = []
@@ -412,10 +407,7 @@ def run_pipeline(
         .sort_values(["year", "count"], ascending=[True, False])
     )
     combo_df["year_total_matched"] = combo_df["year"].map(total_by_year)
-    combo_df["combo_pct_among_matched"] = round(
-        (combo_df["count"] / combo_df["year_total_matched"]) * 100,
-        6,
-    )
+    combo_df["combo_pct_among_matched"] = round((combo_df["count"] / combo_df["year_total_matched"]) * 100, 6)
     combo_df.to_csv(output_combos, index=False)
     print(f"Saved yearly combo summary: {output_combos}")
 
@@ -423,7 +415,7 @@ def run_pipeline(
     print(ok_df[["EIP2612", "EIP712", "EIP5267", "EIP1271"]].sum())
 
     print("\n=== Creation status counts ===")
-    print(final_df["creation_status"].value_counts(dropna=False).head(20))
+    print(final_df["creation_status"].value_counts(dropna=False).head(30))
 
     print("\n=== Top combos ===")
     print(ok_df["eip_combo"].value_counts().head(20))
@@ -437,15 +429,13 @@ def run_pipeline(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Detect EIP adoption from bytecode and enrich matched contracts with deployment year using Etherscan V2."
-    )
+    parser = argparse.ArgumentParser(description="EIP adoption enrichment with Etherscan V2 + threaded workers.")
     parser.add_argument("--input", required=True, help="Input CSV path with address and bytecode.")
     parser.add_argument("--outdir", required=True, help="Output directory.")
     parser.add_argument("--env", default=None, help="Path to .env containing ETHERSCAN_API_KEY1, etc.")
     parser.add_argument("--chainid", type=int, default=1, help="Etherscan V2 chainid; Ethereum mainnet is 1.")
     parser.add_argument("--limit", type=int, default=None, help="Limit matched contracts for testing.")
-    parser.add_argument("--batch-size", type=int, default=5, help="Batch size for getcontractcreation.")
+    parser.add_argument("--workers", type=int, default=12, help="Thread workers for Etherscan enrichment.")
     parser.add_argument("--calls-per-second-per-key", type=float, default=4.5)
     parser.add_argument("--save-every", type=int, default=100)
     args = parser.parse_args()
@@ -456,7 +446,7 @@ def main() -> None:
         env_path=args.env,
         chainid=args.chainid,
         limit=args.limit,
-        batch_size=args.batch_size,
+        workers=args.workers,
         calls_per_second_per_key=args.calls_per_second_per_key,
         save_every=args.save_every,
     )
