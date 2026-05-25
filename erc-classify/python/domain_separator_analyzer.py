@@ -227,6 +227,31 @@ def detect_salt_usage(code: str) -> Dict[str, Any]:
     }
 
 
+def extract_domain_construction_contexts(code: str) -> str:
+    chunks = []
+
+    # Constructor / initializer bodies that actually build DOMAIN_SEPARATOR.
+    for body in extract_constructor_and_initializer_bodies(code):
+        if "DOMAIN_SEPARATOR" in body and "keccak256" in body:
+            chunks.append(body)
+
+    # DOMAIN_SEPARATOR / domainSeparator functions with bodies.
+    funcs = extract_function_bodies(code)
+    for name, bodies in funcs.items():
+        if (
+            name == "DOMAIN_SEPARATOR"
+            or "domainSeparator" in name
+            or "_domainSeparator" in name
+            or name == "_domainSeparatorV4"
+            or name == "_buildDomainSeparator"
+            or name == "computeDomainSeparator"
+        ):
+            chunks.extend(bodies)
+
+    return "\n".join(chunks)
+
+
+
 def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     code = strip_comments(solidity_code)
     result: Dict[str, Any] = {
@@ -269,7 +294,19 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
 
     result["uses_dynamic_chainid"] = has_dynamic_chainid(code)
     result["uses_address_this"] = has_address_this(code)
-    result["hardcoded_chainid"] = has_hardcoded_chainid(code) and not result["uses_dynamic_chainid"]
+    
+    
+    domain_ctx = extract_domain_construction_contexts(code)
+
+    result["uses_dynamic_chainid"] = has_dynamic_chainid(domain_ctx)
+    result["uses_address_this"] = has_address_this(domain_ctx)
+
+    result["hardcoded_chainid"] = (
+        bool(domain_ctx)
+        and has_hardcoded_chainid(domain_ctx)
+        and not result["uses_dynamic_chainid"]
+    )
+    
     result["hardcoded_verifier"] = bool(re.search(r"0x[a-fA-F0-9]{40}", code)) and not result["uses_address_this"]
     result["domain_separator_recomputed_or_chainid_checked"] = detect_domain_separator_function(code)
     result["permit_uses_domain_separator_directly"] = detect_permit_uses_domain_separator_directly(code)
@@ -287,9 +324,14 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
         result["risk_level"] = "Info"
         return result
 
-    if result["has_eip712_domain_typehash"] and not result["uses_chainId_in_typehash"]:
-        result["critical_issues"].append("R1: Missing chainId in EIP712Domain typehash; possible cross-chain replay risk.")
-        result["risk_category"].append("missing_chainId")
+    domain_ctx = extract_domain_construction_contexts(code)
+
+    if result["has_domain_separator"] and not domain_ctx:
+        result["warnings"].append(
+            "DOMAIN_SEPARATOR declaration found, but no implementation/construction body found; likely interface-only or abstract declaration."
+        )
+        result["risk_level"] = "Info"
+        return result
 
     if result["has_eip712_domain_typehash"] and not result["uses_verifyingContract_in_typehash"]:
         result["critical_issues"].append("R2: Missing verifyingContract in EIP712Domain typehash; possible cross-contract replay risk.")

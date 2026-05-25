@@ -454,3 +454,12 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+#  python3 eip_adoption_etherscan_v2.py \
+#   --input /Users/ashokk/Downloads/evm_data/ethereum_deduplicated_results.csv \
+#   --outdir /Users/ashokk/Downloads/evm_data/eip_adoption_v2_test \
+#   --env /Users/ashokk/Documents/ERC-analysis-master/.env \
+#   --chainid 1 \
+#   --limit 100
