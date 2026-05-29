@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from tqdm import tqdm
-
+import hashlib
 
 EIP_PATTERNS = {
     "EIP2612": ["d505accf"],
@@ -68,6 +68,33 @@ def normalize_hex(x: Any) -> str:
     return "".join(c for c in s if c in "0123456789abcdef")
 
 
+def add_code_hash_and_dedup(df: pd.DataFrame) -> pd.DataFrame:
+    before = len(df)
+
+    if "bytecode" not in df.columns:
+        raise ValueError("Cannot deduplicate by bytecode: missing bytecode column.")
+
+    df = df.copy()
+    df["bytecode_norm"] = df["bytecode"].fillna("").astype(str).map(normalize_hex)
+    df = df[df["bytecode_norm"].str.len() > 0].copy()
+
+    df["code_hash"] = df["bytecode_norm"].map(
+        lambda x: hashlib.sha256(x.encode("utf-8")).hexdigest()
+    )
+
+    # Keep the earliest deployment for each unique runtime bytecode.
+    if "block_number" in df.columns:
+        df["block_number"] = pd.to_numeric(df["block_number"], errors="coerce")
+        df = df.sort_values(["block_number", "address"], na_position="last")
+    elif "timestamp" in df.columns:
+        df["timestamp"] = pd.to_numeric(df["timestamp"], errors="coerce")
+        df = df.sort_values(["timestamp", "address"], na_position="last")
+
+    df = df.drop_duplicates(subset=["code_hash"], keep="first")
+
+    print(f"Bytecode deduplication: {before} deployments -> {len(df)} unique bytecodes")
+    return df
+
 def parse_sighashes(x: Any) -> List[str]:
     if x is None or (isinstance(x, float) and pd.isna(x)):
         return []
@@ -90,27 +117,39 @@ def parse_sighashes(x: Any) -> List[str]:
     return out
 
 
+
+
 def detect_features(bytecode: Any = "", function_sighashes: Any = "") -> Dict[str, bool]:
     b = normalize_hex(bytecode)
     sighashes = set(parse_sighashes(function_sighashes))
-    features = {}
-    for eip, patterns in EIP_PATTERNS.items():
-        ok = False
-        for p in patterns:
-            p = p.lower().replace("0x", "")
-            if len(p) == 8:
-                if p in sighashes or p in b:
-                    ok = True
-                    break
-            else:
-                if p in b:
-                    ok = True
-                    break
-        features[eip] = ok
+
+    def has_dispatch_selector(sel: str) -> bool:
+        sel = sel.lower().replace("0x", "")
+
+        # Source/metadata selector if available.
+        if sel in sighashes:
+            return True
+
+        # Runtime dispatcher pattern:
+        # PUSH4 <selector> EQ PUSH1/2/3 <dest> JUMPI
+        # 63 selector 14 60/61/62 ... 57
+        head = b[:12000]  # dispatcher is normally near beginning
+        pat = rf"63{sel}14(?:60[0-9a-f]{{2}}|61[0-9a-f]{{4}}|62[0-9a-f]{{6}})57"
+        return re.search(pat, head) is not None
+
+    eip712_typehash = "8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
+
+    features = {
+        "EIP2612": has_dispatch_selector("d505accf"),
+        "EIP712": has_dispatch_selector("3644e515") or eip712_typehash in b,
+        "EIP5267": has_dispatch_selector("84b0196e"),
+        "EIP1271": has_dispatch_selector("1626ba7e") or has_dispatch_selector("20c13b0b"),
+    }
+
     if features["EIP2612"]:
         features["EIP712"] = True
-    return features
 
+    return features
 
 def make_combo(features: Dict[str, bool]) -> str:
     order = ["EIP2612", "EIP712", "EIP5267", "EIP1271"]
@@ -172,6 +211,8 @@ def find_cutoff_from_cache(cache_path: str) -> Dict[str, Any]:
     }
 
 
+
+
 def build_bq_query(
     table: str,
     start_ts: str,
@@ -183,12 +224,14 @@ def build_bq_query(
     block_col: str,
     timestamp_col: str,
 ) -> str:
-    selector_list = ", ".join([f"'{p}'" for p in ALL_PATTERNS if len(p) == 8])
-    bytecode_like = " OR ".join([
-        f"STRPOS(LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')), '{p}') > 0"
-        for p in ALL_PATTERNS
-    ])
+    # Strict rule:
+    # 4-byte selectors must appear in function_sighashes.
+    # Only the full EIP-712 domain typehash is searched inside bytecode.
+    selector_list = "'d505accf', '3644e515', '84b0196e', '1626ba7e', '20c13b0b'"
+    eip712_typehash = "8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
+
     block_filter = f"AND {block_col} > {int(start_block)}" if start_block is not None else ""
+
     return f"""
     SELECT
       LOWER({address_col}) AS address,
@@ -201,14 +244,44 @@ def build_bq_query(
       AND TIMESTAMP({timestamp_col}) <= TIMESTAMP('{end_ts}')
       {block_filter}
       AND (
-        {bytecode_like}
-        OR EXISTS (
-          SELECT 1
-          FROM UNNEST({sighash_col}) AS sig
-          WHERE LOWER(REPLACE(CAST(sig AS STRING), '0x', '')) IN ({selector_list})
+        EXISTS (
+            SELECT 1
+            FROM UNNEST({sighash_col}) AS sig
+            WHERE LOWER(REPLACE(CAST(sig AS STRING), '0x', '')) IN ({selector_list})
         )
-      )
+
+        OR REGEXP_CONTAINS(
+            SUBSTR(LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')), 1, 12000),
+            r'63d505accf14(60[0-9a-f]{{2}}|61[0-9a-f]{{4}}|62[0-9a-f]{{6}})57'
+        )
+
+        OR REGEXP_CONTAINS(
+            SUBSTR(LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')), 1, 12000),
+            r'633644e51514(60[0-9a-f]{{2}}|61[0-9a-f]{{4}}|62[0-9a-f]{{6}})57'
+        )
+
+        OR REGEXP_CONTAINS(
+            SUBSTR(LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')), 1, 12000),
+            r'6384b0196e14(60[0-9a-f]{{2}}|61[0-9a-f]{{4}}|62[0-9a-f]{{6}})57'
+        )
+
+        OR REGEXP_CONTAINS(
+            SUBSTR(LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')), 1, 12000),
+            r'631626ba7e14(60[0-9a-f]{{2}}|61[0-9a-f]{{4}}|62[0-9a-f]{{6}})57'
+        )
+
+        OR REGEXP_CONTAINS(
+            SUBSTR(LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')), 1, 12000),
+            r'6320c13b0b14(60[0-9a-f]{{2}}|61[0-9a-f]{{4}}|62[0-9a-f]{{6}})57'
+        )
+
+        OR STRPOS(
+            LOWER(COALESCE(CAST({bytecode_col} AS STRING), '')),
+            '{eip712_typehash}'
+        ) > 0
+        )
     """
+
 
 
 def run_bigquery(args: argparse.Namespace, cutoff: Dict[str, Any]) -> pd.DataFrame:
@@ -264,6 +337,11 @@ def run_bigquery(args: argparse.Namespace, cutoff: Dict[str, Any]) -> pd.DataFra
     df["timestamp"] = pd.to_datetime(df["block_timestamp"], utc=True).astype("int64") // 10**9
     df["year"] = pd.to_datetime(df["block_timestamp"], utc=True).dt.year
     df["creation_status"] = "ok_bigquery"
+
+    # Match the original CSV logic: use unique bytecode-level contracts,
+    # not raw deployment-level clones.
+    df = add_code_hash_and_dedup(df)
+
     return df
 
 
@@ -301,6 +379,7 @@ def run_csv_candidates(args: argparse.Namespace) -> pd.DataFrame:
     if "creation_status" not in df.columns:
         df["creation_status"] = "ok_candidate_csv"
 
+    df = add_code_hash_and_dedup(df)
     return df
 
 
@@ -317,13 +396,32 @@ def merge_old_new(old_csv: str, new_df: pd.DataFrame, output_path: Path, chain_i
         old["chain_name"] = chain_name
 
     for col in set(new_df.columns) - set(old.columns):
-        old[col] = None
+        old[col] = pd.NA
     for col in set(old.columns) - set(new_df.columns):
-        new_df[col] = None
+        new_df[col] = pd.NA
 
     cols = sorted(old.columns)
-    combined = pd.concat([old[cols], new_df[cols]], ignore_index=True)
-    combined = combined.drop_duplicates(subset=["chain_id", "address"], keep="last")
+
+    old_aligned = old[cols].astype("object")
+    new_aligned = new_df[cols].astype("object")
+
+    combined = pd.concat([old_aligned, new_aligned], ignore_index=True)
+    if "code_hash" in combined.columns:
+        has_hash = combined["code_hash"].notna() & (combined["code_hash"].astype(str).str.len() > 0)
+
+        with_hash = combined[has_hash].drop_duplicates(
+            subset=["chain_id", "code_hash"],
+            keep="first"
+        )
+
+        without_hash = combined[~has_hash].drop_duplicates(
+            subset=["chain_id", "address"],
+            keep="last"
+        )
+
+        combined = pd.concat([with_hash, without_hash], ignore_index=True)
+    else:
+        combined = combined.drop_duplicates(subset=["chain_id", "address"], keep="last")
 
     if "timestamp" in combined.columns:
         combined["timestamp"] = pd.to_numeric(combined["timestamp"], errors="coerce")
@@ -441,7 +539,10 @@ def main() -> None:
     detected = add_detection_columns(df)
     matched = detected[detected["is_eip_matched"]].copy()
     matched = matched[matched["address"].str.match(r"^0x[a-f0-9]{40}$", na=False)]
-    matched = matched.drop_duplicates(subset=["chain_id", "address"], keep="last")
+    if "code_hash" in matched.columns:
+        matched = matched.drop_duplicates(subset=["chain_id", "code_hash"], keep="first")
+    else:
+        matched = matched.drop_duplicates(subset=["chain_id", "address"], keep="last")
 
     if not args.keep_bytecode and "bytecode" in matched.columns:
         matched = matched.drop(columns=["bytecode"])
@@ -490,6 +591,17 @@ if __name__ == "__main__":
 #   --end-date 2026-05-31 \
 #   --merge-old
   
+  
+#   python % python3 /Users/ashokk/Documents/ERC-analysis-master/erc-classify/python/download_latest_eip_matched_contracts.py \
+#   --mode bigquery \
+#   --chain-id 1 \
+#   --chain-name ethereum \
+#   --deployment-cache /Users/ashokk/Downloads/evm_data/eip_adoption_v2/deployment_cache.json \
+#   --old-matched-csv /Users/ashokk/Downloads/evm_data/eip_adoption_v2/matched_contracts_with_deployment.csv \
+#   --outdir /Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026 \
+#   --bq-table bigquery-public-data.crypto_ethereum.contracts \
+#   --end-date 2026-05-31 \
+#   --merge-old
   
   
   

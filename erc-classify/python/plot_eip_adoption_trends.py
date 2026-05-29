@@ -5,18 +5,18 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+import numpy as np
 
 
 # =========================
 # Paths
 # =========================
 
-# BASE_DIR = Path("/home/ashok/ashokTests/smart-contract-data-source/eip_adoption_v2")
-BASE_DIR = Path("/Users/ashokk/Downloads/evm_data/eip_adoption_v2")
+BASE_DIR = Path("/Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026")
 
-YEARLY_CSV = BASE_DIR / "yearly_matched_eip_trend.csv"
-COMBO_CSV = BASE_DIR / "yearly_combo_summary.csv"
-MATCHED_CSV = BASE_DIR / "matched_contracts_with_deployment.csv"
+YEARLY_CSV = BASE_DIR / "yearly_matched_eip_trend_merged.csv"
+COMBO_CSV = BASE_DIR / "yearly_combo_summary_merged.csv"
+MATCHED_CSV = BASE_DIR / "ethereum_merged_old_new_matched_eip_contracts.csv"
 
 OUT_DIR = BASE_DIR / "figures"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -53,9 +53,18 @@ def savefig(name: str):
 
 
 def load_data():
-    yearly = pd.read_csv(YEARLY_CSV)
-    combos = pd.read_csv(COMBO_CSV)
-    matched = pd.read_csv(MATCHED_CSV)
+    yearly = pd.read_csv(YEARLY_CSV, low_memory=False)
+    combos = pd.read_csv(COMBO_CSV, low_memory=False)
+    matched = pd.read_csv(MATCHED_CSV, low_memory=False)
+
+    yearly["year"] = pd.to_numeric(yearly["year"], errors="coerce")
+    combos["year"] = pd.to_numeric(combos["year"], errors="coerce")
+
+    yearly = yearly.dropna(subset=["year"]).copy()
+    combos = combos.dropna(subset=["year"]).copy()
+
+    yearly["year"] = yearly["year"].astype(int)
+    combos["year"] = combos["year"].astype(int)
 
     yearly = yearly.sort_values("year")
     combos = combos.sort_values(["year", "count"], ascending=[True, False])
@@ -264,6 +273,170 @@ def plot_cumulative_counts(yearly):
 
 
 # =========================
+# Figure 6: Grouped bar chart of EIP counts
+# =========================
+
+def plot_grouped_bar_counts(yearly):
+    fig, ax = plt.subplots(figsize=(8.0, 4.4))
+
+    years = yearly["year"].astype(int).to_numpy()
+    x = np.arange(len(years))
+    width = 0.20
+
+    series = [
+        ("ERC-2612", "EIP2612_count"),
+        ("EIP-712", "EIP712_count"),
+        ("ERC-5267", "EIP5267_count"),
+        ("ERC-1271", "EIP1271_count"),
+    ]
+
+    offsets = [-1.5 * width, -0.5 * width, 0.5 * width, 1.5 * width]
+
+    for (label, col), offset in zip(series, offsets):
+        if col in yearly.columns:
+            ax.bar(x + offset, yearly[col], width=width, label=label)
+
+    ax.set_xlabel("Deployment year")
+    ax.set_ylabel("Number of unique detected contracts")
+    ax.set_title("Yearly adoption of signature-related EIPs")
+    ax.set_xticks(x)
+    ax.set_xticklabels(years)
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.5, alpha=0.6)
+    ax.legend(ncol=2, frameon=True)
+    ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+
+    savefig("fig6_grouped_bar_eip_counts")
+
+
+# =========================
+# Figure 7: Stacked bar chart of EIP composition
+# =========================
+
+def plot_stacked_bar_counts(yearly):
+    fig, ax = plt.subplots(figsize=(8.0, 4.4))
+
+    years = yearly["year"].astype(int)
+    bottom = np.zeros(len(yearly))
+
+    series = [
+        ("ERC-2612", "EIP2612_count"),
+        ("ERC-5267", "EIP5267_count"),
+        ("ERC-1271", "EIP1271_count"),
+    ]
+
+    for label, col in series:
+        if col in yearly.columns:
+            values = yearly[col].fillna(0).to_numpy()
+            ax.bar(years, values, bottom=bottom, label=label)
+            bottom += values
+
+    ax.set_xlabel("Deployment year")
+    ax.set_ylabel("Number of unique detected contracts")
+    ax.set_title("Composition of detected signature-related standards")
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.5, alpha=0.6)
+    ax.legend(frameon=True)
+    ax.xaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+    ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+
+    savefig("fig7_stacked_bar_eip_composition")
+
+
+# =========================
+# Figure 8: ERC-5267 adoption share as bar chart
+# =========================
+
+def plot_erc5267_share_bar(yearly):
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+
+    ax.bar(
+        yearly["year"],
+        yearly["EIP5267_pct_among_matched"],
+        width=0.65,
+        label="ERC-5267 share"
+    )
+
+    ax.set_xlabel("Deployment year")
+    ax.set_ylabel("Share among detected EIP-related contracts (%)")
+    ax.set_title("ERC-5267 adoption share over time")
+    ax.set_ylim(0, max(5, yearly["EIP5267_pct_among_matched"].max() * 1.18))
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.5, alpha=0.6)
+    ax.xaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+
+    for _, row in yearly.iterrows():
+        value = row["EIP5267_pct_among_matched"]
+        if pd.notna(value) and value > 0:
+            ax.text(
+                row["year"],
+                value,
+                f"{value:.1f}%",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+            )
+
+    savefig("fig8_erc5267_share_bar")
+
+
+# =========================
+# Figure 9: Top EIP combinations as horizontal bars
+# =========================
+
+def plot_top_combo_horizontal_bar(combos):
+    total = (
+        combos.groupby("eip_combo")["count"]
+        .sum()
+        .sort_values(ascending=True)
+        .tail(10)
+    )
+
+    fig, ax = plt.subplots(figsize=(7.8, 4.8))
+
+    ax.barh(total.index, total.values)
+
+    ax.set_xlabel("Number of unique detected contracts")
+    ax.set_ylabel("EIP combination")
+    ax.set_title("Most frequent EIP combinations")
+    ax.grid(True, axis="x", linestyle="--", linewidth=0.5, alpha=0.6)
+
+    for i, value in enumerate(total.values):
+        ax.text(value, i, f" {int(value):,}", va="center", fontsize=8)
+
+    savefig("fig9_top_eip_combinations_bar")
+
+
+# =========================
+# Figure 10: Cumulative stacked area-style trend
+# =========================
+
+def plot_cumulative_stacked_area(yearly):
+    fig, ax = plt.subplots(figsize=(8.0, 4.4))
+
+    years = yearly["year"].astype(int).to_numpy()
+
+    labels = ["ERC-2612", "EIP-712", "ERC-5267", "ERC-1271"]
+    cols = ["EIP2612_count", "EIP712_count", "EIP5267_count", "EIP1271_count"]
+
+    values = []
+    kept_labels = []
+
+    for label, col in zip(labels, cols):
+        if col in yearly.columns:
+            values.append(yearly[col].fillna(0).cumsum().to_numpy())
+            kept_labels.append(label)
+
+    ax.stackplot(years, values, labels=kept_labels, alpha=0.85)
+
+    ax.set_xlabel("Deployment year")
+    ax.set_ylabel("Cumulative number of unique detected contracts")
+    ax.set_title("Cumulative adoption composition of signature-related EIPs")
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.6)
+    ax.legend(loc="upper left", frameon=True)
+    ax.xaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+    ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+
+    savefig("fig10_cumulative_stacked_area")
+
+# =========================
 # Summary table for paper
 # =========================
 
@@ -308,6 +481,14 @@ def main():
     plot_erc5267_growth(yearly)
     plot_combo_matrix(combos)
     plot_cumulative_counts(yearly)
+
+    # New bar/variant figures
+    plot_grouped_bar_counts(yearly)
+    plot_stacked_bar_counts(yearly)
+    plot_erc5267_share_bar(yearly)
+    plot_top_combo_horizontal_bar(combos)
+    plot_cumulative_stacked_area(yearly)
+
     export_latex_table(yearly)
 
     print(f"\nAll figures saved in: {OUT_DIR}")
