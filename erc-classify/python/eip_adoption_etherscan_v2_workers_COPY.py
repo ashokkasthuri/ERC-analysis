@@ -356,6 +356,7 @@ def run_pipeline(
 
     print(f"Loading CSV: {input_csv}")
     df = pd.read_csv(input_csv, low_memory=False)
+    df = df.head(10000)
     print(f"Rows loaded: {len(df)}")
     print(f"Columns: {df.columns.tolist()}")
 
@@ -399,7 +400,11 @@ def run_pipeline(
         print("No matched contracts found. Exiting.")
         return
 
-    key_prefix = EXPLORER_KEY_PREFIX.get(chainid, "ETHERSCAN_API_KEY")
+    if provider == "etherscan_v2":
+        key_prefix = "ETHERSCAN_API_KEY"
+    else:
+        key_prefix = EXPLORER_KEY_PREFIX.get(chainid, "ETHERSCAN_API_KEY")
+        
     api_keys = load_api_keys(env_path, key_prefix=key_prefix)
     print(f"Loaded {len(api_keys)} API key(s) using prefix: {key_prefix}")
 
