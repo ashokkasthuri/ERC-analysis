@@ -356,7 +356,7 @@ def run_pipeline(
 
     print(f"Loading CSV: {input_csv}")
     df = pd.read_csv(input_csv, low_memory=False)
-    df = df.head(10000)
+    # df = df.head(10000)
     print(f"Rows loaded: {len(df)}")
     print(f"Columns: {df.columns.tolist()}")
 
