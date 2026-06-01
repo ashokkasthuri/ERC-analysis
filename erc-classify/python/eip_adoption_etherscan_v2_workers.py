@@ -29,6 +29,21 @@ EIP_PATTERNS = {
 
 ETHERSCAN_V2_URL = "https://api.etherscan.io/v2/api"
 
+LEGACY_EXPLORER_URLS = {
+    56: "https://api.bscscan.com/api",
+    137: "https://api.polygonscan.com/api",
+}
+
+ROUTESCAN_URLS = {
+    43114: "https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api",
+}
+
+EXPLORER_KEY_PREFIX = {
+    56: "BSCSCAN_API_KEY",
+    137: "POLYGONSCAN_API_KEY",
+    43114: "ROUTESCAN_API_KEY",
+}
+
 
 class APIKeyManager:
     def __init__(self, api_keys: List[str], calls_per_second_per_key: float = 4.5):

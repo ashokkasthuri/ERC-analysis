@@ -6,20 +6,49 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+import argparse
 
 
 # =========================
 # Paths
 # =========================
 
-BASE_DIR = Path("/Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026")
+# BASE_DIR = Path("/Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026")
 
-YEARLY_CSV = BASE_DIR / "yearly_matched_eip_trend_merged.csv"
-COMBO_CSV = BASE_DIR / "yearly_combo_summary_merged.csv"
-MATCHED_CSV = BASE_DIR / "ethereum_merged_old_new_matched_eip_contracts.csv"
+# YEARLY_CSV = BASE_DIR / "yearly_matched_eip_trend_merged.csv"
+# COMBO_CSV = BASE_DIR / "yearly_combo_summary_merged.csv"
+# MATCHED_CSV = BASE_DIR / "ethereum_merged_old_new_matched_eip_contracts.csv"
 
-OUT_DIR = BASE_DIR / "figures"
+# OUT_DIR = BASE_DIR / "figures"
+# OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Plot EIP adoption trends from yearly/combo/matched CSV files."
+    )
+    parser.add_argument("--base-dir", required=True, help="Folder containing adoption CSV outputs.")
+    parser.add_argument("--yearly-csv", default=None, help="Path to yearly trend CSV.")
+    parser.add_argument("--combo-csv", default=None, help="Path to yearly combo summary CSV.")
+    parser.add_argument("--matched-csv", default=None, help="Path to matched contracts CSV.")
+    parser.add_argument("--outdir", default=None, help="Output directory for figures.")
+    parser.add_argument("--chain-name", default="chain", help="Chain name used in printed output.")
+    return parser.parse_args()
+
+
+args = parse_args()
+
+BASE_DIR = Path(args.base_dir)
+
+YEARLY_CSV = Path(args.yearly_csv) if args.yearly_csv else BASE_DIR / "yearly_matched_eip_trend.csv"
+COMBO_CSV = Path(args.combo_csv) if args.combo_csv else BASE_DIR / "yearly_combo_summary.csv"
+MATCHED_CSV = Path(args.matched_csv) if args.matched_csv else BASE_DIR / "matched_contracts_with_deployment.csv"
+
+OUT_DIR = Path(args.outdir) if args.outdir else BASE_DIR / "figures"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+CHAIN_NAME = args.chain_name
 
 
 # =========================
@@ -496,3 +525,32 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+    
+    
+    
+    
+    
+#     python3 plot_eip_adoption_trends.py \
+#   --base-dir /Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026 \
+#   --yearly-csv /Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026/yearly_matched_eip_trend_merged.csv \
+#   --combo-csv /Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026/yearly_combo_summary_merged.csv \
+#   --matched-csv /Users/ashokk/Downloads/evm_data/eip_adoption_2024_2026/ethereum_merged_old_new_matched_eip_contracts.csv \
+#   --chain-name ethereum
+
+
+
+# python3 plot_eip_adoption_trends.py \
+#   --base-dir /Users/ashokk/Downloads/evm_data/eip_adoption_polygon_v2 \
+#   --chain-name polygon
+
+# python3 plot_eip_adoption_trends.py \
+#   --base-dir /Users/ashokk/Downloads/evm_data/eip_adoption_binance_v2_paid \
+#   --chain-name binance
+  
+  
+  
+#   python3 plot_eip_adoption_trends.py \
+#   --base-dir /Users/ashokk/Downloads/evm_data/eip_adoption_avalanche_v2_paid \
+#   --chain-name avalanche

@@ -607,11 +607,16 @@ if __name__ == "__main__":
   
   
   
-#   python3 download_latest_eip_matched_contracts.py \
-#   --mode csv_candidates \
+# ashokk@ASHOKKMD6RM python % python3 /Users/ashokk/Documents/ERC-analysis-master/erc-classify/python/download_latest_eip_matched_contracts.py \
+#   --mode bigquery \
 #   --chain-id 137 \
 #   --chain-name polygon \
-#   --deployment-cache /path/to/old/deployment_cache.json \
-#   --candidate-csv /path/to/polygon_candidates.csv \
-#   --outdir /path/to/eip_adoption_polygon_2024_2026 \
-#   --end-date 2026-05-31
+#   --deployment-cache /Users/ashokk/Downloads/evm_data/eip_adoption_polygon_v2/deployment_cache.json \
+#   --old-matched-csv /Users/ashokk/Downloads/evm_data/eip_adoption_polygon_v2/matched_contracts_with_deployment.csv \
+#   --outdir /Users/ashokk/Downloads/evm_data/eip_adoption_polygon_2024_2026_test \
+#   --bq-project api-project-659683831600 \
+#   --bq-table bigquery-public-data.crypto_polygon.contracts \
+#   --start-date 2024-01-01 \
+#   --start-block 0 \
+#   --end-date 2026-05-31 \
+#   --merge-old
