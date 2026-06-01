@@ -202,8 +202,10 @@ def normalize_source_code(source: str) -> str:
     return source
 
 
+
+
 def write_source_files(base: Path, address: str, result: Dict[str, Any]) -> Dict[str, Any]:
-    contract_name = sanitize_filename(result.get("ContractName") or address)
+    contract_name = sanitize_filename(result.get("ContractName") or "Unknown")
     source_raw = normalize_source_code(result.get("SourceCode") or "")
 
     info = {
@@ -211,60 +213,75 @@ def write_source_files(base: Path, address: str, result: Dict[str, Any]) -> Dict
         "source_format": "none",
     }
 
-    if not source_raw:
+    if not source_raw.strip():
         return info
 
-    contract_dir = base / address
-    contract_dir.mkdir(parents=True, exist_ok=True)
+    base.mkdir(parents=True, exist_ok=True)
 
-    # Save full raw Etherscan object.
-    (contract_dir / "etherscan_result.json").write_text(
-        json.dumps(result, indent=2, ensure_ascii=False),
-        encoding="utf-8",
+    flattened = flatten_to_single_solidity(
+        source_raw=source_raw,
+        contract_name=contract_name,
+        address=address,
     )
 
-    # Try Standard JSON Input / multi-file JSON.
-    if source_raw.startswith("{"):
+    out_sol = base / f"{address}_{contract_name}.sol"
+    out_sol.write_text(flattened, encoding="utf-8", errors="ignore")
+
+    info["saved_files"].append(str(out_sol))
+    info["source_format"] = "flattened_single_solidity"
+
+    return info
+
+def flatten_to_single_solidity(source_raw: str, contract_name: str, address: str) -> str:
+    source_raw = normalize_source_code(source_raw)
+
+    header = [
+        "// SPDX-License-Identifier: UNLICENSED",
+        f"// Flattened source downloaded from Etherscan",
+        f"// Address: {address}",
+        f"// Contract Name: {contract_name}",
+        "",
+    ]
+
+    # Case 1: Etherscan Standard JSON or multi-file JSON
+    if source_raw.strip().startswith("{"):
         try:
             obj = json.loads(source_raw)
-            (contract_dir / "standard_json_input.json").write_text(
-                json.dumps(obj, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            info["saved_files"].append(str(contract_dir / "standard_json_input.json"))
-            info["source_format"] = "standard_json"
 
-            sources = obj.get("sources", {})
-            if isinstance(sources, dict) and sources:
-                for name, srcobj in sources.items():
-                    content = ""
-                    if isinstance(srcobj, dict):
-                        content = srcobj.get("content", "") or ""
-                    elif isinstance(srcobj, str):
-                        content = srcobj
+            # Standard JSON input: {"language": "...", "sources": {...}}
+            if isinstance(obj, dict) and "sources" in obj:
+                sources = obj["sources"]
 
-                    if not content:
-                        continue
+            # Etherscan sometimes returns direct mapping:
+            # {"contracts/A.sol": {"content": "..."}}
+            elif isinstance(obj, dict):
+                sources = obj
 
-                    safe_parts = [sanitize_filename(p) for p in Path(name).parts if p not in ("", ".", "..")]
-                    rel_path = Path(*safe_parts) if safe_parts else Path(f"{contract_name}.sol")
-                    out_path = contract_dir / "sources" / rel_path
-                    out_path.parent.mkdir(parents=True, exist_ok=True)
-                    out_path.write_text(content, encoding="utf-8", errors="ignore")
-                    info["saved_files"].append(str(out_path))
+            else:
+                return "\n".join(header) + source_raw
 
-                return info
+            flattened = header[:]
+            for file_path, src_obj in sources.items():
+                content = ""
+                if isinstance(src_obj, dict):
+                    content = src_obj.get("content", "") or ""
+                elif isinstance(src_obj, str):
+                    content = src_obj
+
+                if content.strip():
+                    flattened.append("\n")
+                    flattened.append("// ============================================================")
+                    flattened.append(f"// FILE: {file_path}")
+                    flattened.append("// ============================================================")
+                    flattened.append(content)
+
+            return "\n".join(flattened)
 
         except Exception:
             pass
 
-    # Plain Solidity source.
-    out_sol = contract_dir / f"{contract_name}.sol"
-    out_sol.write_text(source_raw, encoding="utf-8", errors="ignore")
-    info["saved_files"].append(str(out_sol))
-    info["source_format"] = "single_solidity"
-    return info
-
+    # Case 2: already flattened Solidity
+    return "\n".join(header) + source_raw
 
 def fetch_one(row: Dict[str, Any], chain_id: int, key_manager: APIKeyManager, outdir: Path, fetch_impl: bool) -> Dict[str, Any]:
     address = row["address"]
@@ -322,7 +339,7 @@ def fetch_one(row: Dict[str, Any], chain_id: int, key_manager: APIKeyManager, ou
         saved = write_source_files(year_dir, address, r)
         rec["source_format"] = saved["source_format"]
         rec["saved_files_count"] = len(saved["saved_files"])
-        rec["source_dir"] = str(year_dir / address)
+        rec["source_dir"] = str(year_dir)
     else:
         rec["source_format"] = "none"
         rec["saved_files_count"] = 0
