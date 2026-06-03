@@ -465,3 +465,22 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+    
+    
+    
+    
+    
+#     cd /home/ashok/ashokTests/ERC-analysis/erc-classify/python
+# source .venv/bin/activate
+
+# python3 download_verified_sources_etherscan_v2.py \
+#   --input-dir /home/ashok/ashokTests/smart-contract-data-source/allium_raw_data/allium_binance_data \
+#   --outdir /home/ashok/ashokTests/smart-contract-data-source/etherscan_verified_sources/binance \
+#   --env /home/ashok/ashokTests/ERC-analysis/.env \
+#   --chain-name binance \
+#   --chain-id 56 \
+#   --workers 12 \
+#   --calls-per-second-per-key 4.0 \
+#   --fetch-implementation
