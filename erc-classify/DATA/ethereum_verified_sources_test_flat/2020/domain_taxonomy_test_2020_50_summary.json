@@ -1,0 +1,46 @@
+{
+  "total_files": 50,
+  "risk_level_counts": {
+    "Info": 40,
+    "High": 10
+  },
+  "risk_category_counts": {
+    "hardcoded_chainId": 7,
+    "stale_cached_DOMAIN_SEPARATOR": 7,
+    "incorrect_verifyingContract": 1,
+    "missing_chainId": 3,
+    "proxy_stale_domain": 4
+  },
+  "requirement_issue_counts": {
+    "No obvious DOMAIN_SEPARATOR or EIP712Dom": 37,
+    "R3": 7,
+    "R5/R9": 7,
+    "DOMAIN_SEPARATOR declaration found, but ": 3,
+    "R4": 1,
+    "R1": 3,
+    "R6": 4
+  },
+  "taxonomy_counts": {
+    "T2_CROSS_CHAIN_REPLAY": 9,
+    "T3_CROSS_CONTRACT_REPLAY": 1,
+    "T5_PROXY_UPGRADEABLE_DOMAIN_DRIFT": 5,
+    "T1_UNSEPARATED_SIGNING_DOMAIN": 3
+  },
+  "taxonomy_severity_counts": {
+    "High": 13,
+    "Medium": 5
+  },
+  "high_risk_files": [
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x30d8e3be65bff4d345d8e0f60d3536da41c508ff_Chai.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x516e5ad1ba9950fc11901c0e21afa94b40280210_Dai.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x6a4ffaafa8dd400676df8076ad6c724867b0e2e8_Bdai.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x74134cf88b21383713e096a5ecf59e297dc7f547_DevUtils.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x79a0023a7b57b60b23b474f06f7d3ab22338a877_Dai.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x963ba1399a0dc4f06fb7fbba6a1aba36dbc7da10_MarketMakerProxy.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0x9dd91d61a7aa58537fcdbf16fd21be25731341b3_TokenMinter.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0xe2d6ccac3ee3a21abf7bedbe2e107ffc0c037e80_RenERC20LogicV1.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0xee075789e74604495c31b2ec99368e4a4c5c41c7_MarketMakerProxy.sol",
+    "/Users/ashokk/Documents/ERC-analysis-master/erc-classify/DATA/ethereum_verified_sources_test_flat/2020/0xf06ce7c0303259680a9a9fbaaf352db6ae3696f5_Dai.sol"
+  ],
+  "medium_risk_files": []
+}
