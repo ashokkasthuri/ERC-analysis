@@ -1,0 +1,50 @@
+{
+  "contract_address": "0x4a7AA0FCf9b35D87B4125c90484497bB2e050E85",
+  "block_number": 19000000,
+  "target_dir": "/home/greed/.temp/bytecode/out",
+  "is_candidate": true,
+  "reason": "Symbolic success path if available; otherwise static fact fallback used.",
+  "paths_found": 0,
+  "has_ecrecover_path": true,
+  "has_dynamic_domain_path": false,
+  "has_cached_domain_path": false,
+  "findings": [
+    {
+      "taxonomy_id": "T2",
+      "category": "missing_or_hardcoded_chainId_candidate",
+      "severity": "High",
+      "confidence": "Medium",
+      "reason": "EIP712 domain evidence exists, but CHAINID opcode was not observed in symbolic/static evidence."
+    }
+  ],
+  "observations": [
+    {
+      "mode": "static_fact_fallback",
+      "sha3_count": 25,
+      "sload_count": 29,
+      "staticcall_count": 5,
+      "chainid_seen": false,
+      "address_seen": true,
+      "ecrecover_seen": true,
+      "classification": "domain_risk_candidate",
+      "trace_sample": [],
+      "findings": [
+        {
+          "taxonomy_id": "T2",
+          "category": "missing_or_hardcoded_chainId_candidate",
+          "severity": "High",
+          "confidence": "Medium",
+          "reason": "EIP712 domain evidence exists, but CHAINID opcode was not observed in symbolic/static evidence."
+        }
+      ]
+    }
+  ],
+  "static_bytecode_hints": {
+    "bytecode_len": 7141,
+    "has_permit_selector_d505accf": true,
+    "has_DOMAIN_SEPARATOR_selector_3644e515": false,
+    "has_eip712Domain_selector_84b0196e": false,
+    "has_EIP712_full_typehash_8b73": false,
+    "has_PERMIT_typehash_6e71": false
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "contract_address": "0xf2d4fe5f0794be86ac1f69cf2c333d76cdadc66b",
+  "block_number": 19000000,
+  "target_dir": "/home/greed/.temp/bytecode/out",
+  "is_candidate": false,
+  "reason": "No successful permit exit path found.",
+  "paths_found": 0,
+  "has_ecrecover_path": false,
+  "has_dynamic_domain_path": false,
+  "has_cached_domain_path": false,
+  "findings": [],
+  "observations": [],
+  "static_bytecode_hints": {
+    "bytecode_len": 13940,
+    "has_permit_selector_d505accf": true,
+    "has_DOMAIN_SEPARATOR_selector_3644e515": true,
+    "has_eip712Domain_selector_84b0196e": false,
+    "has_EIP712_full_typehash_8b73": true,
+    "has_PERMIT_typehash_6e71": true
+  }
+}

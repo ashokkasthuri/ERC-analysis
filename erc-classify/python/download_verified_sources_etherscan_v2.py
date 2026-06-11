@@ -484,3 +484,64 @@ if __name__ == "__main__":
 #   --workers 12 \
 #   --calls-per-second-per-key 4.0 \
 #   --fetch-implementation
+
+
+
+
+# WITH candidates AS (
+#   SELECT
+#     LOWER(address) AS address,
+#     block_number,
+#     block_timestamp,
+#     SHA2(LOWER(bytecode), 256) AS code_hash
+#   FROM polygon.raw.contracts
+#   WHERE block_timestamp > TIMESTAMP '2020-01-01 00:00:00'
+#     AND block_timestamp <= TIMESTAMP '2026-05-31 23:59:59'
+#     AND bytecode IS NOT NULL
+#     AND bytecode != ''
+#     AND (
+#       LOWER(bytecode) LIKE '%d505accf%' OR
+#       LOWER(bytecode) LIKE '%3644e515%' OR
+#       LOWER(bytecode) LIKE '%84b0196e%' OR
+#       LOWER(bytecode) LIKE '%1626ba7e%' OR
+#       LOWER(bytecode) LIKE '%20c13b0b%' OR
+#       LOWER(bytecode) LIKE '%8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f%'
+#     )
+# ),
+
+# dedup AS (
+#   SELECT *
+#   FROM candidates
+#   QUALIFY ROW_NUMBER() OVER (
+#     PARTITION BY code_hash
+#     ORDER BY block_number ASC, address ASC
+#   ) = 1
+# ),
+
+# paged AS (
+#   SELECT
+#     address,
+#     block_number,
+#     block_timestamp
+#   FROM dedup
+#   WHERE EXTRACT(YEAR FROM block_timestamp) = 2020
+#   ORDER BY block_number, address
+#   LIMIT 200 OFFSET 0
+# ),
+
+# row_lines AS (
+#   SELECT
+#     block_number,
+#     address,
+#     CONCAT(
+#       address, ',',
+#       TO_VARCHAR(EXTRACT(YEAR FROM block_timestamp)), ',',
+#       TO_VARCHAR(block_number), ',',
+#       TO_VARCHAR(block_timestamp)
+#     ) AS csv_row
+#   FROM paged
+# )
+
+# SELECT
+#   LISTAGG(csv_row, '\n') WITHIN GROUP (ORDER BY block_number, address) AS copied_csv_text
+# FROM row_lines;
