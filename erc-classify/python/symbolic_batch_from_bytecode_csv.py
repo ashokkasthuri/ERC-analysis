@@ -21,6 +21,9 @@ Path(OUT).mkdir(parents=True, exist_ok=True)
 with open(IN, newline="") as f:
     rows=[r for r in csv.DictReader(f) if r.get("status")=="ok" and int(r.get("bytecode_len") or 0)>0]
 
+import sys
+limit=int(sys.argv[1]) if len(sys.argv)>1 else None
+rows=rows[:limit] if limit else rows
 for r in tqdm(rows, desc="symbolic"):
     chain, year, addr = r["chain"], r["year"], r["address"].lower()
     odir=Path(OUT)/chain/str(year)

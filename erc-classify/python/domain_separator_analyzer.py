@@ -91,9 +91,7 @@ DOMAIN_SEPARATOR_TAXONOMY = {
         "name": "Unseparated Signing Domain",
         "description": "The signing domain is under-specified because one or more domain separators are missing.",
         "subcategories": [
-            "missing_chainId",
-            "missing_verifyingContract",
-            "missing_logical_domain_disambiguator",
+            "missing_domain_separator",
         ],
         "attack_boundary": "generic domain confusion",
     },
@@ -102,8 +100,7 @@ DOMAIN_SEPARATOR_TAXONOMY = {
         "description": "A signature may be replayable across chains or forks.",
         "subcategories": [
             "missing_chainId",
-            "hardcoded_chainId",
-            "stale_cached_DOMAIN_SEPARATOR",
+            "hardcoded_chainId"
         ],
         "attack_boundary": "chain/fork boundary",
     },
@@ -117,7 +114,7 @@ DOMAIN_SEPARATOR_TAXONOMY = {
         ],
         "attack_boundary": "contract/verifier boundary",
     },
-    "T4_CROSS_PROJECT_LOGICAL_REPLAY": {
+    "T4_LOGICAL_DOMAIN_REPLAY": {
         "name": "Cross-Project / Logical-Domain Replay Risk",
         "description": "A signature may be replayable across pools, vaults, markets, routers, modules, or other logical domains.",
         "subcategories": [
@@ -127,13 +124,12 @@ DOMAIN_SEPARATOR_TAXONOMY = {
         ],
         "attack_boundary": "application/logical-domain boundary",
     },
-    "T5_PROXY_UPGRADEABLE_DOMAIN_DRIFT": {
+    "T5_DOMAIN_FRESHNESS_FAILURE": {
         "name": "Proxy / Upgradeable Domain Drift",
         "description": "The domain separator may become stale or bind to the wrong proxy/implementation context.",
         "subcategories": [
             "proxy_stale_domain",
-            "stale_cached_DOMAIN_SEPARATOR",
-            "incorrect_verifyingContract",
+            "stale_cached_DOMAIN_SEPARATOR"
         ],
         "attack_boundary": "proxy/upgrade/version boundary",
     },
@@ -409,9 +405,8 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
         })
 
     t1_cats = categories.intersection({
-        "missing_chainId",
-        "missing_verifyingContract",
-        "missing_logical_domain_disambiguator",
+        "missing_domain_separator",
+        "missing_eip191_prefix",
     })
 
     if t1_cats:
@@ -426,7 +421,6 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
     t2_cats = categories.intersection({
         "missing_chainId",
         "hardcoded_chainId",
-        "stale_cached_DOMAIN_SEPARATOR",
     })
 
     if t2_cats:
@@ -467,7 +461,7 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
 
     if t4_cats:
         add_taxonomy(
-            "T4_CROSS_PROJECT_LOGICAL_REPLAY",
+            "T4_LOGICAL_DOMAIN_REPLAY",
             list(t4_cats),
             "High" if multi_domain and "missing_logical_domain_disambiguator" in t4_cats else "Medium",
             "Medium",
@@ -477,12 +471,11 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
     t5_cats = categories.intersection({
         "proxy_stale_domain",
         "stale_cached_DOMAIN_SEPARATOR",
-        "incorrect_verifyingContract",
     })
 
     if t5_cats and proxy_context:
         add_taxonomy(
-            "T5_PROXY_UPGRADEABLE_DOMAIN_DRIFT",
+            "T5_DOMAIN_FRESHNESS_FAILURE",
             list(t5_cats),
             "High" if "proxy_stale_domain" in t5_cats else "Medium",
             "Medium",
@@ -538,6 +531,13 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     result["has_permit"] = bool(
         re.search(r"\bfunction\s+permit\s*\(", code)
     )
+    
+    OZ_EIP712_TYPEHASH = "0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
+
+    result["has_oz_eip712_typehash"] = OZ_EIP712_TYPEHASH in code.lower()
+    result["has_eip191_prefix"] = bool(
+        re.search(r'\\x19\\x01|"\x19\x01"|toTypedDataHash\s*\(', code)
+    )
 
     domain_typehashes = find_domain_typehashes(code)
     result["domain_typehashes"] = domain_typehashes
@@ -558,6 +558,17 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     )
 
     domain_ctx = extract_domain_construction_contexts(code)
+    
+    has_safe_domain_construction = (
+    "block.chainid" in domain_ctx
+    and re.search(r"address\s*\(\s*this\s*\)", domain_ctx)
+    )
+
+    if has_safe_domain_construction:
+        result["uses_chainId_in_typehash"] = True
+        result["uses_verifyingContract_in_typehash"] = True
+        result["uses_dynamic_chainid"] = True
+        result["uses_address_this"] = True
 
     result["uses_dynamic_chainid"] = has_dynamic_chainid(domain_ctx)
     result["uses_address_this"] = has_address_this(domain_ctx)
@@ -584,11 +595,27 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     result["proxy_or_upgradeable_context"] = detect_proxy_or_upgradeable(code)
     result["multi_domain_context"] = detect_multi_domain_context(code)
     result["salt"] = detect_salt_usage(code)
+    
+    if result["has_oz_eip712_typehash"]:
+            result["has_eip712_domain_typehash"] = True
+            result["uses_chainId_in_typehash"] = True
+            result["uses_verifyingContract_in_typehash"] = True
 
+    if result["has_permit"] and not result["has_eip191_prefix"]:
+            result["critical_issues"].append("T1: Missing EIP-191 typed-data prefix.")
+            result["risk_category"].append("missing_eip191_prefix")
+            
     if not result["has_domain_separator"] and not result["has_eip712_domain_typehash"]:
-        result["warnings"].append("No obvious DOMAIN_SEPARATOR or EIP712Domain typehash found.")
-        result["risk_level"] = "Info"
-        return result
+        if result["has_permit"]:
+            result["critical_issues"].append(
+                "T1: Missing DOMAIN_SEPARATOR/EIP712Domain in permit-enabled contract."
+            )
+            result["risk_category"].append("missing_domain_separator")
+            result["risk_level"] = "High"
+        else:
+            result["warnings"].append("No obvious DOMAIN_SEPARATOR or EIP712Domain typehash found.")
+            result["risk_level"] = "Info"
+            return result
 
     if result["has_domain_separator"] and not domain_ctx:
         result["warnings"].append(
