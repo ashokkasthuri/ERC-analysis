@@ -236,6 +236,7 @@ def has_dynamic_chainid(expr: str) -> bool:
     return bool(
         re.search(r"\bblock\.chainid\b", expr)
         or re.search(r"\bchainid\s*(?:\(\s*\))?\b", expr)
+        or re.search(r"_getChainId\s*\(", expr)
     )
 
 
@@ -390,7 +391,7 @@ def extract_domain_construction_contexts(code: str) -> str:
     chunks = []
 
     for body in extract_constructor_and_initializer_bodies(code):
-        if "DOMAIN_SEPARATOR" in body and "keccak256" in body:
+        if re.search(r"domain.?separator", body, re.IGNORECASE) and "keccak256" in body:
             chunks.append(body)
 
     funcs = extract_function_bodies(code)
@@ -402,6 +403,7 @@ def extract_domain_construction_contexts(code: str) -> str:
             or name == "_domainSeparatorV4"
             or name == "_buildDomainSeparator"
             or name == "computeDomainSeparator"
+            or name == "getDomainSeparator"
         ):
             chunks.extend(bodies)
 
@@ -489,7 +491,7 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
 
     if t4_cats and has_permit:
         add_taxonomy(
-            "T4_CROSS_PROJECT_LOGICAL_REPLAY",
+            "T4_LOGICAL_DOMAIN_REPLAY",
             list(t4_cats),
             "High" if multi_domain and "missing_logical_domain_disambiguator" in t4_cats else "Medium",
             "Medium",
@@ -503,7 +505,7 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
 
     if t5_cats and has_permit:
         add_taxonomy(
-            "T5_PROXY_UPGRADEABLE_DOMAIN_DRIFT",
+            "T5_DOMAIN_FRESHNESS_FAILURE",
             list(t5_cats),
             "High" if "proxy_stale_domain" in t5_cats else "Medium",
             "Medium",
@@ -563,13 +565,21 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     OZ_EIP712_TYPEHASH = "0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
 
     result["has_oz_eip712_typehash"] = OZ_EIP712_TYPEHASH in code.lower()
+    
     result["has_eip191_prefix"] = bool(
-        re.search(r'\\x19\\x01|"\x19\x01"|toTypedDataHash\s*\(', code)
+        re.search(
+            r'\\x19\\x01|"\x19\x01"|toTypedDataHash\s*\(|_hashTypedDataV4\s*\(|hashTypedDataV4\s*\(',
+            code
+        )
     )
 
     domain_typehashes = find_domain_typehashes(code)
     result["domain_typehashes"] = domain_typehashes
-    result["has_eip712_domain_typehash"] = bool(domain_typehashes)
+    re.search(
+        r'EIP712Domain\s*\(\s*string\s+name\s*,\s*string\s+version\s*,\s*uint256\s+chainId\s*,\s*address\s+verifyingContract',
+        code,
+        re.IGNORECASE,
+    )
 
     joined_typehash = " ".join(domain_typehashes)
 
@@ -617,7 +627,7 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     result["permit_uses_domain_separator_directly"] = detect_permit_uses_domain_separator_directly(code)
 
     for body in extract_constructor_and_initializer_bodies(code):
-        if "DOMAIN_SEPARATOR" in body and "keccak256" in body:
+        if re.search(r"domain.?separator", body, re.IGNORECASE) and "keccak256" in body:
             result["domain_separator_assigned_in_constructor_or_initializer"] = True
 
     result["proxy_or_upgradeable_context"] = detect_proxy_or_upgradeable(code)
@@ -625,9 +635,13 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     result["salt"] = detect_salt_usage(code)
     
     if result["has_oz_eip712_typehash"]:
-            result["has_eip712_domain_typehash"] = True
-            result["uses_chainId_in_typehash"] = True
-            result["uses_verifyingContract_in_typehash"] = True
+        result["has_eip712_domain_typehash"] = True
+        result["uses_chainId_in_typehash"] = True
+        result["uses_verifyingContract_in_typehash"] = True
+
+        if "block.chainid" in code and re.search(r"address\s*\(\s*this\s*\)", code):
+            result["uses_dynamic_chainid"] = True
+            result["uses_address_this"] = True
 
     if result["has_permit"] and not result["has_eip191_prefix"]:
             result["critical_issues"].append("R2: Missing EIP-191 typed-data prefix.")
@@ -893,3 +907,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    
+    
+    
