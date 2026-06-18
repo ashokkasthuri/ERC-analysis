@@ -405,9 +405,59 @@ def detect_salt_usage(code: str) -> Dict[str, Any]:
         "hardcoded_salt": hardcoded_salt,
         "salt_from_hash": salt_from_hash,
     }
-
+def is_domain_separator_function_name(name: str) -> bool:
+    normalized = name.replace("_", "").lower()
+    return "domainseparator" in normalized
 
 def extract_domain_construction_contexts(code: str) -> str:
+    chunks = []
+
+    # Constructor / initializer domain construction.
+    for body in extract_constructor_and_initializer_bodies(code):
+        if "DOMAIN_SEPARATOR" in body and "keccak256" in body:
+            chunks.append(body)
+
+    funcs = extract_function_bodies(code)
+
+    # Covers DOMAIN_SEPARATOR, getDomainSeparator, _domainSeparatorV4,
+    # _buildDomainSeparator, computeDomainSeparator, etc.
+    for name, bodies in funcs.items():
+        if is_domain_separator_function_name(name):
+            chunks.extend(bodies)
+
+    # Follow direct helpers called from selected domain-construction bodies.
+    # E.g., getDomainSeparator() -> getChainId() -> chainid().
+    pending = list(chunks)
+    seen = set(chunks)
+
+    for _ in range(2):
+        discovered = []
+
+        for body in pending:
+            called_names = re.findall(
+                r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+                body,
+            )
+
+            for called_name in called_names:
+                for helper_body in funcs.get(called_name, []):
+                    if helper_body in seen:
+                        continue
+
+                    if (
+                        has_dynamic_chainid(helper_body)
+                        or has_address_this(helper_body)
+                    ):
+                        chunks.append(helper_body)
+                        seen.add(helper_body)
+                        discovered.append(helper_body)
+
+        if not discovered:
+            break
+
+        pending = discovered
+
+    return "\n".join(chunks)
     chunks = []
 
     # Constructor / initializer domain construction.
@@ -587,7 +637,14 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     }
 
     result["has_domain_separator"] = bool(
-        re.search(r"\bDOMAIN_SEPARATOR\b|domainSeparator|_domainSeparatorV4|_domainSeparator", code)
+        re.search(
+            r"\b(?:DOMAIN_SEPARATOR|getDomainSeparator|"
+            r"_?domainSeparator(?:V4)?|"
+            r"_?buildDomainSeparator|"
+            r"_?computeDomainSeparator)\b",
+            code,
+            re.IGNORECASE,
+        )
     )
 
     result["has_permit"] = bool(
