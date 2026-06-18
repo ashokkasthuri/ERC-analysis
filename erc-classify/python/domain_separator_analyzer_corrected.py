@@ -235,7 +235,8 @@ def find_domain_typehashes(code: str) -> List[str]:
 def has_dynamic_chainid(expr: str) -> bool:
     return bool(
         re.search(r"\bblock\.chainid\b", expr)
-        or re.search(r"\bchainid\s*\(\s*\)", expr)
+        or re.search(r"\bchainid\s*(?:\(\s*\))?\b", expr)
+        or re.search(r"_getChainId\s*\(", expr)
     )
 
 
@@ -414,7 +415,6 @@ def extract_domain_construction_contexts(code: str) -> str:
             chunks.append(body)
 
     funcs = extract_function_bodies(code)
-
     for name, bodies in funcs.items():
         if (
             name == "DOMAIN_SEPARATOR"
@@ -427,38 +427,6 @@ def extract_domain_construction_contexts(code: str) -> str:
             or name == "getDomainSeparator"
         ):
             chunks.extend(bodies)
-
-    # Follow helpers called from domain construction that directly read
-    # block.chainid or the assembly chainid() opcode, e.g., _getChainId().
-    pending = list(chunks)
-    seen = set(chunks)
-
-    for _ in range(2):
-        discovered = []
-
-        for body in pending:
-            called_names = re.findall(
-                r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(",
-                body,
-            )
-
-            for helper_name in called_names:
-                for helper_body in funcs.get(helper_name, []):
-                    if helper_body in seen:
-                        continue
-
-                    if re.search(
-                        r"\bblock\.chainid\b|\bchainid\s*\(\s*\)",
-                        helper_body,
-                    ):
-                        chunks.append(helper_body)
-                        seen.add(helper_body)
-                        discovered.append(helper_body)
-
-        if not discovered:
-            break
-
-        pending = discovered
 
     return "\n".join(chunks)
 
