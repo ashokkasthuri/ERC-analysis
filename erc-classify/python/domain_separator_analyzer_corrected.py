@@ -247,11 +247,26 @@ def has_address_this(expr: str) -> bool:
     )
 
 def has_eip712_assembly_digest(code: str) -> bool:
-    return bool(
-        re.search(r"mstore\s*\(\s*0x2e\s*,\s*keccak256\s*\(", code)
-        and re.search(r"mstore\s*\(\s*0x4e\s*,\s*keccak256\s*\(", code)
-        and re.search(r"keccak256\s*\(\s*0x2c\s*,\s*0x42\s*\)", code)
+    compact = re.sub(r"\s+", "", code)
+
+    solady_permit_pattern = (
+        "_DOMAIN_TYPEHASH" in compact
+        and "chainid()" in compact
+        and "address()" in compact
+        and "mstore(0x2e,keccak256(" in compact
+        and "mstore(0x4e,keccak256(" in compact
+        and "keccak256(0x2c,0x42)" in compact
     )
+
+    explicit_eip191_pattern = (
+        (
+            "0x1901000000000000" in compact
+            or re.search(r"0x[0-9a-fA-F]*1901\b", compact)
+        )
+        and "keccak256(0x18,0x42)" in compact
+    )
+
+    return bool(solady_permit_pattern or explicit_eip191_pattern)
     
 def has_hardcoded_chainid(expr: str) -> bool:
     common_chain_ids = [
