@@ -410,10 +410,12 @@ def detect_salt_usage(code: str) -> Dict[str, Any]:
 def extract_domain_construction_contexts(code: str) -> str:
     chunks = []
 
+    # Constructor / initializer domain construction.
     for body in extract_constructor_and_initializer_bodies(code):
-        if re.search(r"domain.?separator", body, re.IGNORECASE) and "keccak256" in body:
+        if "DOMAIN_SEPARATOR" in body and "keccak256" in body:
             chunks.append(body)
 
+    # Explicit domain-separator construction/retrieval functions.
     funcs = extract_function_bodies(code)
     for name, bodies in funcs.items():
         if (
@@ -423,12 +425,21 @@ def extract_domain_construction_contexts(code: str) -> str:
             or name == "_domainSeparatorV4"
             or name == "_buildDomainSeparator"
             or name == "computeDomainSeparator"
-            or name == "_computeDomainSeparator"
-            or name == "getDomainSeparator"
         ):
             chunks.extend(bodies)
 
-    return "\n".join(chunks)
+    # One-hop resolution of helpers invoked by the domain-construction code.
+    # Example: constructor -> getChainId() -> assembly { chainid() }.
+    helper_bodies = []
+    for body in chunks:
+        called_names = re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(", body)
+
+        for name in called_names:
+            for helper_body in funcs.get(name, []):
+                if has_dynamic_chainid(helper_body):
+                    helper_bodies.append(helper_body)
+
+    return "\n".join(chunks + helper_bodies)
 
 
 def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
