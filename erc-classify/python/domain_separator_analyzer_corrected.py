@@ -246,7 +246,13 @@ def has_address_this(expr: str) -> bool:
         or re.search(r"\baddress\s*\(\s*\)", expr)
     )
 
-
+def has_eip712_assembly_digest(code: str) -> bool:
+    return bool(
+        re.search(r"mstore\s*\(\s*0x2e\s*,\s*keccak256\s*\(", code)
+        and re.search(r"mstore\s*\(\s*0x4e\s*,\s*keccak256\s*\(", code)
+        and re.search(r"keccak256\s*\(\s*0x2c\s*,\s*0x42\s*\)", code)
+    )
+    
 def has_hardcoded_chainid(expr: str) -> bool:
     common_chain_ids = [
         1, 3, 4, 5, 10, 56, 97, 100, 137, 250, 324, 1101,
@@ -270,11 +276,15 @@ def detect_domain_separator_function(code: str) -> bool:
     for name, bodies in funcs.items():
         relevant = (
             name == "DOMAIN_SEPARATOR"
+            or name == "_DOMAIN_SEPARATOR"
             or "domainSeparator" in name
             or "_domainSeparator" in name
             or name == "_domainSeparatorV4"
             or name == "_buildDomainSeparator"
             or name == "computeDomainSeparator"
+            or name == "_computeDomainSeparator"
+            or name == "_calculateDomainSeparator"
+            
         )
 
         if not relevant:
@@ -283,6 +293,7 @@ def detect_domain_separator_function(code: str) -> bool:
         for body in bodies:
             if has_dynamic_chainid(body) and (
                 "computeDomainSeparator" in body
+                or "_computeDomainSeparator" in body
                 or "_buildDomainSeparator" in body
                 or "keccak256" in body
                 or "_domainSeparatorV4" in body
@@ -403,6 +414,7 @@ def extract_domain_construction_contexts(code: str) -> str:
             or name == "_domainSeparatorV4"
             or name == "_buildDomainSeparator"
             or name == "computeDomainSeparator"
+            or name == "_computeDomainSeparator"
             or name == "getDomainSeparator"
         ):
             chunks.extend(bodies)
@@ -571,15 +583,21 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
             r'\\x19\\x01|"\x19\x01"|toTypedDataHash\s*\(|_hashTypedDataV4\s*\(|hashTypedDataV4\s*\(',
             code
         )
+        or has_eip712_assembly_digest(code)
     )
 
     domain_typehashes = find_domain_typehashes(code)
     result["domain_typehashes"] = domain_typehashes
-    re.search(
-        r'EIP712Domain\s*\(\s*string\s+name\s*,\s*string\s+version\s*,\s*uint256\s+chainId\s*,\s*address\s+verifyingContract',
-        code,
-        re.IGNORECASE,
+
+    has_string_domain_typehash = bool(
+        re.search(
+            r'EIP712Domain\s*\(\s*string\s+name\s*,\s*string\s+version\s*,\s*uint256\s+chainId\s*,\s*address\s+verifyingContract',
+            code,
+            re.IGNORECASE,
+        )
     )
+
+    result["has_eip712_domain_typehash"] = bool(domain_typehashes) or has_string_domain_typehash
 
     joined_typehash = " ".join(domain_typehashes)
 
