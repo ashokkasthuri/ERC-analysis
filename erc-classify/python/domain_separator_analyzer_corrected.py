@@ -568,7 +568,7 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
         "stale_cached_DOMAIN_SEPARATOR",
     })
 
-    if t5_cats and has_permit:
+    if t5_cats:
         add_taxonomy(
             "T5_DOMAIN_FRESHNESS_FAILURE",
             list(t5_cats),
@@ -795,7 +795,6 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
 
     if (
         result["domain_separator_assigned_in_constructor_or_initializer"]
-        and result["permit_uses_domain_separator_directly"]
         and not result["domain_separator_recomputed_or_chainid_checked"]
     ):
         result["critical_issues"].append(
