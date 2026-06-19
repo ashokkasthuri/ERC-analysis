@@ -246,6 +246,20 @@ def has_address_this(expr: str) -> bool:
         or re.search(r"\baddress\s*\(\s*\)", expr)
     )
 
+def has_hex1901_assembly_digest(code: str) -> bool:
+    compact = re.sub(r"\s+", "", code)
+    compact = compact.replace('hex"19_01"', 'hex"1901"')
+    compact = compact.replace("hex'19_01'", "hex'1901'")
+
+    return bool(
+        re.search(r'mstore\([A-Za-z_][A-Za-z0-9_]*,hex["\']1901["\']\)', compact, re.IGNORECASE)
+        and re.search(r"mstore\(add\([A-Za-z_][A-Za-z0-9_]*,0x02\),", compact, re.IGNORECASE)
+        and re.search(r"mstore\(add\([A-Za-z_][A-Za-z0-9_]*,0x22\),", compact, re.IGNORECASE)
+        and re.search(r"keccak256\([A-Za-z_][A-Za-z0-9_]*,0x42\)", compact, re.IGNORECASE)
+    )
+
+
+
 def has_eip712_assembly_digest(code: str) -> bool:
     compact = re.sub(r"\s+", "", code)
 
@@ -458,38 +472,7 @@ def extract_domain_construction_contexts(code: str) -> str:
         pending = discovered
 
     return "\n".join(chunks)
-    chunks = []
-
-    # Constructor / initializer domain construction.
-    for body in extract_constructor_and_initializer_bodies(code):
-        if "DOMAIN_SEPARATOR" in body and "keccak256" in body:
-            chunks.append(body)
-
-    # Explicit domain-separator construction/retrieval functions.
-    funcs = extract_function_bodies(code)
-    for name, bodies in funcs.items():
-        if (
-            name == "DOMAIN_SEPARATOR"
-            or "domainSeparator" in name
-            or "_domainSeparator" in name
-            or name == "_domainSeparatorV4"
-            or name == "_buildDomainSeparator"
-            or name == "computeDomainSeparator"
-        ):
-            chunks.extend(bodies)
-
-    # One-hop resolution of helpers invoked by the domain-construction code.
-    # Example: constructor -> getChainId() -> assembly { chainid() }.
-    helper_bodies = []
-    for body in chunks:
-        called_names = re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(", body)
-
-        for name in called_names:
-            for helper_body in funcs.get(name, []):
-                if has_dynamic_chainid(helper_body):
-                    helper_bodies.append(helper_body)
-
-    return "\n".join(chunks + helper_bodies)
+    
 
 
 def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
@@ -606,6 +589,20 @@ def classify_taxonomy(result: Dict[str, Any]) -> Dict[str, Any]:
         "taxonomy_names": [t["taxonomy_name"] for t in taxonomy_findings],
     }
 
+def has_permit_implementation(code: str) -> bool:
+    # Real function body only. Excludes interface declarations and external calls like token.permit(...).
+    return bool(
+        re.search(
+            r"\bfunction\s+permit\s*\([^)]*\)\s*(?:public|external)?[^{;]*\{",
+            code,
+            re.IGNORECASE | re.DOTALL,
+        )
+    )
+
+
+def has_external_permit_call(code: str) -> bool:
+    return bool(re.search(r"\.\s*permit\s*\(", code))
+
 
 def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
     code = strip_comments(solidity_code)
@@ -647,9 +644,8 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
         )
     )
 
-    result["has_permit"] = bool(
-        re.search(r"\bfunction\s+permit\s*\(", code)
-    )
+    result["has_permit"] = has_permit_implementation(code)
+    result["calls_external_permit"] = has_external_permit_call(code)
     
     OZ_EIP712_TYPEHASH = "0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
 
@@ -661,6 +657,7 @@ def analyze_domain_separator_construction(solidity_code: str) -> Dict[str, Any]:
             code
         )
         or has_eip712_assembly_digest(code)
+        or has_hex1901_assembly_digest(code)
     )
 
     domain_typehashes = find_domain_typehashes(code)

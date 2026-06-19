@@ -1,0 +1,13 @@
+Violation class	Constraint	Ethereum	BNB Chain	Avalanche	Polygon	Subtotal
+Domain-Separation Violations	R1 Missing domain separator	1021	856	160	1847	3884
+Domain-Separation Violations	R2 Missing EIP-191 prefix	4715	5840	1676	5581	17812
+Chain-Binding Violations	R3 Missing \texttt{chainId}	59	50	4	468	581
+Chain-Binding Violations	R4 Hardcoded \texttt{chainId}	946	1172	54	798	2970
+Verifier-Binding Violations	R5 Missing \texttt{verifyingContract}	39	12	0	32	83
+Verifier-Binding Violations	R6 Incorrect \texttt{verifyingContract}	1603	1505	730	3590	7428
+Verifier-Binding Violations	R7 Hardcoded verifier	6	2	0	12	20
+Domain-Freshness Violations	R11 Stale cached domain separator	1641	4727	1028	2465	9861
+Domain-Freshness Violations	R12 Proxy-stale domain	1456	2023	384	3838	7701
+Logical-Domain Violations	R8 Missing logical-domain disambiguator	262	313	89	297	961
+Logical-Domain Violations	R9 Hardcoded salt	43	15	22	21	101
+Logical-Domain Violations	R10 Zero salt used	16	22	13	119	170

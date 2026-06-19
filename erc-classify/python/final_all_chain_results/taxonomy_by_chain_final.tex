@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+\scriptsize
+\caption{Replay-risk taxonomy by chain. Counts are rule-level candidate observations; a contract may contribute to multiple rules.}
+\label{tab:taxonomy-by-chain}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{p{2.35cm}p{2.8cm}rrrrrp{4.25cm}}
+\toprule
+\textbf{Violation Class} & \textbf{Constraint} & \textbf{Ethereum} & \textbf{BNB Chain} & \textbf{Avalanche} & \textbf{Polygon} & \textbf{Subtotal} & \textbf{Collapsed Boundary / Replay Risk} \\
+\midrule
+\multirow{3}{*}{\textbf{Domain-Separation Violations}} & R1 Missing domain separator & 1021 & 856 & 160 & 1847 & 3884 & \multirow{3}{4.25cm}{\textbf{T1: Unseparated Authorization Domain.} Domain-separation boundary collapses; signatures may become portable across equivalent verification contexts.} \\
+ & R2 Missing EIP-191 prefix & 4715 & 5840 & 1676 & 5581 & 17812 &  \\
+ & \textbf{Subtotal} & \textbf{5736} & \textbf{6696} & \textbf{1836} & \textbf{7428} & \textbf{21696} & \\
+\midrule
+\multirow{3}{*}{\textbf{Chain-Binding Violations}} & R3 Missing \texttt{chainId} & 59 & 50 & 4 & 468 & 581 & \multirow{3}{4.25cm}{\textbf{T2: Cross-Chain Authorization Replay.} Chain/fork boundary collapses; signatures may survive across chains, forks, or migrated deployments.} \\
+ & R4 Hardcoded \texttt{chainId} & 946 & 1172 & 54 & 798 & 2970 &  \\
+ & \textbf{Subtotal} & \textbf{1005} & \textbf{1222} & \textbf{58} & \textbf{1266} & \textbf{3551} & \\
+\midrule
+\multirow{4}{*}{\textbf{Verifier-Binding Violations}} & R5 Missing \texttt{verifyingContract} & 39 & 12 & 0 & 32 & 83 & \multirow{4}{4.25cm}{\textbf{T3: Cross-Contract Authorization Replay.} Verifier-contract boundary collapses; a signature intended for one verifier may be accepted by another.} \\
+ & R6 Incorrect \texttt{verifyingContract} & 1603 & 1505 & 730 & 3590 & 7428 &  \\
+ & R7 Hardcoded verifier & 6 & 2 & 0 & 12 & 20 &  \\
+ & \textbf{Subtotal} & \textbf{1648} & \textbf{1519} & \textbf{730} & \textbf{3634} & \textbf{7531} & \\
+\midrule
+\multirow{3}{*}{\textbf{Domain-Freshness Violations}} & R11 Stale cached domain separator & 1641 & 4727 & 1028 & 2465 & 9861 & \multirow{3}{4.25cm}{\textbf{T5: Domain Freshness Failure.} Temporal/upgrade boundary collapses through stale cached domains or upgrade drift.} \\
+ & R12 Proxy-stale domain & 1456 & 2023 & 384 & 3838 & 7701 &  \\
+ & \textbf{Subtotal} & \textbf{3097} & \textbf{6750} & \textbf{1412} & \textbf{6303} & \textbf{17562} & \\
+\midrule
+\multirow{4}{*}{\textbf{Logical-Domain Violations}} & R8 Missing logical-domain disambiguator & 262 & 313 & 89 & 297 & 961 & \multirow{4}{4.25cm}{\textbf{T4: Candidate Logical-Domain Risk.} Application subdomain boundary may collapse across pools, vaults, markets, modules, or accounts.} \\
+ & R9 Hardcoded salt & 43 & 15 & 22 & 21 & 101 &  \\
+ & R10 Zero salt used & 16 & 22 & 13 & 119 & 170 &  \\
+ & \textbf{Subtotal} & \textbf{321} & \textbf{350} & \textbf{124} & \textbf{437} & \textbf{1232} & \\
+\midrule
+\textbf{Total} & \textbf{All replay-relevant rule observations} & \textbf{11807} & \textbf{16537} & \textbf{4160} & \textbf{19068} & \textbf{51572} & \textbf{T1--T5 replay-risk candidates} \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,20 @@
+\begin{table*}[t]
+  \centering
+  \caption{Dataset overview of the verified Solidity corpus. A target contract exposes a \texttt{permit} entry point or EIP-712 domain evidence. Replay-risk candidates have at least one taxonomy observation and are not, by themselves, confirmed exploitable vulnerabilities.}
+  \label{tab:dataset-overview}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{lcrrrr}
+    \toprule
+    \textbf{Blockchain} & \textbf{Years} & \textbf{\begin{tabular}[c]{@{}c@{}}Verified Solidity\\Files\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Permit / EIP-712\\Targets\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Replay-Risk\\Candidates\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Candidate\\Rate\end{tabular}} \\
+    \midrule
+    Ethereum & 2020--2026 & 36,984 & 36,506 & 5,448 & 14.9\% \\
+    BNB Chain & 2020--2026 & 52,115 & 51,930 & 5,085 & 9.8\% \\
+    Avalanche & 2021--2026 & 6,047 & 6,008 & 1,824 & 30.4\% \\
+    Polygon & 2020--2026 & 53,371 & 52,316 & 9,447 & 18.1\% \\
+    \midrule
+    \textbf{Total} & \textbf{2020--2026} & \textbf{148,517} & \textbf{146,760} & \textbf{21,804} & \textbf{14.9\%} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
